@@ -25,34 +25,34 @@ export default function ConfirmPassword() {
 
     return (
         <GuestLayout>
-            <Head title="Confirm Password" />
+            <Head title="Confirm Password"/>
+            <p className="font-bold text-center h1 mb-6">Confirm Password</p>
 
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="text-center mb-6">
                 This is a secure area of the application. Please confirm your password before continuing.
             </div>
 
             <form onSubmit={submit}>
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                <div className="form-group">
+                    <InputLabel htmlFor="password" value="Password" className="small"/>
 
                     <TextInput
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full"
-                        isFocused={true}
+                        className={errors.password ? "is-invalid" : null}
+                        autoComplete="current-password"
+                        placeholder="Enter your password"
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-2"/>
                 </div>
 
-                <div className="flex items-center justify-end mt-4">
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Confirm
-                    </PrimaryButton>
-                </div>
+                <PrimaryButton className="btn btn-lg btn-block btn-primary" disabled={processing}>
+                    Continue
+                </PrimaryButton>
             </form>
         </GuestLayout>
     );
