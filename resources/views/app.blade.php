@@ -17,7 +17,6 @@
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead
         <!-- Boostrap -->
-        <link rel="stylesheet" href="{{asset('front-end/css/bootstrap.min.css')}}">
         <link rel="stylesheet" href="{{asset('front-end/css/template.dark.min.css')}}">
         <style>
 {{--            Trong browser có autofill input sẽ hiện nền trắng => xấu nên đổi --}}
@@ -36,7 +35,7 @@
             }
         </style>
     </head>
-    <body class="font-sans antialiased" style="background-color: rgb(41, 36, 42)">
+    <body class="" >
         @inertia
         <script src="http://localhost:6001/socket.io/socket.io.js"></script>
         <script src="{{asset('front-end/js/libs/jquery.min.js')}}"></script>
