@@ -1,15 +1,14 @@
 import { useRef } from 'react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
+import Button from "@/Components/Button.jsx";
 import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
-import { Transition } from '@headlessui/react';
+import {Transition} from "@headlessui/react";
 
-export default function UpdatePasswordForm({ className = '' }) {
+export default function UpdatePasswordForm({ showStatus, className = '' }) {
     const passwordInput = useRef();
     const currentPasswordInput = useRef();
-
     const { data, setData, errors, put, reset, processing, recentlySuccessful } = useForm({
         current_password: '',
         password: '',
@@ -38,7 +37,7 @@ export default function UpdatePasswordForm({ className = '' }) {
 
     return (
         <section className={className}>
-            <form onSubmit={updatePassword}>
+            <form onSubmit={updatePassword} className="">
                 <div className="form-group">
                     <InputLabel htmlFor="current_password" value="Current Password" className="small"/>
 
@@ -48,7 +47,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         value={data.current_password}
                         onChange={(e) => setData('current_password', e.target.value)}
                         type="password"
-                        className="form-control form-control-lg"
+                        error ={errors.current_password}
                         autoComplete="current-password"
                         placeholder="Current password"
                     />
@@ -66,7 +65,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         onChange={(e) => setData('password', e.target.value)}
                         type="password"
                         placeholder="New password"
-                        className="form-control form-control-lg"
+                        error ={errors.password}
                         autoComplete="new-password"
                     />
 
@@ -82,25 +81,23 @@ export default function UpdatePasswordForm({ className = '' }) {
                         onChange={(e) => setData('password_confirmation', e.target.value)}
                         type="password"
                         placeholder="Verify password"
-                        className="form-control form-control-lg"
+                        error ={errors.password_confirmation}
                         autoComplete="new-password"
                     />
 
                     <InputError message={errors.password_confirmation} className="mt-2"/>
                 </div>
-                <PrimaryButton className="btn btn-lg btn-primary btn-block mt-6" disabled={processing}>Change Password</PrimaryButton>
+                <Button size="lg" className="btn-block mt-6" disabled={processing}>Change Password</Button>
 
-                <div className="flex items-center gap-4">
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-gray-600">Saved.</p>
-                    </Transition>
-                </div>
+                <Transition
+                    show={recentlySuccessful}
+                    enter="transition ease-in-out"
+                    enterFrom="opacity-0"
+                    leave="transition ease-in-out"
+                    leaveTo="opacity-0"
+                >
+                    {recentlySuccessful && showStatus("Your password has been saved")}
+                </Transition>
             </form>
         </section>
     );

@@ -1,5 +1,5 @@
 import GuestLayout from '@/Layouts/GuestLayout';
-import PrimaryButton from '@/Components/PrimaryButton';
+import Button from "@/Components/Button";
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function VerifyEmail({ status }) {
@@ -25,15 +25,15 @@ export default function VerifyEmail({ status }) {
             }
 
             <form onSubmit={submit}>
-                <PrimaryButton className="btn btn-lg btn-block btn-primary" disabled={processing}>
-                    {status ? "Resend ": "Send "} Verification Email
-                </PrimaryButton>
+                <Button size="lg" className="btn-block" disabled={processing}>
+                    {status ? "Re-send ": "Send "} Verification Email
+                </Button>
                 <div className="mt-6 flex items-center justify-between">
                     <Link
                         href={route('logout')}
                         method="post"
                         as="button"
-                        className="underline text-sm hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        style = {{"borderRadius":"0.375rem","fontSize":"0.875rem","lineHeight":"1.25rem","textDecoration":"underline",":hover":{"color":"#111827"}}}
                     >
                         Log Out
                     </Link>

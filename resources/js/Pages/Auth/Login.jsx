@@ -3,7 +3,7 @@ import Checkbox from '@/Components/Checkbox';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
+import Button from "@/Components/Button.jsx";
 import TextInput from '@/Components/TextInput';
 import {Head, Link, router, useForm} from '@inertiajs/react';
 
@@ -90,9 +90,9 @@ export default function Login({ status, canResetPassword }) {
                     )}
                 </div>
 
-                <PrimaryButton className="btn btn-lg btn-block btn-primary" disabled={processing}>
+                <Button size="lg" className="btn-block" disabled={processing}>
                     Log in
-                </PrimaryButton>
+                </Button>
             </form>
             <p className="text-center">
                 Don't have an account yet <Link href={route('register')}>Register</Link>.

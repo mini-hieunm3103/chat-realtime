@@ -1,13 +1,13 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
+import Button from "@/Components/Button";
+import {Transition} from "@headlessui/react";
 import TextInput from '@/Components/TextInput';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { Transition } from '@headlessui/react';
+import Swal from "sweetalert2";
 
-export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '' }) {
+export default function UpdateProfileInformation({ mustVerifyEmail, status, showStatus,  className = '' }) {
     const user = usePage().props.auth.data;
-    console.log(user)
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
         name: user.name,
         email: user.email,
@@ -20,7 +20,6 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
         e.preventDefault();
         patch(route('profile.update'));
     };
-
     return (
         <section className={className}>
             <form onSubmit={submit}>
@@ -31,7 +30,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                         id="name"
                         name="name"
                         value={data.name}
-                        className={errors.name ? "is-invalid" : null}
+                        error = {errors.name}
                         autoComplete="username"
                         placeholder="Enter your name"
                         isFocused={true}
@@ -49,7 +48,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                         type="email"
                         name="email"
                         value={data.email}
-                        className={errors.email ? "is-invalid" : null}
+                        error = {errors.email}
                         autoComplete="username"
                         placeholder="Enter your email"
                         isFocused={true}
@@ -65,7 +64,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                         id="bio"
                         name="bio"
                         value={data.bio}
-                        className={errors.bio ? "is-invalid" : null}
+                        error = {errors.bio}
                         placeholder="Express yourself"
                         isFocused={true}
                         onChange={(e) => setData('bio', e.target.value)}
@@ -74,13 +73,13 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     <InputError message={errors.bio} className="mt-2"/>
                 </div>
                 <div className="form-group">
-                    <InputLabel htmlFor="facebook" value="Facebook" className="small"/>
+                    <InputLabel htmlFor="facebook" value="Facebook (optional)" className="small"/>
 
                     <TextInput
                         id="facebook"
                         name="facebook"
                         value={data.facebook}
-                        className={errors.facebook ? "is-invalid" : null}
+                        error = {errors.facebook}
                         placeholder="Link to your facebook profile. Example: https://facebook.com/your_name"
                         isFocused={true}
                         onChange={(e) => setData('facebook', e.target.value)}
@@ -90,14 +89,14 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                 </div>
 
                 <div className="form-group">
-                    <InputLabel htmlFor="github" value="Github" className="small"/>
+                    <InputLabel htmlFor="github" value="Github (optional)" className="small"/>
 
                     <TextInput
                         id="github"
                         type="github"
                         name="github"
                         value={data.github}
-                        className={errors.github ? "is-invalid" : null}
+                        error = {errors.github}
                         placeholder="Link to your github profile. Example: https://github.com/your_name"
                         isFocused={true}
                         onChange={(e) => setData('github', e.target.value)}
@@ -106,13 +105,13 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     <InputError message={errors.github} className="mt-2"/>
                 </div>
                 <div className="form-group">
-                    <InputLabel htmlFor="twitter" value="Twitter" className="small"/>
+                    <InputLabel htmlFor="twitter" value="Twitter (optional)" className="small"/>
 
                     <TextInput
                         id="twitter"
                         name="twitter"
                         value={data.twitter}
-                        className={errors.twitter ? "is-invalid" : null}
+                        error = {errors.twitter}
                         placeholder="Link to your twitter profile. Example: https://twitter.com/your_name"
                         isFocused={true}
                         onChange={(e) => setData('twitter', e.target.value)}
@@ -142,35 +141,21 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                             </Link>
                         </p>
 
-                        {status === 'verification-link-sent' && (
-                            <div className="mt-2"
-                                 style={{
-                                     "fontSize": "0.875rem",
-                                     "lineHeight": "1.25rem",
-                                     "fontWeight": 500,
-                                     "color": "#059669"
-                                 }}
-                            >
-                                A new verification link has been sent to your email address.
-                            </div>
-                        )}
+                        {status === 'verification-link-sent' && showStatus("A new verification link has been sent to your email address", "success", "Handle Successfully" ,"center", 4000)}
                     </div>
                 )}
-                <PrimaryButton className="btn btn-lg btn-block btn-primary mt-6" disabled={processing}>
+                <Button size="lg" className="btn-block mt-6" disabled={processing}>
                     Save Preferences
-                </PrimaryButton>
-                <div className="flex items-center gap-4">
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
-                    >
-                        <p className="text-sm text-gray-600">Saved.</p>
-                    </Transition>
-                </div>
+                </Button>
+                <Transition
+                    show={recentlySuccessful}
+                    enter="transition ease-in-out"
+                    enterFrom="opacity-0"
+                    leave="transition ease-in-out"
+                    leaveTo="opacity-0"
+                >
+                    {recentlySuccessful && showStatus("Your information has been saved")}
+                </Transition>
             </form>
         </section>
     );

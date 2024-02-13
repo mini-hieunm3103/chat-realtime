@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
+import Button from "@/Components/Button";
 import TextInput from '@/Components/TextInput';
 import { Head, useForm } from '@inertiajs/react';
 
@@ -50,9 +50,9 @@ export default function ConfirmPassword() {
                     <InputError message={errors.password} className="mt-2"/>
                 </div>
 
-                <PrimaryButton className="btn btn-lg btn-block btn-primary" disabled={processing}>
+                <Button size="lg" className="btn-block" disabled={processing}>
                     Continue
-                </PrimaryButton>
+                </Button>
             </form>
         </GuestLayout>
     );

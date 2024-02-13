@@ -2,13 +2,28 @@ import AuthenticatedLayout from '@/Layouts/Authenticated/AuthenticatedLayout';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import { Head } from '@inertiajs/react';
+import Swal from "sweetalert2";
 
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
     const user = auth.data
+    const showStatus = (message, type="success", title="Handle Successfully", position="top-end", time=2000) => {
+        Swal.fire({
+            position: position,
+            icon: type,
+            title: title,
+            text: message,
+            showConfirmButton: false,
+            timer: time
+        });
+    }
+    const backToLayout = () => {
+        document.querySelector('.main').classList.toggle('main-visible');
+    }
     return (
         <AuthenticatedLayout
             user={user}
+            open={true}
         >
             <Head title="Setting"/>
             <div className="chat">
@@ -19,9 +34,9 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <div className="col-3 d-xl-none">
                                     <ul className="list-inline mb-0">
                                         <li className="list-inline-item">
-                                            <a className="text-muted px-0" href="#" data-chat="open">
+                                            <button className="text-muted px-0 data-chat-open btn btn-link" onClick={backToLayout}  data-chat="open">
                                                 <i className="icon-md fe-chevron-left"></i>
-                                            </a>
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>
@@ -66,6 +81,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                                 <UpdateProfileInformationForm
                                                     mustVerifyEmail={mustVerifyEmail}
                                                     status={status}
+                                                    showStatus = {showStatus}
                                                 />
                                             </div>
                                         </div>
@@ -91,37 +107,13 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                         <div id="profile-settings-security" className="collapse"
                                              data-parent="#profile-settings">
                                             <div className="card-body">
-                                                <UpdatePasswordForm/>
+                                                <UpdatePasswordForm
+                                                    showStatus = {showStatus}
+
+                                                />
                                             </div>
                                         </div>
-
                                     </div>
-                                    {/*<div className="card mb-6 mb-lg-8">*/}
-                                    {/*    <div className="card-header position-relative">*/}
-                                    {/*        <a href="#" className="text-reset d-block stretched-link collapsed"*/}
-                                    {/*           data-toggle="collapse" data-target="#profile-settings-delete"*/}
-                                    {/*           aria-expanded="true" aria-controls="profile-settings-delete">*/}
-                                    {/*            <div className="row no-gutters align-items-center">*/}
-                                    {/*                <div className="col">*/}
-                                    {/*                    <h5>Delete Account</h5>*/}
-                                    {/*                    <p>Once your account is deleted, all of its resources and data will be permanently deleted.</p>*/}
-                                    {/*                </div>*/}
-
-                                    {/*                <div className="col-auto">*/}
-                                    {/*                    <i className="text-muted icon-md fe-trash"></i>*/}
-                                    {/*                </div>*/}
-                                    {/*            </div>*/}
-                                    {/*        </a>*/}
-                                    {/*    </div>*/}
-
-                                    {/*    <div id="profile-settings-delete" className="collapse"*/}
-                                    {/*         data-parent="#profile-settings">*/}
-                                    {/*        <div className="card-body">*/}
-                                    {/*            <DeleteUserForm/>*/}
-                                    {/*        </div>*/}
-                                    {/*    </div>*/}
-
-                                    {/*</div>*/}
                                 </div>
                             </div>
 

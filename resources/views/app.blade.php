@@ -42,5 +42,6 @@
         <script src="{{asset('front-end/js/bootstrap/bootstrap.bundle.min.js')}}"></script>
         <script src="{{asset('front-end/js/plugins/plugins.bundle.js')}}"></script>
         <script src="{{asset('front-end/js/template.js')}}"></script>
+        <script src="{{asset('front-end/js/functions.js')}}"></script>
     </body>
 </html>

@@ -24,9 +24,6 @@ Route::get('/', function () {
     ]);
 })->middleware(['auth']);
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/settings', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -43,4 +40,7 @@ Route::group(
     ]
     , function (){
     Route::get('/', [UserController::class, 'index'])->name('index');
+});
+Route::get('/chat', function (){
+    return Inertia::render('Chatting/Chat', []);
 });

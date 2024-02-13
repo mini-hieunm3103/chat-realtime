@@ -1,9 +1,9 @@
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
+import InputLabel from "@/Components/InputLabel";
+import Button from "@/Components/Button";
 import TextInput from '@/Components/TextInput';
 import { Head, useForm } from '@inertiajs/react';
-import InputLabel from "@/Components/InputLabel.jsx";
 
 export default function ForgotPassword({ status }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -51,9 +51,9 @@ export default function ForgotPassword({ status }) {
                     <InputError message={errors.email} className="mt-2"/>
                 </div>
 
-                <PrimaryButton className="btn btn-lg btn-block btn-primary" disabled={processing}>
+                <Button size="lg" className="btn-block" disabled={processing}>
                     Send Reset Link {status && "Again"}
-                </PrimaryButton>
+                </Button>
             </form>
         </GuestLayout>
     );

@@ -1,4 +1,3 @@
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import {Link} from "@inertiajs/react";
 
 export default function ShowProfile({user}){
