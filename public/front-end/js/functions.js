@@ -62,5 +62,3 @@ function convertBase(str, fromBase, toBase) {
 
     return out;
 }
-const backToLayout = document.querySelectorAll(".data-chat-open")
-console.log(backToLayout)

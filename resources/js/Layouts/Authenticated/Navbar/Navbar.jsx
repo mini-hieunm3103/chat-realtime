@@ -1,5 +1,6 @@
 import React from "react";
-function Navbar() {
+import ToggleLayoutButton from "@/Components/ToggleLayoutButton.jsx";
+function Navbar({route=""}) {
     let menuIcons = [
         {
             "title" :  "Center Nav",
@@ -67,13 +68,27 @@ function Navbar() {
                         let active = (menuIcon.active) ? " active" : ""
                         return (
                             <li className={"nav-item " + menuIcon.liClass} key={i}>
-                                <a className={"nav-link position-relative p-0 py-xl-3"+ active }
-                                   href={menuIcon.href}
-                                   title={menuIcon.title}
-                                   {...(!menuIcon.isLink ? { "data-toggle": "tab", "role": "tab" } : {})}
-                                >
-                                    <i className={"icon-lg fe-" + menuIcon.icon}></i>
-                                </a>
+                                {
+                                    (
+                                        (route !== menuIcon.href)
+                                            ? (
+                                                <a className={`nav-link position-relative p-0 py-xl-3 ${active}`}
+                                                  href={menuIcon.href}
+                                                  title={menuIcon.title}
+                                                  {...(!menuIcon.isLink ? {"data-toggle": "tab", "role": "tab"} : {})}
+                                                >
+                                                    <i className={"icon-lg fe-" + menuIcon.icon}></i>
+                                                </a>
+                                            )
+                                            : (
+                                                <ToggleLayoutButton
+                                                    btnClass = "position-relative p-0 py-xl-3"
+                                                    icon = {menuIcon.icon+ " text-success"}
+                                                    size="lg"
+                                                />
+                                            )
+                                    )
+                                }
                             </li>
                         )
                     })

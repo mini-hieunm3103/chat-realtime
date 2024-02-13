@@ -1,11 +1,14 @@
 import Authenticated from "@/Layouts/Authenticated/AuthenticatedLayout.jsx";
-import {Head} from "@inertiajs/react";
+import {Head, router} from "@inertiajs/react";
+import {useLocation} from "react-router-dom";
 
 export default function Welcome({auth}){
+    const currentRoute = useLocation().pathname;
     return (
         <>
             <Authenticated
                 user={auth.data}
+                route={currentRoute}
             >
                 <Head title="Welcome" />
                 <div className="chat flex-column justify-content-center text-center">

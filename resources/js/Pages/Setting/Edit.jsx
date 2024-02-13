@@ -1,11 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/Authenticated/AuthenticatedLayout';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import ToggleLayoutButton from "@/Components/ToggleLayoutButton.jsx";
 import { Head } from '@inertiajs/react';
 import Swal from "sweetalert2";
+import {useLocation} from "react-router-dom";
 
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
+
+    const currentRoute = useLocation().pathname;
     const user = auth.data
     const showStatus = (message, type="success", title="Handle Successfully", position="top-end", time=2000) => {
         Swal.fire({
@@ -17,13 +21,11 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
             timer: time
         });
     }
-    const backToLayout = () => {
-        document.querySelector('.main').classList.toggle('main-visible');
-    }
     return (
         <AuthenticatedLayout
             user={user}
             open={true}
+            route={currentRoute}
         >
             <Head title="Setting"/>
             <div className="chat">
@@ -34,9 +36,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <div className="col-3 d-xl-none">
                                     <ul className="list-inline mb-0">
                                         <li className="list-inline-item">
-                                            <button className="text-muted px-0 data-chat-open btn btn-link" onClick={backToLayout}  data-chat="open">
-                                                <i className="icon-md fe-chevron-left"></i>
-                                            </button>
+                                            <ToggleLayoutButton />
                                         </li>
                                     </ul>
                                 </div>
