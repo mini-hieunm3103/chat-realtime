@@ -1,5 +1,7 @@
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import {Link} from "@inertiajs/react";
+
 export default function ShowProfile({user}){
-    console.log(user)
     return (
         <div className="tab-pane fade h-100" id="tab-content-user" role="tabpanel">
             <div className="d-flex flex-column h-100">
@@ -13,11 +15,10 @@ export default function ShowProfile({user}){
                             <div className="card-body">
                                 <div className="text-center py-6">
                                     <div className="avatar avatar-xl mb-5 avatar-online bg-primary text-white">
-                                        <span>A</span>
+                                        <span>{user.name.charAt(0)}</span>
                                     </div>
                                     <h5>{user.name}</h5>
-                                    <p className="text-muted">Bootstrap is an open source toolkit for developing web
-                                        with HTML.</p>
+                                    <p className="text-muted">{user.bio}</p>
                                 </div>
                             </div>
                         </div>
@@ -28,28 +29,8 @@ export default function ShowProfile({user}){
                                     <li className="list-group-item px-0 py-6">
                                         <div className="media align-items-center">
                                             <div className="media-body">
-                                                <p className="small text-muted mb-0">Country</p>
-                                                <p></p>
-                                            </div>
-                                            <i className="text-muted icon-sm fe-globe"></i>
-                                        </div>
-                                    </li>
-
-                                    <li className="list-group-item px-0 py-6">
-                                        <div className="media align-items-center">
-                                            <div className="media-body">
-                                                <p className="small text-muted mb-0">Phone</p>
-                                                <p>{user.phone}</p>
-                                            </div>
-                                            <i className="text-muted icon-sm fe-phone"></i>
-                                        </div>
-                                    </li>
-
-                                    <li className="list-group-item px-0 py-6">
-                                        <div className="media align-items-center">
-                                            <div className="media-body">
-                                                <p className="small text-muted mb-0">Email</p>
-                                                <p className="text-muted"> {user.email}</p>
+                                                <p className="small text-muted mb-1">Email</p>
+                                                <p className="text-muted px-3"> {user.email}</p>
                                             </div>
                                             <i className="text-muted icon-sm fe-mail"></i>
                                         </div>
@@ -58,8 +39,8 @@ export default function ShowProfile({user}){
                                     <li className="list-group-item px-0 py-6">
                                         <div className="media align-items-center">
                                             <div className="media-body">
-                                                <p className="small text-muted mb-0">Participation time</p>
-                                                <p className="text-muted">{user.created_at}</p>
+                                                <p className="small text-muted mb-1">Participation time</p>
+                                                <p className="text-muted px-3">{user.time}</p>
                                             </div>
                                             <i className="text-muted icon-sm fe-clock"></i>
                                         </div>
@@ -111,11 +92,11 @@ export default function ShowProfile({user}){
                             </div>
 
                             <div className="col">
-                                <button type="button"
-                                        className="btn btn-lg btn-block btn-basic d-flex align-items-center">
-                                    Logout
+                                <Link method="post" href={route('logout')} as="button"
+                                      className="btn btn-lg btn-block btn-basic d-flex align-items-center">
+                                    Log Out
                                     <span className="fe-log-out ml-auto"></span>
-                                </button>
+                                </Link>
                             </div>
                         </div>
 
