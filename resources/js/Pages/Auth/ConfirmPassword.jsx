@@ -41,7 +41,7 @@ export default function ConfirmPassword() {
                         type="password"
                         name="password"
                         value={data.password}
-                        className={errors.password ? "is-invalid" : null}
+                        error={errors.password}
                         autoComplete="current-password"
                         placeholder="Enter your password"
                         onChange={(e) => setData('password', e.target.value)}

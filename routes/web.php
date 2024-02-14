@@ -22,7 +22,7 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'auth' => $user
     ]);
-})->middleware(['auth']);
+})->middleware(['auth'])->name('welcome');
 
 
 Route::middleware('auth')->group(function () {
@@ -36,10 +36,11 @@ Route::group(
     [
         'prefix' => 'user',
         'name' => 'user.',
-        'middleware' => 'auth'
+//        'middleware' => 'auth'
     ]
     , function (){
     Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
 });
 Route::get('/chat', function (){
     return Inertia::render('Chatting/Chat', []);

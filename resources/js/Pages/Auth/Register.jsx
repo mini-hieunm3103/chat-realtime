@@ -40,7 +40,7 @@ export default function Register() {
                         id="name"
                         name="name"
                         value={data.name}
-                        className={errors.name ? "is-invalid" : null}
+                        error={errors.name}
                         autoComplete="name"
                         isFocused={true}
                         placeholder="Enter your name"
@@ -59,7 +59,7 @@ export default function Register() {
                         type="email"
                         name="email"
                         value={data.email}
-                        className={errors.email ? "is-invalid" : null}
+                        error={errors.email}
                         autoComplete="username"
                         isFocused={true}
                         placeholder="Enter your email"
@@ -77,7 +77,7 @@ export default function Register() {
                         type="password"
                         name="password"
                         value={data.password}
-                        className={errors.password ? "is-invalid" : null}
+                        error={errors.password}
                         autoComplete="new-password"
                         placeholder="Enter your password"
                         onChange={(e) => setData('password', e.target.value)}
@@ -95,7 +95,7 @@ export default function Register() {
                         type="password"
                         name="password_confirmation"
                         value={data.password_confirmation}
-                        className={errors.password ? "is-invalid" : null}
+                        error={errors.password_confirmation}
                         autoComplete="new-password"
                         placeholder="Enter your password again"
                         onChange={(e) => setData('password_confirmation', e.target.value)}

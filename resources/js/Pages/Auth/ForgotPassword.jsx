@@ -41,7 +41,7 @@ export default function ForgotPassword({ status }) {
                         type="email"
                         name="email"
                         value={data.email}
-                        className={errors.email ? "is-invalid" : null}
+                        error={errors.email}
                         autoComplete="username"
                         isFocused={true}
                         placeholder="Enter your email"
