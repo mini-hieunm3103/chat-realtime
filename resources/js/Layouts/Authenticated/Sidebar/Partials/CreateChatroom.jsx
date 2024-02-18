@@ -1,7 +1,21 @@
-import React from "react";
-function CreateChatRoom() {
+import React, {useState, useEffect} from "react";
+function CreateChatRoom({startUp}) {
+    const [keyword, setKeyword] = useState('')
+    const [data, setData] = useState([]);
+    const getUsers = () => {
+        fetch(route('user.index', {keyword : keyword}))
+            .then((e) => {
+                return e.json()
+            })
+            .then((data) => {
+                setData(data.data)
+            })
+    }
+    useEffect(() => {
+        getUsers();
+    }, [keyword])
     return (
-        <div className="tab-pane fade h-100" id="tab-content-create-chat" role="tabpanel">
+        <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-create-chat" role="tabpanel">
             <div className="d-flex flex-column h-100">
 
                 <div className="hide-scrollbar">
@@ -43,54 +57,58 @@ function CreateChatRoom() {
                             </div>
 
                             <div id="create-group-members" className="tab-pane fade" role="tabpanel">
-                                <form className="mb-6">
-                                    <div className="input-group">
-                                        <input type="text" className="form-control form-control-lg"
-                                               placeholder="Search for messages or users..."
-                                               aria-label="Search for messages or users..."/>
-                                        <div className="input-group-append">
-                                            <button className="btn btn-lg btn-ico btn-secondary btn-minimal"
-                                                    type="submit">
-                                                <i className="fe-search"></i>
-                                            </button>
-                                        </div>
+                                <div className="input-group">
+                                    <input type="text" className="form-control form-control-lg"
+                                           value={keyword}
+                                           onChange={(e) => setKeyword(e.target.value)}
+                                           placeholder="Search for name or email..."
+                                           aria-label="Search for name or email..."/>
+                                    <div className="input-group-append">
+                                        <button className="btn btn-lg btn-ico btn-secondary btn-minimal"
+                                                type="submit">
+                                            <i className="fe-search"></i>
+                                        </button>
                                     </div>
-                                </form>
+                                </div>
                                 <nav className="list-group list-group-flush mb-n6">
 
                                     <div className="mb-6">
                                         <small className="text-uppercase">A</small>
                                     </div>
+                                    {data.map((e, i) => {
+                                        return (
+                                            <div className="card mb-6">
+                                                <div className="card-body">
 
-                                    <div className="card mb-6">
-                                        <div className="card-body">
+                                                    <div className="media">
 
-                                            <div className="media">
+                                                        <div
+                                                            className="avatar avatar-online mr-5 bg-primary text-white">
+                                                            <span>{e.name.charAt(0)}</span>
+                                                        </div>
 
-                                                <div className="avatar avatar-online mr-5">
-                                                    <img className="avatar-img" src="" alt="Anna Bridges"/>
-                                                </div>
+                                                        <div className="media-body align-self-center">
+                                                            <h6 className="mb-0">{e.name}</h6>
+                                                            <small
+                                                                className="text-muted text-truncate">{e.email}</small>
+                                                        </div>
 
-                                                <div className="media-body align-self-center mr-6">
-                                                    <h6 className="mb-0">Anna Bridges</h6>
-                                                    <small className="text-muted">Online</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-auto">
-                                                    <div className="custom-control custom-checkbox">
-                                                        <input className="custom-control-input" id="id-user-1"
-                                                               type="checkbox"/>
-                                                        <label className="custom-control-label"
-                                                               htmlFor="id-user-1"></label>
+                                                        <div className="align-self-center ml-auto">
+                                                            <div className="custom-control custom-checkbox">
+                                                                <input className="custom-control-input" id="id-user-1"
+                                                                       type="checkbox"/>
+                                                                <label className="custom-control-label"
+                                                                       htmlFor="id-user-1"></label>
+                                                            </div>
+                                                        </div>
                                                     </div>
+
                                                 </div>
+
+                                                <label className="stretched-label" htmlFor="id-user-1"></label>
                                             </div>
-
-                                        </div>
-
-                                        <label className="stretched-label" htmlFor="id-user-1"></label>
-                                    </div>
-
+                                        )
+                                    })}
                                 </nav>
                             </div>
 
@@ -101,7 +119,7 @@ function CreateChatRoom() {
 
                 <div className="pb-6">
                     <div className="container-fluid">
-                        <button className="btn btn-lg btn-primary btn-block" type="submit">Create group</button>
+                    <button className="btn btn-lg btn-primary btn-block" type="submit">Create group</button>
                     </div>
                 </div>
 

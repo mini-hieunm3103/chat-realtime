@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
+use App\Http\Resources\UserResource;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,8 +18,7 @@ use App\Http\Controllers\UserController;
 */
 
 Route::get('/', function () {
-    $user = \Illuminate\Support\Facades\Auth::user();
-    $user = new \App\Http\Resources\UserResource($user);
+    $user = new UserResource(auth()->user());
     return Inertia::render('Welcome', [
         'auth' => $user
     ]);
@@ -35,12 +35,11 @@ require __DIR__.'/auth.php';
 Route::group(
     [
         'prefix' => 'user',
-        'name' => 'user.',
 //        'middleware' => 'auth'
     ]
     , function (){
-    Route::get('/', [UserController::class, 'index'])->name('index');
-    Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
+    Route::get('/', [UserController::class, 'index'])->name('user.index');
+    Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('user.invite');
 });
 Route::get('/chat', function (){
     return Inertia::render('Chatting/Chat', []);

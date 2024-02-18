@@ -40,7 +40,7 @@ export default function ResetPassword({ token, email }) {
                         type="email"
                         name="email"
                         value={data.email}
-                        className={errors.email ? "is-invalid" : null}
+                        error={errors.email}
                         autoComplete="username"
                         isFocused={true}
                         readOnly={true}
@@ -58,7 +58,7 @@ export default function ResetPassword({ token, email }) {
                         type="password"
                         name="password"
                         value={data.password}
-                        className={errors.password ? "is-invalid" : null}
+                        error={errors.password}
                         autoComplete="new-password"
                         placeholder="Enter Your New Password"
                         onChange={(e) => setData('password', e.target.value)}

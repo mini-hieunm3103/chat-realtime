@@ -1,8 +1,8 @@
 import {Link} from "@inertiajs/react";
 
-export default function ShowProfile({user}){
+export default function ShowProfile({user, startUp}){
     return (
-        <div className="tab-pane fade h-100" id="tab-content-user" role="tabpanel">
+        <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-user" role="tabpanel">
             <div className="d-flex flex-column h-100">
 
                 <div className="hide-scrollbar">

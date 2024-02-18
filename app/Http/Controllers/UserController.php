@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
@@ -15,9 +16,19 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::get();
+        $users = DB::table('users')->orderBy('name');
+
+        if ($request->has('keyword')){
+            $users = $users->where(function ($query) use ($request){
+                $keyword = $request->keyword;
+                $query->orWhere('name', 'like', '%'.$keyword.'%');
+                $query->orWhere('email', 'like', '%'.$keyword.'%');
+            });
+        }
+        $users = $users->get();
+
         $users = UserResource::collection($users);
         return $users;
     }

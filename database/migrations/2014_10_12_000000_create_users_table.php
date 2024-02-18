@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('bio')->nullable();
             $table->string('facebook', 100)->nullable();
             $table->string('twitter', 100)->nullable();
+            $table->string('github', 100)->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

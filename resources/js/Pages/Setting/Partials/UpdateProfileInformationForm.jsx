@@ -4,7 +4,7 @@ import Button from "@/Components/Button";
 import {Transition} from "@headlessui/react";
 import TextInput from '@/Components/TextInput';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import Swal from "sweetalert2";
+import TextareaInput from "@/Components/TextareaInput.jsx";
 
 export default function UpdateProfileInformation({ mustVerifyEmail, status, showStatus,  className = '' }) {
     const user = usePage().props.auth.data;
@@ -60,13 +60,13 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, show
                 <div className="form-group">
                     <InputLabel htmlFor="bio" value="Bio" className="small"/>
 
-                    <TextInput
+                    <TextareaInput
                         id="bio"
                         name="bio"
                         value={data.bio}
                         error = {errors.bio}
                         placeholder="Express yourself"
-                        isFocused={true}
+                        data-autosize="true"
                         onChange={(e) => setData('bio', e.target.value)}
                     />
 

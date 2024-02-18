@@ -43,7 +43,7 @@ export default function Login({ status, canResetPassword }) {
                         type="email"
                         name="email"
                         value={data.email}
-                        className={errors.email ? "is-invalid" : null}
+                        error={errors.email}
                         autoComplete="username"
                         placeholder="Enter your email"
                         isFocused={true}
@@ -61,7 +61,7 @@ export default function Login({ status, canResetPassword }) {
                         type="password"
                         name="password"
                         value={data.password}
-                        className={errors.password ? "is-invalid" : null}
+                        error={errors.password}
                         autoComplete="current-password"
                         placeholder="Enter your password"
                         onChange={(e) => setData('password', e.target.value)}

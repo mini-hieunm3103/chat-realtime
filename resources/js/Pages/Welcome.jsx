@@ -8,7 +8,7 @@ export default function Welcome({auth}){
         <>
             <Authenticated
                 user={auth.data}
-                route={currentRoute}
+                currentRoute={currentRoute}
             >
                 <Head title="Welcome" />
                 <div className="chat flex-column justify-content-center text-center">
