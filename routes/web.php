@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChatroomController;
 use App\Http\Resources\UserResource;
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,11 @@ Route::group(
     , function (){
     Route::get('/', [UserController::class, 'index'])->name('user.index');
     Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('user.invite');
+});
+Route::group(
+    []
+    , function (){
+    Route::resource('chatroom', ChatroomController::class);
 });
 Route::get('/chat', function (){
     return Inertia::render('Chatting/Chat', []);

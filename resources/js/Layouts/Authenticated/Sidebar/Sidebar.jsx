@@ -7,13 +7,13 @@ export default function Sidebar({user}){
         <div className="sidebar">
             <div className="tab-content h-100" role="tablist">
                 <CreateChatRoom
-                    startUp = {false}
+                    startUp = {true}
                 />
                 <GlobalUsers
                     startUp = {false}
                 />
                 <Dialog
-                    startUp = {true}
+                    startUp = {false}
                 />
                 <ShowProfile
                     startUp = {false}
