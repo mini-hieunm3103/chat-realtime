@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Checkbox from '@/Components/Checkbox';
+import CheckboxInput from '@/Components/CheckboxInput.jsx';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -72,10 +72,9 @@ export default function Login({ status, canResetPassword }) {
 
                 <div className="form-group d-flex justify-content-between">
                     <div className="custom-control custom-checkbox">
-                        <Checkbox
+                        <CheckboxInput
                             name="remember"
                             checked={data.remember}
-                            className="custom-control-input"
                             id="checkbox-remember"
                             onChange={(e) => setData('remember', e.target.checked)}
                         />

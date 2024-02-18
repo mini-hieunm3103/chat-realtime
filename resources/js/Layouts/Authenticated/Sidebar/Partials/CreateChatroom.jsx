@@ -4,15 +4,19 @@ import TextInput from "@/Components/TextInput.jsx";
 import InputError from "@/Components/InputError.jsx";
 import {useForm} from "@inertiajs/react";
 import TextareaInput from "@/Components/TextareaInput.jsx";
+import CheckboxInput from "@/Components/CheckboxInput.jsx";
+import Swal from "sweetalert2";
 
 function CreateChatRoom({startUp}) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         topic: '',
-        description: ''
+        description: '',
+        users: []
     });
-    const [keyword, setKeyword] = useState('')
-    const [users, setUsers] = useState([]);
+    const [usersPostData, setUsersPostData] = useState([]);
+    const [keyword, setKeyword] = useState('');
+    const [usersGetData, setUsersGetData] = useState([]);
     var currentFirstIndexName = null
     const getUsers = () => {
         fetch(route('user.index', {keyword : keyword}))
@@ -20,16 +24,42 @@ function CreateChatRoom({startUp}) {
                 return e.json()
             })
             .then((users) => {
-                setUsers(users.data)
+                setUsersGetData(users.data)
             })
     }
+
+    const handleCheckboxChange = (userId, isChecked) => {
+        if(isChecked) {
+            setUsersPostData(prevState => [...prevState, userId])
+        } else {
+            setUsersPostData(prevState => prevState.filter(id=> id!== userId))
+        }
+    }
+
+    const createChatroom = (e) => {
+        e.preventDefault();
+        post(route('chatroom.store'), {
+            onSuccess: () => {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success" ,
+                    title: "Create Group Successfully!",
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                setTimeout(()=> {
+                    location.reload()
+                }, 3000)
+            }
+        })
+    }
+
     useEffect(() => {
         getUsers();
     }, [keyword])
-    const createChatroom = (e) => {
-        e.preventDefault();
-        post(route('chatroom.store'))
-    }
+    useEffect(() => {
+        setData('users', usersPostData)
+    }, [usersPostData]);
     return (
         <div className={"tab-pane fade h-100 " + (startUp && "show active")} id="tab-content-create-chat"
              role="tabpanel">
@@ -62,7 +92,6 @@ function CreateChatRoom({startUp}) {
                                         name="name"
                                         value={data.name}
                                         error={errors.name}
-                                        autoComplete="name"
                                         isFocused={true}
                                         placeholder="Group Name"
                                         onChange={(e) => setData('name', e.target.value)}
@@ -79,7 +108,6 @@ function CreateChatRoom({startUp}) {
                                         name="name"
                                         value={data.topic}
                                         error={errors.topic}
-                                        autoComplete="topic"
                                         isFocused={true}
                                         placeholder="Group Topic"
                                         onChange={(e) => setData('topic', e.target.value)}
@@ -107,26 +135,34 @@ function CreateChatRoom({startUp}) {
 
                             <div id="create-group-members" className="tab-pane fade" role="tabpanel">
                                 <div className="input-group mb-6">
-                                    <input type="text" className="form-control form-control-lg"
-                                           value={keyword}
-                                           onChange={(e) => setKeyword(e.target.value)}
-                                           placeholder="Search for name or email..."
-                                           aria-label="Search for name or email..."/>
+                                    <TextInput
+                                        value={keyword}
+                                        onChange={(e) => setKeyword(e.target.value)}
+                                        placeholder="Search for name or email..."
+                                        aria-label="Search for name or email..."
+                                    />
+
                                     <div className="input-group-append">
-                                        <button className="btn btn-lg btn-ico btn-secondary btn-minimal"
-                                                type="submit">
+                                        <div className="btn btn-lg btn-ico btn-secondary btn-minimal">
                                             <i className="fe-search"></i>
-                                        </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <nav className="list-group list-group-flush mb-n6">
-                                    {users.map((e, i) => {
-                                        var groupNameHtml = (currentFirstIndexName  !== e.name.charAt(0))
+                                    {(errors.users) &&
+                                        <>
+                                            <div className="alert alert-danger" role="alert">
+                                                {errors.users}
+                                            </div>
+                                        </>
+                                    }
+                                    {usersGetData.map((user, i) => {
+                                        var groupNameHtml = (currentFirstIndexName  !== user.name.charAt(0))
                                             ? <div className="mb-6">
-                                                <small className="text-uppercase">{e.name.charAt(0)}</small>
+                                                <small className="text-uppercase">{user.name.charAt(0)}</small>
                                             </div>
                                             : null
-                                        currentFirstIndexName = e.name.charAt(0)
+                                        currentFirstIndexName = user.name.charAt(0)
                                         return (
                                             <>
                                                 {groupNameHtml}
@@ -137,20 +173,23 @@ function CreateChatRoom({startUp}) {
 
                                                             <div
                                                                 className="avatar avatar-online mr-5 bg-primary text-white">
-                                                                <span>{e.name.charAt(0)}</span>
+                                                                <span>{user.name.charAt(0)}</span>
                                                             </div>
 
                                                             <div className="media-body align-self-center">
-                                                                <h6 className="mb-0">{e.name}</h6>
+                                                                <h6 className="mb-0">{user.name}</h6>
                                                                 <small
-                                                                    className="text-muted text-truncate">{e.email}</small>
+                                                                    className="text-muted text-truncate">{user.email}</small>
                                                             </div>
 
                                                             <div className="align-self-center ml-auto">
                                                                 <div className="custom-control custom-checkbox">
-                                                                    <input className="custom-control-input"
-                                                                           id={`id-user-${i}`}
-                                                                           type="checkbox"/>
+                                                                    <CheckboxInput
+                                                                        id={`id-user-${i}`}
+                                                                        name = 'users[]'
+                                                                        value = {user.id}
+                                                                        onChange={(e) => handleCheckboxChange(e.target.value, e.target.checked)}
+                                                                    />
                                                                     <label className="custom-control-label"
                                                                            htmlFor={`id-user-${i}`}></label>
                                                                 </div>
