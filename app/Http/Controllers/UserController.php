@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
@@ -16,23 +17,28 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function getAllUsers(Request $request)
     {
         $users = DB::table('users')->orderBy('name');
-
         if ($request->has('keyword')){
-            $users = $users->where(function ($query) use ($request){
-                $keyword = $request->keyword;
+            $keyword = $request->keyword;
+            $users = $users->where(function ($query) use ($keyword){
                 $query->orWhere('name', 'like', '%'.$keyword.'%');
                 $query->orWhere('email', 'like', '%'.$keyword.'%');
             });
         }
+        if ($request->has('online')){
+            $onlineIdArr = $request->online;
+            $users = $users->where(function ($query) use ($onlineIdArr){
+                foreach ($onlineIdArr as $item) {
+                    $query->orWhere('id', '=', $item);
+                }
+            });
+        }
         $users = $users->get();
-
-        $users = UserResource::collection($users);
-        return $users;
+        return UserResource::collection($users);
     }
-    public function inviteFriend(Request $request): RedirectResponse
+    public function inviteFriend(Request $request)
     {
         $rules = [
             'messages' => 'required|string|max:255',

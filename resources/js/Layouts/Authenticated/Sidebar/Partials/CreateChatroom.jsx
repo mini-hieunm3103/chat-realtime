@@ -6,6 +6,7 @@ import {useForm} from "@inertiajs/react";
 import TextareaInput from "@/Components/TextareaInput.jsx";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
+import useGetUsers from "@/Helper/useGetUsers.jsx";
 
 function CreateChatRoom({startUp}) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -16,17 +17,8 @@ function CreateChatRoom({startUp}) {
     });
     const [usersPostData, setUsersPostData] = useState([]);
     const [keyword, setKeyword] = useState('');
-    const [usersGetData, setUsersGetData] = useState([]);
+    const allUsers = useGetUsers()(keyword);
     var currentFirstIndexName = null
-    const getUsers = () => {
-        fetch(route('user.index', {keyword : keyword}))
-            .then((e) => {
-                return e.json()
-            })
-            .then((users) => {
-                setUsersGetData(users.data)
-            })
-    }
 
     const handleCheckboxChange = (userId, isChecked) => {
         if(isChecked) {
@@ -53,10 +45,6 @@ function CreateChatRoom({startUp}) {
             }
         })
     }
-
-    useEffect(() => {
-        getUsers();
-    }, [keyword])
     useEffect(() => {
         setData('users', usersPostData)
     }, [usersPostData]);
@@ -68,7 +56,13 @@ function CreateChatRoom({startUp}) {
                     <div className="container-fluid py-6">
 
                         <h2 className="font-bold mb-6">Create group</h2>
-
+                        {(Object.keys(errors).length !== 0) &&
+                            <>
+                                <div className="alert alert-danger text-center" role="alert">
+                                    Please Check Your Information Again!
+                                </div>
+                            </>
+                        }
                         <ul className="nav nav-tabs nav-justified mb-6" role="tablist">
                             <li className="nav-item">
                                 <a href="#create-group-details" className="nav-link active" data-toggle="tab" role="tab"
@@ -85,10 +79,10 @@ function CreateChatRoom({startUp}) {
 
                             <div id="create-group-details" className="tab-pane fade show active" role="tabpanel">
                                 <div className="form-group">
-                                    <InputLabel htmlFor="name" value="Name" className="small"/>
+                                    <InputLabel htmlFor="group-name" value="Name" className="small"/>
 
                                     <TextInput
-                                        id="name"
+                                        id="group-name"
                                         name="name"
                                         value={data.name}
                                         error={errors.name}
@@ -156,7 +150,7 @@ function CreateChatRoom({startUp}) {
                                             </div>
                                         </>
                                     }
-                                    {usersGetData.map((user, i) => {
+                                    {allUsers.map((user, i) => {
                                         var groupNameHtml = (currentFirstIndexName  !== user.name.charAt(0))
                                             ? <div className="mb-6">
                                                 <small className="text-uppercase">{user.name.charAt(0)}</small>
@@ -166,13 +160,13 @@ function CreateChatRoom({startUp}) {
                                         return (
                                             <>
                                                 {groupNameHtml}
-                                                <div className="card mb-4">
+                                                <div className="card mb-4" key={i}>
                                                     <div className="card-body">
 
                                                         <div className="media">
 
                                                             <div
-                                                                className="avatar avatar-online mr-5 bg-primary text-white">
+                                                                className={"avatar "+ ((user.online === 1) ? "avatar-online" : "") +" mr-5 bg-primary text-white"}>
                                                                 <span>{user.name.charAt(0)}</span>
                                                             </div>
 

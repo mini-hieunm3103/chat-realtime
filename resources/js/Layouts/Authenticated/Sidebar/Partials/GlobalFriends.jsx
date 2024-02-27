@@ -1,21 +1,11 @@
 import React, {useState, useEffect} from "react";
-
-function GlobalUsers({startUp}){
+import useEchoChatUsersId from "@/Helper/useEchoChatUsersId.jsx";
+import useGetUsers from "@/Helper/useGetUsers.jsx";
+function GlobalFriends({startUp}){
     const [keyword, setKeyword] = useState('')
-    const [data, setData] = useState([]);
+    // const [allUsers, setAllUsers] = useState([]);
+    const allUsers = useGetUsers()(keyword);
     var currentFirstIndexName = null
-    const getUsers = () => {
-        fetch(route('user.index', {keyword : keyword}))
-            .then((e) => {
-                return e.json()
-            })
-            .then((data) => {
-                setData(data.data)
-            })
-    }
-    useEffect(() => {
-        getUsers();
-    }, [keyword])
     return (
         <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-friends" role="tabpanel">
             <div className="d-flex flex-column h-100">
@@ -23,7 +13,7 @@ function GlobalUsers({startUp}){
                 <div className="hide-scrollbar">
                     <div className="container-fluid py-6">
 
-                        <h2 className="font-bold mb-6">Global Users</h2>
+                        <h2 className="font-bold mb-6">Global Friends</h2>
 
                         <div className="input-group mb-6">
                             <input
@@ -45,9 +35,9 @@ function GlobalUsers({startUp}){
                         <nav className="mb-n6">
 
 
-                            {data.map((e, i) => {
+                            {allUsers.map((e, i) => {
                                 var groupNameHtml = (e.name.charAt(0) !== currentFirstIndexName)
-                                    ? <div className="mb-6">
+                                    ? <div className="mb-6" key={e.name.charAt(0)}>
                                         <small className="text-uppercase">{e.name.charAt(0)}</small>
                                     </div>
                                     : null
@@ -55,12 +45,12 @@ function GlobalUsers({startUp}){
                                 return (
                                     <>
                                         {groupNameHtml}
-                                        <div className="card mb-6">
+                                        <div className="card mb-4" key={e.id}>
                                             <div className="card-body">
 
                                                 <div className="media">
 
-                                                    <div className="avatar avatar-online mr-5 bg-primary text-white">
+                                                    <div className={"avatar "+ ((e.online === 1) ? "avatar-online" : "") +" mr-5 bg-primary text-white"}>
                                                         <span>{e.name.charAt(0)}</span>
                                                     </div>
 
@@ -110,4 +100,4 @@ function GlobalUsers({startUp}){
     )
 }
 
-export default GlobalUsers;
+export default GlobalFriends;

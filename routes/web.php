@@ -36,17 +36,18 @@ require __DIR__.'/auth.php';
 Route::group(
     [
         'prefix' => 'user',
-//        'middleware' => 'auth'
+        'as' => 'user.',
+        'middleware' => 'auth'
     ]
     , function (){
-    Route::get('/', [UserController::class, 'index'])->name('user.index');
-    Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('user.invite');
+    Route::get('/get-all-users', [UserController::class, 'getAllUsers'])->name('get-all-users');
+    Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
 });
 Route::group(
     []
     , function (){
     Route::resource('chatroom', ChatroomController::class);
 });
-Route::get('/chat', function (){
+Route::get('/chatroom-1', function (){
     return Inertia::render('Chatting/Chat', []);
-});
+})->middleware('auth');

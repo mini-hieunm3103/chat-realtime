@@ -1,7 +1,10 @@
-import React from "react";
-export default function Chat(){
+import React, {useState, useEffect} from "react";
+import useGetUsers from "@/Helper/useGetUsers.jsx";
+export default function Dialog({startUp}){
+    const [keyword, setKeyword] = useState('')
+    const allUsers = useGetUsers()(keyword,true);
     return (
-        <div className="tab-pane fade h-100 show active" id="tab-content-dialogs" role="tabpanel">
+        <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-dialogs" role="tabpanel">
             <div className="d-flex flex-column h-100">
 
                 <div className="hide-scrollbar">
@@ -9,24 +12,29 @@ export default function Chat(){
 
                         <h2 className="font-bold mb-6">Chats</h2>
 
-                        <form className="mb-6">
-                            <div className="input-group">
-                                <input type="text" className="form-control form-control-lg" placeholder="Search for messages or users..." aria-label="Search for messages or users..." />
-                                <div className="input-group-append">
-                                    <button className="btn btn-lg btn-ico btn-secondary btn-minimal" type="submit">
-                                        <i className="fe-search"></i>
-                                    </button>
-                                </div>
+                        <div className="input-group">
+                            <input type="text" className="form-control form-control-lg" placeholder="Search for name or group..." aria-label="Search for name or group..." />
+                            <div className="input-group-append">
+                                <button className="btn btn-lg btn-ico btn-secondary btn-minimal" type="submit">
+                                    <i className="fe-search"></i>
+                                </button>
                             </div>
-                        </form>
+                        </div>
 
                         <div className="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
-                            <a href="#" className="d-block text-reset mr-7 mr-lg-6">
-                                <div className="avatar mb-3 avatar-online bg-primary text-white">
-                                    <span>W</span>
-                                </div>
-                                <div className="small">William</div>
-                            </a>
+                            {
+                                allUsers.map((e, i)=>{
+                                    return (
+                                        <a href="#" className="d-block text-reset mr-7 mr-lg-6">
+                                            <div className="avatar mb-3 avatar-online bg-primary text-white">
+                                                <span>{e.name.charAt(0)}</span>
+                                            </div>
+                                            <div className="small">{e.name}</div>
+                                        </a>
+                                    )
+                                })
+                            }
+
                         </div>
 
                         <nav className="nav d-block list-discussions-js mb-n6">
