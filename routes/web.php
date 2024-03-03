@@ -1,12 +1,10 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ChatroomController;
-use App\Http\Resources\UserResource;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\RouteController;
+use App\Http\Controllers\GroupController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,36 +16,24 @@ use App\Http\Resources\UserResource;
 |
 */
 
-Route::get('/', function () {
-    $user = new UserResource(auth()->user());
-    return Inertia::render('Welcome', [
-        'auth' => $user
-    ]);
-})->middleware(['auth'])->name('welcome');
+
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/settings', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/settings', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/settings', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/', [RouteController::class, 'welcome'])->name('welcome');
+    Route::get('/settings', [RouteController::class, 'settings'])->name('settings');
+    Route::get('/t/{base10}', [ChatController::class, 'index'])->where('base10', '[0-9]+');
+
+    Route::group(['prefix' => 'user', 'as' => 'user.'], function (){
+        Route::get('/get-all-users', [UserController::class, 'getAllUsers'])->name('get-all-users');
+        Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
+        Route::patch('/update-account', [UserController::class, 'updateAccount'])->name('updateAccount');
+        Route::patch('/update-details', [UserController::class, 'updateDetails'])->name('updateDetails');
+    });
+    Route::group(['prefix' => 'group', 'as' => 'group.'], function (){
+        Route::post('/', [GroupController::class, 'store'])->name('store');
+    });
 });
 
 require __DIR__.'/auth.php';
-Route::group(
-    [
-        'prefix' => 'user',
-        'as' => 'user.',
-        'middleware' => 'auth'
-    ]
-    , function (){
-    Route::get('/get-all-users', [UserController::class, 'getAllUsers'])->name('get-all-users');
-    Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
-});
-Route::group(
-    []
-    , function (){
-    Route::resource('chatroom', ChatroomController::class);
-});
-Route::get('/chatroom-1', function (){
-    return Inertia::render('Chatting/Chat', []);
-})->middleware('auth');
+

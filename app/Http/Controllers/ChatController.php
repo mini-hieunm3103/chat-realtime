@@ -7,27 +7,37 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
-class ChatroomController extends Controller
+class ChatController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($base10)
     {
-        //
+        /*
+         - base10 sẽ convert về base 37
+            + nếu có dạng: ch-{id} thì là group chat
+            + nếu có dạng: dm-{id} thì là direct-message: nhắn tin riêng
+         * */
+        $decode = convertBasePhp($base10, 10, 37);
+        $explode = explode('-', $decode);
+        $type = $explode[0];
+        $id = $explode[1];
+        if ($type == 'ch') {
+            $this->chatRoom($id);
+        } else {
+            $this->inbox($id);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function chatRoom($id)
     {
-        //
+        // id là id của group -> id channel -> all messages của group đó
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function inbox($id)
+    {
+        // id là id user ->
+    }
     public function store(Request $request)
     {
         $request->validate([

@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('channels', function (Blueprint $table) {
             $table->id();
-            $table->enum("type", array("dm", "channel"));
-            // dm -> inbox; channel -> chat group
+            $table->enum("type", array("inbox", "group"));
             $table->timestamps();
         });
     }

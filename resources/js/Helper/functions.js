@@ -1,7 +1,6 @@
-// https://stackoverflow.com/a/55011290
-function convertBase(str, fromBase, toBase) {
+export function convertBaseJs(str, fromBase, toBase) {
 
-    const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-";
+    const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz-";
 
     const add = (x, y, base) => {
         let z = [];
@@ -21,7 +20,7 @@ function convertBase(str, fromBase, toBase) {
 
     const multiplyByNumber = (num, x, base) => {
         if (num < 0) return null;
-        if (num == 0) return [];
+        if (num === 0) return [];
 
         let result = [];
         let power = x;
@@ -40,7 +39,7 @@ function convertBase(str, fromBase, toBase) {
         let arr = [];
         for (let i = digits.length - 1; i >= 0; i--) {
             const n = DIGITS.indexOf(digits[i])
-            if (n == -1) return null;
+            if (n === -1) return null;
             arr.push(n);
         }
         return arr;

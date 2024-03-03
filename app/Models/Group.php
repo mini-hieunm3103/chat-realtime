@@ -13,10 +13,15 @@ class Group extends Model
         'topic',
         'description',
         'owner',
-        'approval'
+        'approval',
+        'channel_id'
     ];
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_group');
+    }
+    public function channel()
+    {
+        return $this->hasOne(Channel::class, 'channel_id');
     }
 }

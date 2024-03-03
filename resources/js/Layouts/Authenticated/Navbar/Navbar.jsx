@@ -43,6 +43,14 @@ function Navbar({route=""}) {
             "isLink" : false
         },
         {
+            "title" :  "Notification",
+            "icon": "bell",
+            "href": "#tab-content-noti",
+            "liClass": "mt-xl-9",
+            "active" : false,
+            "isLink" : false
+        },
+        {
             "title" :  "Center Nav",
             "icon": "x",
             "href": "#",

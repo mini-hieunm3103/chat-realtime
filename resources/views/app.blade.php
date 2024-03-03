@@ -20,19 +20,7 @@
         <link rel="stylesheet" href="{{asset('front-end/css/template.dark.min.css')}}">
         <style>
 {{--            Trong browser có autofill input sẽ hiện nền trắng => xấu nên đổi --}}
-            input:-webkit-autofill,
-            input:-webkit-autofill:hover,
-            input:-webkit-autofill:focus,
-            input:-webkit-autofill:active{
-                -webkit-background-clip: content;
-                -webkit-text-fill-color: #ffffff;
-                transition: background-color 5000s ease-in-out 0s;
-                box-shadow: inset 0 0 20px 20px #23232329;
 
-            }
-            input[readonly]{
-                background-color: rgb(37, 41, 45);
-            }
         </style>
     </head>
     <body class="" >
@@ -42,6 +30,5 @@
         <script src="{{asset('front-end/js/bootstrap/bootstrap.bundle.min.js')}}"></script>
         <script src="{{asset('front-end/js/plugins/plugins.bundle.js')}}"></script>
         <script src="{{asset('front-end/js/template.js')}}"></script>
-        <script src="{{asset('front-end/js/functions.js')}}"></script>
     </body>
 </html>

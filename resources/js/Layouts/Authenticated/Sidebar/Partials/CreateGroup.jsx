@@ -8,7 +8,7 @@ import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
 import useGetUsers from "@/Helper/useGetUsers.jsx";
 
-function CreateChatRoom({startUp}) {
+function CreateGroup({startUp}) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         topic: '',
@@ -30,7 +30,7 @@ function CreateChatRoom({startUp}) {
 
     const createChatroom = (e) => {
         e.preventDefault();
-        post(route('chatroom.store'), {
+        post(route('group.store'), {
             onSuccess: () => {
                 Swal.fire({
                     position: "top-end",
@@ -217,4 +217,4 @@ function CreateChatRoom({startUp}) {
     )
 }
 
-export default CreateChatRoom
+export default CreateGroup

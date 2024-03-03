@@ -1,24 +1,26 @@
 import Dialog from "@/Layouts/Authenticated/Sidebar/Partials/Dialog.jsx";
-import CreateChatRoom from "@/Layouts/Authenticated/Sidebar/Partials/CreateChatroom.jsx";
-import GlobalUsers from "@/Layouts/Authenticated/Sidebar/Partials/GlobalUsers.jsx";
+import CreateGroup from "@/Layouts/Authenticated/Sidebar/Partials/CreateGroup.jsx";
+import GlobalFriends from "@/Layouts/Authenticated/Sidebar/Partials/GlobalFriends.jsx";
 import ShowProfile from "@/Layouts/Authenticated/Sidebar/Partials/ShowProfile.jsx";
+import Notification from "@/Layouts/Authenticated/Sidebar/Partials/Notification.jsx";
 export default function Sidebar({user}){
     return (
         <div className="sidebar">
             <div className="tab-content h-100" role="tablist">
-                <CreateChatRoom
-                    startUp = {true}
+                <CreateGroup
+                    startUp = {false}
                 />
-                <GlobalUsers
+                <GlobalFriends
                     startUp = {false}
                 />
                 <Dialog
-                    startUp = {false}
+                    startUp = {true}
                 />
                 <ShowProfile
                     startUp = {false}
                     user = {user}
                 />
+                <Notification />
             </div>
         </div>
 

@@ -1,16 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/Authenticated/AuthenticatedLayout';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
-import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import UpdatePasswordForm from './Content/UpdatePasswordForm';
+import UpdateProfileInformationForm from './Content/UpdateProfileInformationForm';
 import ToggleLayoutButton from "@/Components/ToggleLayoutButton.jsx";
 import { Head } from '@inertiajs/react';
 import Swal from "sweetalert2";
 import {useLocation} from "react-router-dom";
+import UpdateSocialInformation from "@/Pages/Setting/Content/UpdateSocialInformation.jsx";
+import NotificationSetting from "@/Pages/Setting/Content/NotificationSetting.jsx";
+import SettingCard from "@/Pages/Setting/Partials/SettingCard.jsx";
 
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
-
-    const currentRoute = useLocation().pathname;
-    const user = auth.data
     const showStatus = (message, type="success", title="Handle Successfully", position="top-end", time=2000) => {
         Swal.fire({
             position: position,
@@ -21,11 +21,14 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
             timer: time
         });
     }
+    const authLayoutData = {
+        user: auth.data ,
+        currentRoute: useLocation().pathname
+    }
     return (
         <AuthenticatedLayout
-            user={user}
             open={true}
-            route={currentRoute}
+            authLayoutData = {authLayoutData}
         >
             <Head title="Setting"/>
             <div className="chat">
@@ -58,62 +61,20 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             <div className="accordion modified-accordion mb-n6 mb-lg-8" id="profile-settings">
                                 <div className="">
 
-                                    <div className="card mb-6 mb-lg-8">
-                                        <div className="card-header position-relative">
-                                            <a href="#" className="text-reset d-block stretched-link collapsed"
-                                               data-toggle="collapse" data-target="#profile-settings-account"
-                                               aria-controls="profile-settings-account" aria-expanded="true">
-                                                <div className="row no-gutters align-items-center">
-                                                    <div className="col">
-                                                        <h5>Account</h5>
-                                                        <p>Update your profile details.</p>
-                                                    </div>
-
-                                                    <div className="col-auto">
-                                                        <i className="text-muted icon-md fe-user"></i>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div id="profile-settings-account" className="collapse"
-                                             data-parent="#profile-settings">
-                                            <div className="card-body">
-                                                <UpdateProfileInformationForm
-                                                    mustVerifyEmail={mustVerifyEmail}
-                                                    status={status}
-                                                    showStatus = {showStatus}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card mb-6 mb-lg-8">
-                                        <div className="card-header position-relative">
-                                            <a href="#" className="text-reset d-block stretched-link collapsed"
-                                               data-toggle="collapse" data-target="#profile-settings-security"
-                                               aria-expanded="true" aria-controls="profile-settings-security">
-                                                <div className="row no-gutters align-items-center">
-                                                    <div className="col">
-                                                        <h5>Security</h5>
-                                                        <p>Update your password.</p>
-                                                    </div>
-
-                                                    <div className="col-auto">
-                                                        <i className="text-muted icon-md fe-shield"></i>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <div id="profile-settings-security" className="collapse"
-                                             data-parent="#profile-settings">
-                                            <div className="card-body">
-                                                <UpdatePasswordForm
-                                                    showStatus = {showStatus}
-
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <UpdateProfileInformationForm
+                                        mustVerifyEmail={mustVerifyEmail}
+                                        status={status}
+                                        showStatus={showStatus}
+                                    />
+                                    <UpdatePasswordForm
+                                        showStatus={showStatus}
+                                    />
+                                    <UpdateSocialInformation
+                                        showStatus={showStatus}
+                                    />
+                                    <NotificationSetting
+                                        showStatus={showStatus}
+                                    />
                                 </div>
                             </div>
 
