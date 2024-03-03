@@ -21,10 +21,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'bio',
-        'twitter',
-        'facebook',
-        'github'
     ];
 
     /**
@@ -46,8 +42,19 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function chatrooms()
+    public function detail()
     {
-        return $this->belongsToMany(Chatroom::class, 'user_chatroom');
+        return $this->hasOne(UserDetail::class, 'user_id');
+    }
+    public function channels() {
+        return $this->belongsToMany('App\Channel', 'user_channel')->withTimestamps();
+    }
+    public function messages()
+    {
+        return $this->hasMany(Messages::class);
+    }
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'user_group');
     }
 }

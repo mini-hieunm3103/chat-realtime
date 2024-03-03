@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('user_id');
+            $table->bigInteger('channel_id');
             $table->text('content');
-            $table->bigInteger('sender')->unsigned();
-            $table->bigInteger('receiver')->unsigned()->nullable();
-            $table->bigInteger('chatroom_id')->unsigned()->nullable();
-            $table->timestamps();
 
-            $table->foreign('sender')->references('id')->on('users')->onDelete('cascade');;
-            $table->foreign('receiver')->references('id')->on('users')->onDelete('cascade');;
-            $table->foreign('chatroom_id')->references('id')->on('chatrooms')->onDelete('cascade');;
+            $table->timestamps();
         });
     }
 

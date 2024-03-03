@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Chatroom extends Model
+class Group extends Model
 {
     use HasFactory;
     protected $fillable = [
         'name',
         'topic',
         'description',
-        'user_id'
+        'owner',
+        'approval'
     ];
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_chatroom');
+        return $this->belongsToMany(User::class, 'user_group');
     }
 }
