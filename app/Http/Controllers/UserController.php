@@ -35,7 +35,7 @@ class UserController extends Controller
                 }
             });
         }
-        $users = $users->with('detail')->get();
+        $users = $users->where('id', '<>', Auth::id())->with('detail')->get();
         return UserResource::collection($users);
     }
     public function inviteFriend(Request $request)
@@ -96,6 +96,7 @@ class UserController extends Controller
     public function updateDetails(Request $request)
     {
         $rules = [
+            'avatar' => ['nullable'],
             'bio' => ['nullable', 'string', 'max:255'],
             'twitter' => ['nullable','url', 'max:100'],
             'facebook' => ['nullable','url', 'max:100'],
@@ -103,10 +104,15 @@ class UserController extends Controller
         ];
         $request->validate($rules);
         $details = User::find(Auth::id())->detail;
-        $details->bio = $request->bio;
-        $details->twitter = $request->twitter;
-        $details->facebook = $request->facebook;
-        $details->github = $request->github;
+        if ($request->updateSocial){
+            $details->bio = $request->bio;
+            $details->twitter = $request->twitter;
+            $details->facebook = $request->facebook;
+            $details->github = $request->github;
+        }
+        if ($request->updateAvatar){
+            $details->avatar =  json_encode($request->avatar);
+        }
         $details->save();
         return Redirect::route('settings');
     }

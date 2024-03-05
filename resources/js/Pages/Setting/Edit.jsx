@@ -8,6 +8,8 @@ import {useLocation} from "react-router-dom";
 import UpdateSocialInformation from "@/Pages/Setting/Content/UpdateSocialInformation.jsx";
 import NotificationSetting from "@/Pages/Setting/Content/NotificationSetting.jsx";
 import SettingCard from "@/Pages/Setting/Partials/SettingCard.jsx";
+import UpdateUserAvatar from "@/Pages/Setting/Content/UpdateUserAvatar.jsx";
+import {useEffect} from "react";
 
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
@@ -25,6 +27,12 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
         user: auth.data ,
         currentRoute: useLocation().pathname
     }
+    useEffect(()=> {
+        window.addEventListener('load', function() {
+            // Set the scroll position to the top
+            window.scrollTo(0, 0);
+        });
+    })
     return (
         <AuthenticatedLayout
             open={true}
@@ -39,7 +47,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                 <div className="col-3 d-xl-none">
                                     <ul className="list-inline mb-0">
                                         <li className="list-inline-item">
-                                            <ToggleLayoutButton />
+                                            <ToggleLayoutButton/>
                                         </li>
                                     </ul>
                                 </div>
@@ -59,8 +67,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                     <div className="chat-content px-lg-8">
                         <div className="container-xxl py-6 py-lg-10">
                             <div className="accordion modified-accordion mb-n6 mb-lg-8" id="profile-settings">
-                                <div className="">
-
+                                <div className="" >
                                     <UpdateProfileInformationForm
                                         mustVerifyEmail={mustVerifyEmail}
                                         status={status}
@@ -69,12 +76,14 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                     <UpdatePasswordForm
                                         showStatus={showStatus}
                                     />
-                                    <UpdateSocialInformation
-                                        showStatus={showStatus}
-                                    />
+
                                     <NotificationSetting
                                         showStatus={showStatus}
                                     />
+                                    <UpdateSocialInformation
+                                        showStatus={showStatus}
+                                    />
+                                    <UpdateUserAvatar />
                                 </div>
                             </div>
 

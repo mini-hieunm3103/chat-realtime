@@ -53,7 +53,6 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, show
                             error={errors.email}
                             autoComplete="username"
                             placeholder="Enter your email"
-                            isFocused={true}
                             onChange={(e) => setData('email', e.target.value)}
                         />
 

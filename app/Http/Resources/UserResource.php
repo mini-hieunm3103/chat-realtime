@@ -18,6 +18,7 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'avatar' => ($this->detail->avatar) ?? null,
             'email' => $this->email,
             'time' => Carbon::parse($this->created_at)->format('M j o H:i'),
             'bio' => ($this->detail->bio) ?? null,

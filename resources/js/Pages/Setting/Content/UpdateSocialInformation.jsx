@@ -10,6 +10,7 @@ import {Transition} from "@headlessui/react";
 export default function UpdateSocialInformation({status, showStatus,  className = '' }){
     const user = usePage().props.auth.data;
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+        updateSocial: true,
         bio: user.bio,
         twitter: user.twitter,
         github: user.github,
@@ -56,7 +57,6 @@ export default function UpdateSocialInformation({status, showStatus,  className 
                                 value={data.facebook}
                                 error={errors.facebook}
                                 placeholder="Link to your facebook profile. Example: https://facebook.com/your_name"
-                                isFocused={true}
                                 onChange={(e) => setData('facebook', e.target.value)}
                             />
                         </div>
@@ -78,7 +78,6 @@ export default function UpdateSocialInformation({status, showStatus,  className 
                                 value={data.github}
                                 error={errors.github}
                                 placeholder="Link to your github profile. Example: https://github.com/your_name"
-                                isFocused={true}
                                 onChange={(e) => setData('github', e.target.value)}
                             />
                         </div>
@@ -98,7 +97,6 @@ export default function UpdateSocialInformation({status, showStatus,  className 
                                 value={data.twitter}
                                 error={errors.twitter}
                                 placeholder="Link to your twitter profile. Example: https://twitter.com/your_name"
-                                isFocused={true}
                                 onChange={(e) => setData('twitter', e.target.value)}
                             />
                         </div>

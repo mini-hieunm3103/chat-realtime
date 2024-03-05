@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('user_details', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
+            $table->text('avatar')->nullable();
             $table->string('bio')->nullable();
             $table->string('facebook', 100)->nullable();
             $table->string('twitter', 100)->nullable();

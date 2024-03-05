@@ -11,6 +11,7 @@ class UserDetail extends Model
     protected $table = 'user_details';
     protected $fillable = [
         'user_id',
+        'avatar',
         'bio',
         'twitter',
         'facebook',
