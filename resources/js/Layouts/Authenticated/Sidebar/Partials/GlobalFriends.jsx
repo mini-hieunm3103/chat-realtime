@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import useEchoChatUsersId from "@/Helper/useEchoChatUsersId.jsx";
 import useGetUsers from "@/Helper/useGetUsers.jsx";
+import UserAvatar from "@/Components/UserAvatar.jsx";
 function GlobalFriends({startUp}){
     const [keyword, setKeyword] = useState('')
     // const [allUsers, setAllUsers] = useState([]);
@@ -49,11 +50,11 @@ function GlobalFriends({startUp}){
                                             <div className="card-body">
 
                                                 <div className="media">
-
-                                                    <div className={"avatar "+ ((e.online === 1) ? "avatar-online" : "") +" mr-5 bg-primary text-white"}>
-                                                        <span>{e.name.charAt(0)}</span>
-                                                    </div>
-
+                                                    <UserAvatar
+                                                        user={e}
+                                                        isOnline={(e.online === 1)}
+                                                        className="mr-5"
+                                                    />
                                                     <div className="media-body align-self-center">
                                                         <h6 className="mb-0">{e.name}</h6>
                                                         <small className="text-muted text-truncate">{e.email}</small>

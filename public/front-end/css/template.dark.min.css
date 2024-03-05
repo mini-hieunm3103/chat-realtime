@@ -53,3 +53,6 @@ input[readonly]{
     border-radius: 9px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
+svg {
+    border-radius: 50%;
+}

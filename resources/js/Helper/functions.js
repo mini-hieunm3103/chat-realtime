@@ -1,3 +1,5 @@
+import useEchoChatUsersId from "@/Helper/useEchoChatUsersId.jsx";
+
 export function convertBaseJs(str, fromBase, toBase) {
 
     const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz-";
@@ -60,4 +62,8 @@ export function convertBaseJs(str, fromBase, toBase) {
         out += DIGITS[outArray[i]];
 
     return out;
+}
+export const isOnline = (id) => {
+    const allUsersOnlineId = useEchoChatUsersId()();
+    return allUsersOnlineId.includes(id);
 }

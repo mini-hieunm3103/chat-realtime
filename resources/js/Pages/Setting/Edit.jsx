@@ -83,7 +83,9 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                     <UpdateSocialInformation
                                         showStatus={showStatus}
                                     />
-                                    <UpdateUserAvatar />
+                                    <UpdateUserAvatar
+                                        showStatus={showStatus}
+                                    />
                                 </div>
                             </div>
 

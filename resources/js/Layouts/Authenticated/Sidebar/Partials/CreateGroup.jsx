@@ -7,6 +7,7 @@ import TextareaInput from "@/Components/TextareaInput.jsx";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
 import useGetUsers from "@/Helper/useGetUsers.jsx";
+import UserAvatar from "@/Components/UserAvatar.jsx";
 
 function CreateGroup({startUp}) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -164,11 +165,11 @@ function CreateGroup({startUp}) {
                                                     <div className="card-body">
 
                                                         <div className="media">
-
-                                                            <div
-                                                                className={"avatar "+ ((user.online === 1) ? "avatar-online" : "") +" mr-5 bg-primary text-white"}>
-                                                                <span>{user.name.charAt(0)}</span>
-                                                            </div>
+                                                            <UserAvatar
+                                                                user={user}
+                                                                isOnline={(user.online === 1)}
+                                                                className="mr-5"
+                                                            />
 
                                                             <div className="media-body align-self-center">
                                                                 <h6 className="mb-0">{user.name}</h6>

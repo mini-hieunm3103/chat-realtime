@@ -14,6 +14,9 @@ class RouteController extends Controller
     //
     public function welcome()
     {
+        $user = Auth::user();
+        $detail = $user->detail;
+        $user->detail = $detail;
         $user = new UserResource(auth()->user());
         return Inertia::render('Welcome', [
             'auth' => $user
@@ -23,6 +26,8 @@ class RouteController extends Controller
     public function settings(Request $request): Response
     {
         $user = Auth::user();
+        $detail = $user->detail;
+        $user->detail = $detail;
         $user =  new UserResource($user);
         return Inertia::render('Setting/Edit', [
             'auth' => $user,

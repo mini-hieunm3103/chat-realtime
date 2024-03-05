@@ -1,7 +1,10 @@
 import React, {useState, useEffect} from "react";
 import useGetUsers from "@/Helper/useGetUsers.jsx";
-import {convertBaseJs} from "@/Helper/functions.js";
+import {convertBaseJs, isOnline} from "@/Helper/functions.js";
+import UserAvatar from "@/Components/UserAvatar.jsx";
+import {usePage} from "@inertiajs/react";
 export default function Dialog({startUp}){
+    const user = usePage().props.auth.data;
     const [keyword, setKeyword] = useState('')
     const allUsers = useGetUsers()(keyword,true);
     return (
@@ -23,13 +26,24 @@ export default function Dialog({startUp}){
                         </div>
 
                         <div className="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
+                            <div className="d-block text-reset mr-7 mr-lg-6">
+                                <UserAvatar
+                                    user={user}
+                                    isOnline={true}
+                                    className=" mb-3 "
+                                />
+                                <div className="small text-truncate">{user.name}</div>
+                            </div>
                             {
-                                allUsers.map((e, i)=>{
+                                allUsers.map((e, i) => {
+                                    console.log(e)
                                     return (
                                         <a href="#" className="d-block text-reset mr-7 mr-lg-6">
-                                            <div className="avatar mb-3 avatar-online bg-primary text-white">
-                                                <span>{e.name.charAt(0)}</span>
-                                            </div>
+                                            <UserAvatar
+                                                user={e}
+                                                isOnline={true}
+                                                className=" mb-3 "
+                                            />
                                             <div className="small text-truncate">{e.name}</div>
                                         </a>
                                     )
@@ -39,7 +53,7 @@ export default function Dialog({startUp}){
                         </div>
 
                         <nav className="nav d-block list-discussions-js mb-n6">
-                            <a className="text-reset nav-link p-0 mb-3" href={"/t/"+convertBaseJs("gr-1", 37, 10)}>
+                            <a className="text-reset nav-link p-0 mb-3" href={"/t/" + convertBaseJs("gr-1", 37, 10)}>
                                 <div className="card card-active-listener">
                                     <div className="card-body">
                                         <div className="media">
@@ -62,7 +76,7 @@ export default function Dialog({startUp}){
                                     </div>
                                 </div>
                             </a>
-                            <a className="text-reset nav-link p-0 mb-3" href="/inbox-1">
+                            <a className="text-reset nav-link p-0 mb-3" href={"/t/"+convertBaseJs("ib-", 37, 10)}>
                                 <div className="card card-active-listener">
                                     <div className="card-body">
                                         <div className="media">

@@ -1,10 +1,17 @@
 import Authenticated from "@/Layouts/Authenticated/AuthenticatedLayout.jsx";
 import {Head, router} from "@inertiajs/react";
 import {useLocation} from "react-router-dom";
+import {
+    adventurer,
+    adventurerNeutral
+} from "@dicebear/collection";
+import {createAvatar} from "@dicebear/core";
+import UserAvatar from "@/Components/UserAvatar.jsx";
 
 export default function Welcome({auth}){
+    const user = auth.data;
     const authLayoutData = {
-        user: auth.data,
+        user: user,
         currentRoute: useLocation().pathname
     }
     return (
@@ -15,9 +22,10 @@ export default function Welcome({auth}){
                 <Head title="Welcome" />
                 <div className="chat flex-column justify-content-center text-center">
                     <div className="container-xxl">
-                        <div className="avatar avatar-lg mb-5 bg-primary text-white">
-                            <span>{auth.data.name.charAt(0)}</span>
-                        </div>
+                        <UserAvatar
+                            size="xl"
+                            user={user}
+                        />
                         <h6>Hey, {auth.data.name}!</h6>
                         <p>Please select a chat to start messaging.</p>
                     </div>

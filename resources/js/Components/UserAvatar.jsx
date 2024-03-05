@@ -11,26 +11,29 @@ function UserAvatar(
     }
 )
 {
+    const avatarDb = JSON.parse(user.avatar)
+    const patternLink =
+        /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
+    const isLink = patternLink.test(avatarDb)
+    const isNull = Object.is(avatarDb, null)
     const avatarStyleArr = [
         adventurer,
         adventurerNeutral
     ]
-    const avatarDb = JSON.parse(user.avatar)
-    const avatarDiceBear = createAvatar(avatarStyleArr[avatarDb.style.position], avatarDb);
-    const svg = avatarDiceBear.toString();
+    const svg = (!isLink && !isNull) ?  createAvatar(avatarStyleArr[avatarDb.style.position], avatarDb).toString() : false;
     return (
         <div className= {
             "avatar "
              +((size) ? " avatar-"+size : " ")
              + ((isOnline) ? " avatar-online" : " ")
-             + ((user.avatar) ? " bg-primary text-white " : " ")
+             + ((isNull) ? " bg-primary text-white " : " ")
              + className
         }>
-            {(user.avatar)
-                ? <div dangerouslySetInnerHTML={{__html: svg}}/>
-                : <span> {user.name.charAt(0)} </span>
-            }
+            {(svg) && <div dangerouslySetInnerHTML={{__html: svg}}/>}
+            {(isLink) && <img src={avatarDb} alt="avatar" className="avatar-img" style={{borderRadius: "50%"}}/>}
+            {(isNull) && <span>{user.name.charAt(0)}</span>}
         </div>
     )
 }
+
 export default React.memo(UserAvatar)

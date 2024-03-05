@@ -1,4 +1,5 @@
 import {Link} from "@inertiajs/react";
+import UserAvatar from "@/Components/UserAvatar.jsx";
 
 export default function ShowProfile({user, startUp}){
     return (
@@ -13,9 +14,12 @@ export default function ShowProfile({user, startUp}){
                         <div className="card mb-6">
                             <div className="card-body">
                                 <div className="text-center py-6">
-                                    <div className="avatar avatar-xl mb-5 avatar-online bg-primary text-white">
-                                        <span>{user.name.charAt(0)}</span>
-                                    </div>
+                                    <UserAvatar
+                                        size="xl"
+                                        user={user}
+                                        isOnline={true}
+                                        className=" mb-5 "
+                                    />
                                     <h5>{user.name}</h5>
                                     <p className="text-muted">{user.bio}</p>
                                 </div>
