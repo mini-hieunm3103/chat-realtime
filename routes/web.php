@@ -22,16 +22,23 @@ use App\Http\Controllers\GroupController;
 Route::middleware('auth')->group(function () {
     Route::get('/', [RouteController::class, 'welcome'])->name('welcome');
     Route::get('/settings', [RouteController::class, 'settings'])->name('settings');
-    Route::get('/t/{base10}', [ChatController::class, 'index'])->where('base10', '[0-9]+');
+    Route::get('/t/{base10}', [ChatController::class, 'chatting'])->where('base10', '[0-9]+')->name('chatting');
 
     Route::group(['prefix' => 'user', 'as' => 'user.'], function (){
         Route::get('/get-all-users', [UserController::class, 'getAllUsers'])->name('get-all-users');
         Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
         Route::patch('/update-account', [UserController::class, 'updateAccount'])->name('updateAccount');
         Route::patch('/update-details', [UserController::class, 'updateDetails'])->name('updateDetails');
+        Route::get('/getUsersChannel/{channel_id}', [ChatController::class, 'getUsersChannel'])->name('getUsersChannel');
     });
-    Route::group(['prefix' => 'group', 'as' => 'group.'], function (){
-        Route::post('/', [GroupController::class, 'store'])->name('store');
+    Route::group(['prefix' => 'room'], function (){
+        Route::post('/group/store', [GroupController::class, 'store'])->name('group.store');
+        Route::post('/direct-message', [ChatController::class, 'directMessage'])->name('directMessage');
+    });
+    Route::group(['prefix'=> 'message', 'as'=> 'message.'], function (){
+        Route::get('/{channel_id}', [ChatController::class, 'getMessages'])->name('getMessages');
+
+        Route::post('/direct-message', [ChatController::class, 'directMessage'])->name('direct');
     });
 });
 

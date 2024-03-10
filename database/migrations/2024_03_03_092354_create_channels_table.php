@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('channels', function (Blueprint $table) {
             $table->id();
-            $table->enum("type", array("inbox", "group"));
+            $table->string('name');
+            $table->enum("type", array("dm", "group"));
+            // direct message
             $table->timestamps();
         });
     }

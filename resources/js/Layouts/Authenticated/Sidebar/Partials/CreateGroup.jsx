@@ -8,6 +8,7 @@ import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
 import useGetUsers from "@/Helper/useGetUsers.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
+import Highlighter from "react-highlight-words";
 
 function CreateGroup({startUp}) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -172,9 +173,23 @@ function CreateGroup({startUp}) {
                                                             />
 
                                                             <div className="media-body align-self-center">
-                                                                <h6 className="mb-0">{user.name}</h6>
+                                                                <h6 className="mb-0">
+                                                                    <Highlighter
+                                                                        highlightClassName="highlighted-text"
+                                                                        searchWords={[keyword]}
+                                                                        autoEscape={true}
+                                                                        textToHighlight={user.name}
+                                                                    />
+                                                                </h6>
                                                                 <small
-                                                                    className="text-muted text-truncate">{user.email}</small>
+                                                                    className="text-muted text-truncate">
+                                                                    <Highlighter
+                                                                        highlightClassName="highlighted-text"
+                                                                        searchWords={[keyword]}
+                                                                        autoEscape={true}
+                                                                        textToHighlight={user.email}
+                                                                    />
+                                                                </small>
                                                             </div>
 
                                                             <div className="align-self-center ml-auto">

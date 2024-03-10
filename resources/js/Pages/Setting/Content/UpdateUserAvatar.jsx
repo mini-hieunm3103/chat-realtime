@@ -7,12 +7,12 @@ import
     from '@dicebear/collection';
 import SettingCard from "@/Pages/Setting/Partials/SettingCard.jsx";
 import {useForm, usePage} from "@inertiajs/react";
-import {avatarOptions} from "@/Helper/config.jsx";
+import {avatarOptions} from "@/Helper/config.js";
 import {useEffect, useState, useMemo} from "react";
 import Button from "@/Components/Button.jsx";
 import Select from 'react-select';
 import Swal from "sweetalert2";
-import {PopoverPicker} from "@/Components/Input/PopoverPicker.jsx";
+import {ColorPicker} from "@/Components/Input/ColorPicker.jsx";
 import InputLabel from "@/Components/InputLabel.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import InputError from "@/Components/InputError.jsx";
@@ -119,7 +119,7 @@ function DicebearAvatar({data, isLinkOrNull, setUserAvatarOptions}){
                         </div>
                         <div className="col-12 mb-5">
                             <div className="mb-3 font-bold">Background color:</div>
-                            <PopoverPicker
+                            <ColorPicker
                                 color={avatarBackgroundColor}
                                 onChange={(e) => setAvatarBackgroundColor(e.match(/#(\w+)/)[1])}
                             />
@@ -197,7 +197,7 @@ function DicebearAvatar({data, isLinkOrNull, setUserAvatarOptions}){
                         </div>
                         <div className="col-12 mb-5">
                             <div className="mb-3 font-bold">Hair color:</div>
-                            <PopoverPicker
+                            <ColorPicker
                                 color={avatarHairColor}
                                 onChange={(e) => setAvatarHairColor(e.match(/#(\w+)/)[1])}
                             />

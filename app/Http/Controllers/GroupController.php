@@ -24,7 +24,7 @@ class GroupController extends Controller
             'users.min' => 'Group requires 3 people: you and 2 others!'
         ]);
         $channel = Channel::create([
-            'type' => 'inbox'
+            'type' => 'group'
         ]);
         $group = Group::create([
             'name' => $request->name,

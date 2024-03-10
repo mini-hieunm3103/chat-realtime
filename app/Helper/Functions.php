@@ -1,4 +1,8 @@
 <?php
+
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
+
 function convertBasePhp($str, $fromBase, $toBase) {
     $DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz-";
 
@@ -60,4 +64,12 @@ function convertBasePhp($str, $fromBase, $toBase) {
         $out .= $DIGITS[$outArray[$i]];
 
     return $out;
+}
+function getAuthUser()
+{
+    // cho sidebar
+    $user = Auth::user();
+    $detail = $user->detail;
+    $user->detail = $detail;
+    return new UserResource($user);
 }

@@ -9,14 +9,15 @@ class Channel extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'name',
         'type'
     ];
     public function users() {
-        return $this->belongsToMany('App\User', 'user_channel');
+        return $this->belongsToMany(User::class, 'user_channel');
     }
     // get channel messages
     public function messages()
     {
-        return $this->hasMany(Messages::class);
+        return $this->hasMany(Message::class)->select('user_id', 'content', 'created_at')->latest();
     }
 }

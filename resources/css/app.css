@@ -1,3 +1,50 @@
 /*@tailwind base;*/
 /*@tailwind components;*/
 /*@tailwind utilities;*/
+.select__menu,
+.select__control {
+    background-color: rgb(45, 50, 56)!important;
+}
+.select__single-value {
+    color: #ffffff!important;
+}
+
+.select__control--is-disabled {
+    background-color: rgb(89, 96, 105)!important;
+}
+.picker {
+    position: relative;
+}
+
+.swatch {
+    display: flex;
+    width: 128px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+.show-color {
+    width: 27px;
+    height: 27px;
+    border-radius: 8px;
+    border: 1px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+.popover {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    border-radius: 9px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+svg {
+    border-radius: 50%;
+}
+.highlighted-text{
+    background-color: #e8bb49;
+    font-weight: bold;
+    padding: 0;
+}
