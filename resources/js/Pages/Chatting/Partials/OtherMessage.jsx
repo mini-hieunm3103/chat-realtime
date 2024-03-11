@@ -4,9 +4,9 @@ import {isOnline} from "@/Helper/functions.js";
 import DropdownMessage from "@/Pages/Chatting/Partials/DropdownMessage.jsx";
 import Highlighter from "react-highlight-words";
 import React from "react";
+import useModal from "@/Helper/useModal.jsx";
 
 export default function OtherMessage({message, keyword}){
-    // console.log(message)
     const other = message.user;
     return (
         <div className="message">
@@ -16,6 +16,7 @@ export default function OtherMessage({message, keyword}){
             <UserAvatar
                 user={other}
                 isOnline={isOnline(other.id)}
+                showProfile={true}
                 size="sm"
                 className=" mr-4 mr-lg-5 "
             />
@@ -35,7 +36,7 @@ export default function OtherMessage({message, keyword}){
                             </div>
 
                             <div className="mt-1">
-                                <small className="opacity-65">8 mins ago</small>
+                                <small className="opacity-65">{message.sendTime.full}</small>
                             </div>
                         </div>
                         <DropdownMessage/>

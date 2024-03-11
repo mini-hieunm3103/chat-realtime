@@ -6,13 +6,56 @@ import SearchInput from "@/Components/Input/SearchInput.jsx";
 import Highlighter from 'react-highlight-words';
 import {post} from "axios";
 import {useForm} from "@inertiajs/react";
-function GlobalFriends({startUp}){
+import useModal from "@/Helper/useModal.jsx";
+import InviteFriendsModal from "@/Components/Modals/InviteFriendsModal.jsx";
+import ShowUserModal from "@/Components/Modals/ShowUserModal.jsx";
+
+
+const UserDropdown = ({user}) => {
+    const {isShowing, toggle} = useModal()
+    return (
+        <>
+            <div className="align-self-center pl-5">
+                <div className="dropdown">
+                    <a href="#"
+                       className="btn btn-sm btn-ico btn-link text-muted w-auto"
+                       style={{zIndex: 100}}
+                       data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false">
+                        <i className="fe-more-vertical"></i>
+                    </a>
+                    <div className="dropdown-menu"
+                         style={{zIndex: 200}}>
+                        <a className="dropdown-item d-flex align-items-center"
+                           href="#">
+                            New chat <span
+                            className="ml-auto fe-plus-circle"></span>
+                        </a>
+                        <a className="dropdown-item d-flex align-items-center"
+                           onClick={toggle}>
+                            Profile <span
+                            className="ml-auto fe-user"></span>
+                        </a>
+                        <a className="dropdown-item d-flex align-items-center"
+                           href="#">
+                            Delete Chat <span
+                            className="ml-auto fe-trash-2"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <ShowUserModal isShowing={isShowing} hide={toggle} user={user}/>
+        </>
+    )
+}
+
+function GlobalFriends({startUp}) {
     const [keyword, setKeyword] = useState('')
     const allUsers = useGetUsers()(keyword);
-    // nếu có error thì chỉ có thể do user không tồn tại
+    const {isShowing, toggle} = useModal()
     var currentFirstIndexName = null
     return (
-        <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-friends" role="tabpanel">
+        <div className={"tab-pane fade h-100 " + (startUp && "show active")} id="tab-content-friends" role="tabpanel">
             <div className="d-flex flex-column h-100">
                 <div className="hide-scrollbar">
                     <div className="container-fluid py-6">
@@ -23,11 +66,11 @@ function GlobalFriends({startUp}){
                             className="mb-6"
                             placeHolder="Search for name or email..."
                         />
-                        <button type="button" className="btn btn-lg btn-block btn-secondary d-flex align-items-center mb-6" data-toggle="modal" data-target="#invite-friends">
+                        <button type="button" onClick={toggle} className="btn btn-lg btn-block btn-secondary d-flex align-items-center mb-6">
                             Invite friends
                             <i className="fe-users ml-auto"></i>
                         </button>
-
+                        <InviteFriendsModal isShowing={isShowing} hide={toggle}/>
                         <nav className="mb-n6">
                             {allUsers.map((user, i) => {
                                 var groupNameHtml = (user.name.charAt(0) !== currentFirstIndexName)
@@ -66,36 +109,20 @@ function GlobalFriends({startUp}){
                                                             />
                                                         </small>
                                                     </div>
+                                                    <UserDropdown
+                                                        user={user}
+                                                    />
 
-                                                    <div className="align-self-center ml-5">
-                                                        <div className="dropdown z-index-max">
-                                                            <a href="#"
-                                                               className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                               data-toggle="dropdown" aria-haspopup="true"
-                                                               aria-expanded="false">
-                                                                <i className="fe-more-vertical"></i>
-                                                            </a>
-                                                            <div className="dropdown-menu">
-                                                                <a className="dropdown-item d-flex align-items-center"
-                                                                   href="#">
-                                                                    New chat <span className="ml-auto fe-plus-circle"></span>
-                                                                </a>
-                                                                <a className="dropdown-item d-flex align-items-center"
-                                                                   href="#">
-                                                                    Delete Chat <span
-                                                                    className="ml-auto fe-trash-2"></span>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                 </div>
-                                                <a href={"/t/"+convertBaseJs("dm-"+user.id, 37, 10)} className="stretched-link"></a>
+                                                <a href={"/t/" + convertBaseJs("dm-" + user.id, 37, 10)}
+                                                   className="stretched-link"></a>
                                             </div>
                                         </div>
                                     </>
                                 )
                             })}
                         </nav>
+
                     </div>
                 </div>
             </div>

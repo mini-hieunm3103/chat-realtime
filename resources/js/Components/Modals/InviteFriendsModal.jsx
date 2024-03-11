@@ -5,8 +5,9 @@ import TextareaInput from "@/Components/TextareaInput.jsx";
 import Button from "@/Components/Button.jsx";
 import {useForm} from "@inertiajs/react";
 import Swal from "sweetalert2";
+import BaseModal from "@/Components/Modals/Base//BaseModal.jsx";
 
-export default function InviteFriendsModal(){
+export default function InviteFriendsModal({isShowing, hide}){
     const { data, setData, post, transform, errors, processing, recentlySuccessful } = useForm({
         emails: '',
         emailArr: [],
@@ -45,88 +46,89 @@ export default function InviteFriendsModal(){
         });
     };
     return (
-        <div className="modal fade" id="invite-friends" tabIndex="-1" role="dialog" aria-hidden="true">
-            <div className="modal-dialog modal-dialog-centered" role="document">
-                <div className="modal-content">
+        <BaseModal
+            isShowing={isShowing}
+            hide={hide}
+        >
+            <div className="modal-content">
 
-                    <div className="modal-header">
-                        <div className="media flex-fill">
-                            <div className="icon-shape rounded-lg bg-primary text-white mr-5">
-                                <i className="fe-users"></i>
-                            </div>
-                            <div className="media-body align-self-center">
-                                <h5 className="modal-title">Invite friends</h5>
-                                <p className="small">Invite colleagues, clients and friends to join our app</p>
-                            </div>
+                <div className="modal-header">
+                    <div className="media flex-fill">
+                        <div className="icon-shape rounded-lg bg-primary text-white mr-5">
+                            <i className="fe-users"></i>
                         </div>
-
-                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <div className="media-body align-self-center">
+                            <h5 className="modal-title">Invite friends</h5>
+                            <p className="small">Invite colleagues, clients and friends to join our app</p>
+                        </div>
                     </div>
-                    <form onSubmit={submit}>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <InputLabel htmlFor="invite-email" value="Emails (Max: 3)" className="small"/>
 
-                                <TextInput
-                                    id="invite-email"
-                                    name="emails"
-                                    value={data.emails}
-                                    error={errors.emails || errors.emailArr || hasEmailArrProperty(errors, false)}
-                                    placeholder="Example: mail.1@gmail.com, mail.2@gmail.com, ..."
-                                    isFocused={true}
-                                    onChange={(e) => {
-                                        setData(previousData => ({
-                                            ...previousData,
-                                            emails: e.target.value,
-                                            emailArr: e.target.value.split(', ')
-                                        }))
-                                    }}
-                                />
-
-                                {
-                                    (data.emails)
-                                        ? (
-                                            <ul className={"mt-4 " + ((data.emailArr.length > 3) ? "text-danger" : null)}>
-                                                {data.emailArr.map((e, i) => {
-                                                    return <li className={(!isEmail(e)) ? "text-danger" : null}
-                                                               key={i}>{e}</li>
-                                                })}
-                                            </ul>
-                                        )
-                                        : null
-                                }
-                                <InputError message={errors.emailArr || hasEmailArrProperty(errors)}
-                                            className="m-0"/>
-
-                            </div>
-
-                            <div className="form-group mb-0">
-                                <InputLabel htmlFor="invite-message" value="Invitation message"
-                                            className="small"/>
-                                <TextareaInput
-                                    id="invite-message"
-                                    name="message"
-                                    value={data.messages}
-                                    onChange={(e) => setData('messages', e.target.value)}
-                                    error={errors.messages}
-                                    data-autosize="true"
-                                />
-                                <InputError message={errors.messages} className="mt-2"/>
-                            </div>
-                        </div>
-
-                        <div className="modal-footer">
-                            <Button size="lg" className="modal-footer btn-block d-flex align-items-center"
-                                    disabled={processing}>
-                                Invite friend
-                                <i className="fe-user-plus ml-auto"></i>
-                            </Button>
-                        </div>
-                    </form>
+                    <button onClick={hide} type="button" className="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
+                <form onSubmit={submit}>
+                    <div className="modal-body">
+                        <div className="form-group">
+                            <InputLabel htmlFor="invite-email" value="Emails (Max: 3)" className="small"/>
+
+                            <TextInput
+                                id="invite-email"
+                                name="emails"
+                                value={data.emails}
+                                error={errors.emails || errors.emailArr || hasEmailArrProperty(errors, false)}
+                                placeholder="Example: mail.1@gmail.com, mail.2@gmail.com, ..."
+                                isFocused={true}
+                                onChange={(e) => {
+                                    setData(previousData => ({
+                                        ...previousData,
+                                        emails: e.target.value,
+                                        emailArr: e.target.value.split(', ')
+                                    }))
+                                }}
+                            />
+
+                            {
+                                (data.emails)
+                                    ? (
+                                        <ul className={"mt-4 " + ((data.emailArr.length > 3) ? "text-danger" : null)}>
+                                            {data.emailArr.map((e, i) => {
+                                                return <li className={(!isEmail(e)) ? "text-danger" : null}
+                                                           key={i}>{e}</li>
+                                            })}
+                                        </ul>
+                                    )
+                                    : null
+                            }
+                            <InputError message={errors.emailArr || hasEmailArrProperty(errors)}
+                                        className="m-0"/>
+
+                        </div>
+
+                        <div className="form-group mb-0">
+                            <InputLabel htmlFor="invite-message" value="Invitation message"
+                                        className="small"/>
+                            <TextareaInput
+                                id="invite-message"
+                                name="message"
+                                value={data.messages}
+                                onChange={(e) => setData('messages', e.target.value)}
+                                error={errors.messages}
+                                data-autosize="true"
+                            />
+                            <InputError message={errors.messages} className="mt-2"/>
+                        </div>
+                    </div>
+
+                    <div className="modal-footer">
+                        <Button size="lg" className="modal-footer btn-block d-flex align-items-center"
+                                disabled={processing}>
+                            Invite friend
+                            <i className="fe-user-plus ml-auto"></i>
+                        </Button>
+                    </div>
+                </form>
             </div>
-        </div>
+        </BaseModal>
     )
 }

@@ -56,7 +56,7 @@ export default function ShowProfile({user, startUp}){
                             <div className="card-body">
                                 <ul className="list-group list-group-flush">
                                     <li className="list-group-item px-0 py-6">
-                                        <a href={user.twitter} target="_blank" className="media text-muted">
+                                        <a href={user.twitter} target="_blank" className={"media " + ((user.twitter) ? "text-muted" : "text-white-30")}>
                                             <div className="media-body align-self-center">
                                                 Twitter
                                             </div>
@@ -65,7 +65,7 @@ export default function ShowProfile({user, startUp}){
                                     </li>
 
                                     <li className="list-group-item px-0 py-6">
-                                        <a href={user.facebook} target="_blank" className="media text-muted">
+                                        <a href={user.facebook} target="_blank" className={"media " + ((user.facebook) ? "text-muted" : "text-white-30")}>
                                             <div className="media-body align-self-center">
                                                 Facebook
                                             </div>
@@ -74,7 +74,7 @@ export default function ShowProfile({user, startUp}){
                                     </li>
 
                                     <li className="list-group-item px-0 py-6">
-                                        <a href={user.github} target="_blank" className="media text-muted">
+                                        <a href={user.github} target="_blank" className={"media " + ((user.github) ? "text-muted" : "text-white-30")}>
                                             <div className="media-body align-self-center">
                                                 Github
                                             </div>
