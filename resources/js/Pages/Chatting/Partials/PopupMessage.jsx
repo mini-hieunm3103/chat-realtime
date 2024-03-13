@@ -1,4 +1,4 @@
-export default function DropdownMessage(){
+export default function PopupMessage(){
     return (
         <div className="dropdown">
             <a className="text-muted opacity-60 ml-3" href="#" data-toggle="dropdown" aria-haspopup="true"

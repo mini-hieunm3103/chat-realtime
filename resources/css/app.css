@@ -48,3 +48,6 @@ svg {
     font-weight: bold;
     padding: 0;
 }
+.card-bg-color {
+    background-color: rgb(41, 36, 42) !important;
+}
