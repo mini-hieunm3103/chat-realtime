@@ -1,18 +1,15 @@
-import React, {useState, useEffect, useRef} from "react";
-import useGetUsers from "@/Helper/useGetUsers.jsx";
+import React, {useState} from "react";
+import {useGetUsers, useOpen} from "@/Helper/hooks.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import {convertBaseJs} from "@/Helper/functions.js";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
 import Highlighter from 'react-highlight-words';
-import {post} from "axios";
-import {useForm} from "@inertiajs/react";
-import useModal from "@/Helper/useModal.jsx";
 import InviteFriendsModal from "@/Components/Modals/InviteFriendsModal.jsx";
 import ShowUserModal from "@/Components/Modals/ShowUserModal.jsx";
 
 
 const UserDropdown = ({user}) => {
-    const {isShowing, toggle} = useModal()
+    const {open, toggle} = useOpen()
     return (
         <>
             <div className="align-self-center pl-5">
@@ -44,7 +41,7 @@ const UserDropdown = ({user}) => {
                     </div>
                 </div>
             </div>
-            <ShowUserModal isShowing={isShowing} hide={toggle} user={user}/>
+            <ShowUserModal isShowing={open} hide={toggle} user={user}/>
         </>
     )
 }
@@ -52,7 +49,7 @@ const UserDropdown = ({user}) => {
 function GlobalFriends({startUp}) {
     const [keyword, setKeyword] = useState('')
     const allUsers = useGetUsers()(keyword);
-    const {isShowing, toggle} = useModal()
+    const {open, toggle} = useOpen()
     var currentFirstIndexName = null
     return (
         <div className={"tab-pane fade h-100 " + (startUp && "show active")} id="tab-content-friends" role="tabpanel">
@@ -70,7 +67,7 @@ function GlobalFriends({startUp}) {
                             Invite friends
                             <i className="fe-users ml-auto"></i>
                         </button>
-                        <InviteFriendsModal isShowing={isShowing} hide={toggle}/>
+                        <InviteFriendsModal isShowing={open} hide={toggle}/>
                         <nav className="mb-n6">
                             {allUsers.map((user, i) => {
                                 var groupNameHtml = (user.name.charAt(0) !== currentFirstIndexName)

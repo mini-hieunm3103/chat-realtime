@@ -5,9 +5,8 @@ import UserAvatar from "@/Components/UserAvatar.jsx";
 import IsTyping from "@/Pages/Chatting/Partials/IsTyping.jsx";
 import Message from "@/Pages/Chatting/Partials/Message.jsx";
 import ChatSidebar from "@/Pages/Chatting/Partials/DM/Chatsidebar.jsx";
-import useChatSidebar from "@/Helper/useChatSidebar.jsx";
+import {useOpen} from "@/Helper/hooks.js";
 import {Head} from "@inertiajs/react";
-import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 
 
 function DirectMessage({channelId, auth, usersChannel}){
@@ -15,7 +14,7 @@ function DirectMessage({channelId, auth, usersChannel}){
     const [allData, setAllData] = useState([])
     const [hasMessage, setHasMessage] = useState(true)
     const [searchMessage, setSearchMessage] = useState(null)
-    const {open, toggleOpen} = useChatSidebar()
+    const {open, toggle} = useOpen()
     const other = usersChannel.find((e) => {
         return e.id !== auth.id
     })
@@ -33,6 +32,13 @@ function DirectMessage({channelId, auth, usersChannel}){
             })
             .catch(err=> {
                 console.log(err)})
+    }
+    const loadChannelUsers = async ()=> {
+        fetch(route('getUsersChannel', {channel_id: channelId}))
+            .then(res => res.json())
+            .then((data) => {
+                console.log(data)
+            })
     }
     useEffect(() => {
         loadListMessages()
@@ -89,7 +95,7 @@ function DirectMessage({channelId, auth, usersChannel}){
                                         </li>
 
                                         <li className="nav-item list-inline-item d-none d-xl-block mr-0">
-                                            <div className="nav-link text-muted px-3" onClick={toggleOpen}>
+                                            <div className="nav-link text-muted px-3" onClick={toggle}>
                                                 <i className="icon-md fe-more-vertical"></i>
                                             </div>
 
@@ -107,7 +113,7 @@ function DirectMessage({channelId, auth, usersChannel}){
                                                         Search <span className="ml-auto pl-5 fe-search"></span>
                                                     </a>
                                                     <div className="dropdown-item d-flex align-items-center"
-                                                         onClick={toggleOpen}>
+                                                         onClick={toggle}>
                                                         Chat Info <span
                                                         className="ml-auto pl-5 fe-more-horizontal"></span>
                                                     </div>
@@ -211,7 +217,7 @@ function DirectMessage({channelId, auth, usersChannel}){
                         </div>
                     </div>
                 </div>
-                <ChatSidebar other={other} open={open} toggleOpen={toggleOpen} />
+                <ChatSidebar other={other} open={open} toggleOpen={toggle} />
             </div>
 
         </>

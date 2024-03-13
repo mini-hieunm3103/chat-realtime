@@ -6,7 +6,7 @@ import {useForm} from "@inertiajs/react";
 import TextareaInput from "@/Components/TextareaInput.jsx";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
-import useGetUsers from "@/Helper/useGetUsers.jsx";
+import {useGetUsers} from "@/Helper/hooks.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import Highlighter from "react-highlight-words";
 

@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
-import useGetUsers from "@/Helper/useGetUsers.jsx";
+import {useGetUsers} from "@/Helper/hooks.js";
+
 import {convertBaseJs, isOnline} from "@/Helper/functions.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import {usePage} from "@inertiajs/react";

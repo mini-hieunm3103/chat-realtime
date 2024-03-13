@@ -1,5 +1,4 @@
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
-import useChatSidebar from "@/Helper/useChatSidebar.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 import GalleryCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/GalleryCS.jsx";

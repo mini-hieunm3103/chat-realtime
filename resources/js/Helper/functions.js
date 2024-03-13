@@ -1,7 +1,8 @@
-import useEchoChatUsersId from "@/Helper/useEchoChatUsersId.jsx";
+import {useEchoChatUsersId} from "@/Helper/hooks.js";
+import {appUrl} from "@/Helper/config.js";
 
 export function convertBaseJs(str, fromBase, toBase) {
-
+    // https://stackoverflow.com/questions/1337419/how-do-you-convert-numbers-between-different-bases-in-javascript/55011290#55011290
     const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz-";
 
     const add = (x, y, base) => {
@@ -66,4 +67,22 @@ export function convertBaseJs(str, fromBase, toBase) {
 export const isOnline = (id) => {
     const allUsersOnlineId = useEchoChatUsersId()();
     return allUsersOnlineId.includes(id);
+}
+export const convertTimestamp = (timestamp) =>{
+    const date = new Date(timestamp);
+    const months = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+
+    return `${month} ${day} ${year} ${hour}:${minute}`;
+}
+export const asset = (path) => {
+    return `${appUrl}/storage/${path}`
 }
