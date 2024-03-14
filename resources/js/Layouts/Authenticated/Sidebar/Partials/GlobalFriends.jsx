@@ -48,7 +48,7 @@ const UserDropdown = ({user}) => {
 
 function GlobalFriends({startUp}) {
     const [keyword, setKeyword] = useState('')
-    const allUsers = useGetUsers()(keyword);
+    const allUsers = useGetUsers(keyword);
     const {open, toggle} = useOpen()
     var currentFirstIndexName = null
     return (

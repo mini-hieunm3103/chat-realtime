@@ -65,7 +65,7 @@ export function convertBaseJs(str, fromBase, toBase) {
     return out;
 }
 export const isOnline = (id) => {
-    const allUsersOnlineId = useEchoChatUsersId()();
+    const allUsersOnlineId = useEchoChatUsersId();
     return allUsersOnlineId.includes(id);
 }
 export const convertTimestamp = (timestamp) =>{

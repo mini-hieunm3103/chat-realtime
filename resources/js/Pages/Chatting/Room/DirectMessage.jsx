@@ -5,51 +5,26 @@ import UserAvatar from "@/Components/UserAvatar.jsx";
 import IsTyping from "@/Pages/Chatting/Partials/IsTyping.jsx";
 import Message from "@/Pages/Chatting/Partials/Message.jsx";
 import ChatSidebar from "@/Pages/Chatting/Partials/DM/Chatsidebar.jsx";
-import {useOpen} from "@/Helper/hooks.js";
-import {Head} from "@inertiajs/react";
+import {useFetch, useOpen} from "@/Helper/hooks.js";
 
 
 function DirectMessage({channelId, auth, usersChannel}){
-    const [listMessages, setListMessages] = useState([])
-    const [allData, setAllData] = useState([])
-    const [hasMessage, setHasMessage] = useState(true)
     const [searchMessage, setSearchMessage] = useState(null)
-    const {open, toggle} = useOpen()
+    const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
+    const [listMessages, setListMessages] = useState([])
+    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId}))
     const other = usersChannel.find((e) => {
         return e.id !== auth.id
     })
-    const loadListMessages = () => {
-        fetch(route('message.getMessages', {channel_id: channelId}))
-            .then((res) => {
-                return res.json()
-            })
-            .then((data) => {
-                setHasMessage(data.meta.total > 0)
-                if (data.meta.total > 0) {
-                    setAllData(data)
-                    setListMessages(data.data)
-                }
-            })
-            .catch(err=> {
-                console.log(err)})
-    }
-    const loadChannelUsers = async ()=> {
-        fetch(route('getUsersChannel', {channel_id: channelId}))
-            .then(res => res.json())
-            .then((data) => {
-                console.log(data)
-            })
-    }
     useEffect(() => {
-        loadListMessages()
-    }, []);
-    return (
-        <>
-            <Head title={other.name} />
-            <div id="chat-2" className="chat dropzone-form-js" data-dz-url="some.php">
-
+        if (getMessages.hasOwnProperty('data') && !loadMessages ) {
+            setListMessages(getMessages.data)
+        }
+    }, [getMessages, loadMessages]);
+    return  (
+        <div id="chat-2" className="chat dropzone-form-js" data-dz-url="some.php">
+            {
                 <div className="chat-body">
-
                     <div className="chat-header border-bottom py-4 py-lg-6 px-lg-8">
                         <div className="container-xxl">
 
@@ -95,7 +70,7 @@ function DirectMessage({channelId, auth, usersChannel}){
                                         </li>
 
                                         <li className="nav-item list-inline-item d-none d-xl-block mr-0">
-                                            <div className="nav-link text-muted px-3" onClick={toggle}>
+                                            <div className="nav-link text-muted px-3" onClick={toggleChatsidebar}>
                                                 <i className="icon-md fe-more-vertical"></i>
                                             </div>
 
@@ -113,7 +88,7 @@ function DirectMessage({channelId, auth, usersChannel}){
                                                         Search <span className="ml-auto pl-5 fe-search"></span>
                                                     </a>
                                                     <div className="dropdown-item d-flex align-items-center"
-                                                         onClick={toggle}>
+                                                         onClick={toggleChatsidebar}>
                                                         Chat Info <span
                                                         className="ml-auto pl-5 fe-more-horizontal"></span>
                                                     </div>
@@ -157,9 +132,11 @@ function DirectMessage({channelId, auth, usersChannel}){
                                     </div>
                                 </div>
                             </div>
-                            {listMessages.map((message, i) => {
-                                return (<Message authId={auth.id} message={message} keyword={searchMessage}/>)
-                            })}
+                            {
+                                listMessages.map((message, i) => {
+                                    return (<Message authId={auth.id} message={message} keyword={searchMessage}/>)
+                                })
+                            }
                             <IsTyping other={other}/>
                         </div>
 
@@ -217,11 +194,9 @@ function DirectMessage({channelId, auth, usersChannel}){
                         </div>
                     </div>
                 </div>
-                <ChatSidebar other={other} open={open} toggleOpen={toggle} />
-            </div>
-
-        </>
-
+            }
+            <ChatSidebar other={other} open={openChatSidebar} toggleOpen={toggleChatsidebar}/>
+        </div>
     )
 
 }

@@ -1,15 +1,42 @@
-import {useEffect, useState} from "react";
+import {memo, useEffect, useState} from "react";
 
-export const useOpen = () => {
-    const [open, setOpen] = useState(false);
+export const useOpen = (initialOpen=false) => {
+    const [open, setOpen] = useState(initialOpen);
     function toggle() {
         setOpen(!open);
     }
-    return {
-        open,
-        toggle,
-    }
+    useEffect(() => {
+        setOpen(initialOpen)
+    }, [initialOpen]);
+    return {open, toggle}
 };
+export const useFetch = (url) => {
+    const [data, setData] = useState({})
+    const [isPending, setIsPending] = useState(true)
+    const [error, setError] = useState(null)
+    const fetchData = async () => {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(response.statusText)
+            const json = await response.json()
+            setData(json)
+            setIsPending(false);
+            setError(null)
+        } catch (error) {
+            setError(`${error} Could not Fetch Data`)
+            setIsPending(false)
+        }
+    }
+    useEffect(() => {
+        let isMounted = true;
+        fetchData()
+        return () => {
+            isMounted = false;
+        }
+    }, [url]);
+    return {data, isPending, error}
+}
+
 export const useClickOutside = (ref, handler) => {
     // Improved version of https://usehooks.com/useOnClickOutside/
     useEffect(() => {
@@ -42,27 +69,25 @@ export const useClickOutside = (ref, handler) => {
     }, [ref, handler]);
 };
 export const  useEchoChatUsersId = () =>  {
-    return () => {
-        const [allUsersOnlineId, setAllUsersOnlineId] = useState([]);
+    const [allUsersOnlineId, setAllUsersOnlineId] = useState([]);
 
-        useEffect(() => {
-            Echo.join('chat')
-                .here(users => {
-                    setAllUsersOnlineId(users)
-                })
-                .joining(user => {
-                    if (!allUsersOnlineId.includes(user)){
-                        setAllUsersOnlineId(prevState => [...prevState, user] )
-                    }
-                })
-                .leaving(user => {
-                    setTimeout(()=> {
-                        setAllUsersOnlineId(prevState => prevState.filter(item => item !== user))
-                    }, 300000)
-                });
-        }, []);
-        return allUsersOnlineId;
-    };
+    useEffect(() => {
+        Echo.join('chat')
+            .here(users => {
+                setAllUsersOnlineId(users)
+            })
+            .joining(user => {
+                if (!allUsersOnlineId.includes(user)){
+                    setAllUsersOnlineId(prevState => [...prevState, user] )
+                }
+            })
+            .leaving(user => {
+                setTimeout(()=> {
+                    setAllUsersOnlineId(prevState => prevState.filter(item => item !== user))
+                }, 300000)
+            });
+    }, []);
+    return allUsersOnlineId;
     // ở đây khởi tạo 1 hook mới
     /*
     * Gọi ra hook mới:
@@ -87,33 +112,30 @@ export const  useEchoChatUsersId = () =>  {
     * */
 }
 
-export const useGetUsers = () =>  {
-    const allUsersOnlineId = useEchoChatUsersId()();
-
-    return (keyword, justOnline = false) => {
-        const [allUsers, setAllUsers] = useState([])
-        useEffect(() => {
-            if (justOnline && allUsersOnlineId.length){
-                fetch(route('user.get-all-users', {online: allUsersOnlineId}))
-                    .then(res => res.json())
-                    .then((data)=> {
-                        setAllUsers(data.data)
+export const useGetUsers  = (keyword, justOnline = false) =>  {
+    const allUsersOnlineId = useEchoChatUsersId();
+    const [allUsers, setAllUsers] = useState([])
+    useEffect(() => {
+        if (justOnline && allUsersOnlineId.length){
+            fetch(route('user.get-all-users', {online: allUsersOnlineId}))
+                .then(res => res.json())
+                .then((data)=> {
+                    setAllUsers(data.data)
+                })
+        } else if (!justOnline) {
+            fetch(route('user.get-all-users', {keyword: keyword}))
+                .then(res => res.json())
+                .then((data)=> {
+                    data.data.map(e => {
+                        if (allUsersOnlineId.includes(e.id)){
+                            e.online = 1
+                        }
                     })
-            } else if (!justOnline) {
-                fetch(route('user.get-all-users', {keyword: keyword}))
-                    .then(res => res.json())
-                    .then((data)=> {
-                        data.data.map(e => {
-                            if (allUsersOnlineId.includes(e.id)){
-                                e.online = 1
-                            }
-                        })
-                        setAllUsers(data.data)
-                    })
-            }
-        }, [keyword, allUsersOnlineId]);
-        return allUsers;
-    }
+                    setAllUsers(data.data)
+                })
+        }
+    }, [keyword, allUsersOnlineId]);
+    return allUsers;
 /*
 lấy ra users theo:
 - justOnline = true: chỉ lấy ra users online, offline không lấy => render list users trong dialog sidebar

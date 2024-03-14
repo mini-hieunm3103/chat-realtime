@@ -19,7 +19,7 @@ function CreateGroup({startUp}) {
     });
     const [usersPostData, setUsersPostData] = useState([]);
     const [keyword, setKeyword] = useState('');
-    const allUsers = useGetUsers()(keyword);
+    const allUsers = useGetUsers(keyword);
     var currentFirstIndexName = null
 
     const handleCheckboxChange = (userId, isChecked) => {
