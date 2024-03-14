@@ -25,11 +25,17 @@ class ChatController extends Controller
          * */
         $decode = convertBasePhp($base10, 10, 37);
         $explode = explode('-', $decode);
+        if (count($explode) !== 2) {
+            abort(404);
+        }
         $type = $explode[0];
         $id = $explode[1];
-        $channelId = 0;
         if ($type == 'gr') {
-            dd($id);
+            $group = Group::find($id);
+            if (!$group){
+                abort(404);
+            }
+            $channelId = Group::find($id)->channel_id;
         } else if ($type == 'dm'){
             $channelId = $this->findOrNewChannel(getAuthUser()->id, $id)->id;
         } else {
@@ -39,7 +45,6 @@ class ChatController extends Controller
             'auth' => getAuthUser(),
             'isGroup' => ($type == 'gr'),
             'channelId'=> $channelId,
-            'usersChannel' => $this->getUsersChannel($channelId)
         ]);
     }
     /**

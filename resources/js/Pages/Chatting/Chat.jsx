@@ -1,3 +1,4 @@
+import React from "react";
 import AuthenticatedLayout from '@/Layouts/Authenticated/AuthenticatedLayout';
 import {useLocation} from "react-router-dom";
 import {useForm} from "@inertiajs/react";
@@ -8,9 +9,6 @@ import UserAvatar from "@/Components/UserAvatar.jsx";
 import {useFetch, useOpen} from "@/Helper/hooks.js";
 import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
 export default function Chat({ auth, isGroup, channelId }) {
-    const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
-    const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen(loadChannelUsers)
-
     const showStatus = (message, type="success", title="Handle Successfully", position="top-end", time=2000) => {
         Swal.fire({
             position: position,
@@ -28,26 +26,24 @@ export default function Chat({ auth, isGroup, channelId }) {
     }
     return (
         <>
-            <LoadingModal isShowing={openLoadingModal} hide={toggleLoadingModal}/>
-
-            {getChannelUsers.hasOwnProperty('data') && !loadChannelUsers &&
-                <AuthenticatedLayout
-                    open={true}
-                    authLayoutData={authLayoutData}
-                >
-                    {(isGroup)
-                        ?
-                        <Group
-                            channelId={channelId}
-                        />
-                        :
-                        <DirectMessage
-                            usersChannel={getChannelUsers.data}
-                            auth={auth.data}
-                            channelId={channelId}
-                        />}
-                </AuthenticatedLayout>
-            }
+            <AuthenticatedLayout
+                open={true}
+                authLayoutData={authLayoutData}
+            >
+                {(isGroup)
+                    ?
+                    <GroupComponent auth={auth.data} channelId={channelId} />
+                    :
+                    <DirectMessageComponent auth={auth.data} channelId={channelId} />
+                }
+            </AuthenticatedLayout>
         </>
     );
 }
+const GroupComponent = React.memo(function GroupComponent({ usersChannel, auth, channelId }) {
+    return <Group usersChannel={usersChannel} auth={auth} channelId={channelId} />;
+});
+
+const DirectMessageComponent = React.memo(function DirectMessageComponent({auth, channelId }) {
+    return <DirectMessage auth={auth} channelId={channelId} />;
+});

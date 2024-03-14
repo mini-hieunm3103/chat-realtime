@@ -17,7 +17,7 @@
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead
         <!-- Boostrap -->
-        <link rel="stylesheet" href="{{asset('front-end/css/template.dark.min.css')}}">
+        <link rel="stylesheet" href="{{asset('front-end/css/template.dark.css')}}">
         <style>
 {{--            Trong browser có autofill input sẽ hiện nền trắng => xấu nên đổi --}}
 

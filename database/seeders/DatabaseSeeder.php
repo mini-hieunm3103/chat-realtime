@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Channel;
+use App\Models\Group;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -22,10 +23,13 @@ class DatabaseSeeder extends Seeder
     {
         $faker = Faker\Factory::create();
         $limit = 5;
-        $generalChannelId = Channel::create([
+        $generalChannel = Channel::create([
             'name' => 'General',
-            'type' => 'group'
+            'type' => 'group',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
+
         $id1 = DB::table('users')->insert([
             'name' => "Administrator",
             'email' => "admin@gmail.com",
@@ -53,22 +57,46 @@ class DatabaseSeeder extends Seeder
             'updated_at' => Carbon::now()
         ]);
         // add to general group
-        $generalChannelId->users()->attach($id1);
-        $generalChannelId->users()->attach($id2);
+        $generalChannel->users()->attach([$id1 => [
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]]);
+        $generalChannel->users()->attach([$id2 => [
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]]);
+        $generalGroup = Group::create([
+            'name' => 'Global Chat',
+            "owner" => $id2,
+            'channel_id' => $generalChannel->id,
+            'description' => 'One For All',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        $generalGroup->admins()->attach([$id1 => [
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]]);
+        $generalGroup->admins()->attach([$id2 => [
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]]);
         // add to inbox channel
         $inboxChannel = Channel::create([
             'name' => $id1.'_'.$id2, // k phu thuoc vao ten channel. Dat ten gi cung duoc
-            'type' => 'dm'
+            'type' => 'dm',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
-        $inboxChannel->users()->attach($id1);
-        $inboxChannel->users()->attach($id2);
-        for ($i = 0; $i < $limit; $i++) {
-            $message = Message::create([
-                'content' =>  $faker->text(),
-                'channel_id' => $inboxChannel->id,
-                'user_id' => rand($id1, $id2)
-            ]);
-        }
+        $inboxChannel->users()->attach([$id1 => [
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]]);
+        $inboxChannel->users()->attach([$id2 => [
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]]);
+
         for ($i = 0; $i < $limit; $i++) {
             $user = User::create([
                 'name' => $faker->name,
@@ -78,9 +106,32 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => Carbon::now()
             ]);
             UserDetail::create([
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
             ]);
-            $generalChannelId->users()->attach($user->id);
+            $generalChannel->users()->attach([$user->id => [
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]]);
+        }
+        for ($i = 0; $i < $limit; $i++) {
+            Message::create([
+                'content' =>  $faker->text(),
+                'channel_id' => 2,
+                'user_id' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+        }
+        for ($i = 0; $i < 1; $i++) {
+            Message::create([
+                'content' =>  $faker->text(),
+                'channel_id' => 2,
+                'user_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
         }
     }
 }

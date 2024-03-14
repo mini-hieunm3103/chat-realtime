@@ -16,9 +16,9 @@ class Group extends Model
         'approval',
         'channel_id'
     ];
-    public function users()
+    public function admins()
     {
-        return $this->belongsToMany(User::class, 'user_group');
+        return $this->belongsToMany(User::class, 'admin_group');
     }
     public function channel()
     {

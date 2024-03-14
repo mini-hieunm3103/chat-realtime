@@ -6,7 +6,11 @@ export const useOpen = (initialOpen=false) => {
         setOpen(!open);
     }
     useEffect(() => {
+        let isMounted = true;
         setOpen(initialOpen)
+        return () => {
+            isMounted = false
+        }
     }, [initialOpen]);
     return {open, toggle}
 };

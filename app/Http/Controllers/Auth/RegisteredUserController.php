@@ -44,8 +44,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        $channel = Channel::where('name', 'like', 'General');
-        $channel->users()->attach($user->id);
+        Channel::first()->users()->attach($user->id);
         UserDetail::create([
             'user_id' => $user->id,
         ]);

@@ -4,10 +4,12 @@ import {useGetUsers} from "@/Helper/hooks.js";
 import {convertBaseJs, isOnline} from "@/Helper/functions.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import {usePage} from "@inertiajs/react";
+import SearchInput from "@/Components/Input/SearchInput.jsx";
+
 export default function Dialog({startUp}){
     const user = usePage().props.auth.data;
     const [keyword, setKeyword] = useState('')
-    const allUsers = useGetUsers()(keyword,true);
+    const allUsersOnline = useGetUsers(keyword,true);
     return (
         <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-dialogs" role="tabpanel">
             <div className="d-flex flex-column h-100">
@@ -25,19 +27,17 @@ export default function Dialog({startUp}){
                                 </button>
                             </div>
                         </div>
-
                         <div className="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
                             <div className="d-block text-reset mr-7 mr-lg-6">
                                 <UserAvatar
                                     user={user}
-                                    isOnline={true}
+                                    isOnline={false}
                                     className=" mb-3 "
                                 />
-                                <div className="small text-truncate">{user.name}</div>
+                                <div className="small text-truncate">You</div>
                             </div>
                             {
-                                allUsers.map((e, i) => {
-                                    console.log(e)
+                                allUsersOnline.map((e, i) => {
                                     return (
                                         <a href="#" className="d-block text-reset mr-7 mr-lg-6">
                                             <UserAvatar
@@ -45,7 +45,7 @@ export default function Dialog({startUp}){
                                                 isOnline={true}
                                                 className=" mb-3 "
                                             />
-                                            <div className="small text-truncate">{e.name}</div>
+                                            <div className="small text-truncate">{(e.name.split(" ")[0])}</div>
                                         </a>
                                     )
                                 })
@@ -63,7 +63,7 @@ export default function Dialog({startUp}){
                                             </div>
                                             <div className="media-body overflow-hidden">
                                                 <div className="d-flex align-items-center mb-1">
-                                                    <h6 className="text-truncate mb-0 mr-auto">Bootstrap Themes</h6>
+                                                    <h6 className="text-truncate mb-0 mr-auto">Global Chat</h6>
                                                     <p className="small text-muted text-nowrap ml-4">10:42 am</p>
                                                 </div>
                                                 <div className="text-truncate">Anna Bridges: Hey, Maher! How are you?
@@ -86,7 +86,7 @@ export default function Dialog({startUp}){
                                             </div>
                                             <div className="media-body overflow-hidden">
                                                 <div className="d-flex align-items-center mb-1">
-                                                    <h6 className="text-truncate mb-0 mr-auto">Anna Bridges</h6>
+                                                    <h6 className="text-truncate mb-0 mr-auto"> Bridges</h6>
                                                     <p className="small text-muted text-nowrap ml-4">10:42 am</p>
                                                 </div>
                                                 <div className="text-truncate">is typing<span className='typing-dots'><span>.</span><span>.</span><span>.</span></span></div>

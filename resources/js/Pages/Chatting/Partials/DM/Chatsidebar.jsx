@@ -7,7 +7,9 @@ import FilesCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/FilesCS.jsx";
 import LinkCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/LinkCS.jsx";
 
 export default function ChatSidebar({other, open, toggleOpen}) {
-
+    if(!other) {
+        return null
+    }
     return (
         <BaseChatSidebar isOpenCS={open} hide={toggleOpen}>
             <BaseChatSidebar.MainCS chatSidebarId="chat-info">

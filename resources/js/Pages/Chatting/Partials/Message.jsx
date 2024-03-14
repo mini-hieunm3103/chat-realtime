@@ -4,10 +4,10 @@ import React, {createContext, useContext} from "react";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import {isOnline} from "@/Helper/functions.js";
 const MessageContext = createContext()
-const Message = ({authId, message, keyword}) => {
+const Message = ({authId, message, keyword, hasAvatar = true}) => {
     const isAuthUser = authId === message.user.id
     return (
-        <MessageContext.Provider value={{message, keyword}}>
+        <MessageContext.Provider value={{message, keyword, hasAvatar}}>
             {isAuthUser
                 ? <MyMessage />
                 : <OtherMessage />
@@ -16,11 +16,11 @@ const Message = ({authId, message, keyword}) => {
     )
 }
 const MyMessage = () => {
-    const {message, keyword} = useContext(MessageContext)
+    const {message, keyword, hasAvatar} = useContext(MessageContext)
     return (
-        <div className="message message-right">
+        <div className={"message message-right "  + ((hasAvatar) ? "mb-10 mt-2" : "mt-2")}>
 
-            <div className="message-body">
+            <div className="message-body message">
 
                 <div className="message-row">
                     <div className="d-flex align-items-center justify-content-end">
@@ -52,17 +52,20 @@ const MyMessage = () => {
     )
 }
 const OtherMessage = () => {
-    const {message, keyword} = useContext(MessageContext)
+    const {message, keyword, hasAvatar} = useContext(MessageContext)
     const other = message.user;
     return (
-        <div className="message">
-            <UserAvatar
-                user={other}
-                isOnline={isOnline(other.id)}
-                showProfile={true}
-                size="sm"
-                className=" mr-4 mr-lg-5 "
-            />
+        <div className={"message "  + ((hasAvatar) ? "mb-10 mt-2" : "mt-2")}>
+            {hasAvatar
+                ? <UserAvatar
+                    user={other}
+                    isOnline={isOnline(other.id)}
+                    showProfile={true}
+                    size="sm"
+                    className=" mr-4 mr-lg-5 "
+                />
+                : <div className={"avatar avatar-sm mr-4 mr-lg-5 invisible"}></div>
+            }
             <div className="message-body">
 
                 <div className="message-row">

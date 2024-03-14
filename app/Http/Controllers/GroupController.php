@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GroupResource;
 use App\Models\Channel;
 use App\Models\Group;
 use Carbon\Carbon;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Redirect;
 
 class GroupController extends Controller
 {
+    public function detail($group_id)
+    {
+        $groupDetail =  Group::with('admins')->where('id', $group_id)->first();
+//        return $groupDetail;
+        return new GroupResource($groupDetail);
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -24,6 +31,7 @@ class GroupController extends Controller
             'users.min' => 'Group requires 3 people: you and 2 others!'
         ]);
         $channel = Channel::create([
+            'name' => $request->name,
             'type' => 'group'
         ]);
         $group = Group::create([
@@ -40,7 +48,8 @@ class GroupController extends Controller
                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
             ];
         }
-        $group->users()->attach($groupUsers);
-        return Redirect::route('welcome');
+        $channel->users()->attach($groupUsers);
+        $group->admins()->attach(Auth::id());
+        return Redirect::back();
     }
 }

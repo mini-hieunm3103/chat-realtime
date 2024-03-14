@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_group', function (Blueprint $table) {
+        // bảng quản trị viên của gr: sẽ bao gồm owner của group đó và những người trong group được chỉ định  | có thể nhường quyền
+        Schema::create('admin_group', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('group_id')->unsigned();
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_group');
+        Schema::dropIfExists('admin_group');
     }
 };
