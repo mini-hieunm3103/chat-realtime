@@ -41,7 +41,12 @@ class GroupController extends Controller
             'owner' => Auth::id(),
             'channel_id' => $channel->id
         ]);
-        $groupUsers = [];
+        $groupUsers = [
+            Auth::id() => [
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]
+        ];
         foreach ($request->users as $user) {
             $groupUsers[$user] = [
                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),

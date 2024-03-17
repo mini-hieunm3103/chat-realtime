@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Resources\UsersChannelResource;
 use App\Http\Resources\MessageResource;
 use App\Http\Resources\UserResource;
@@ -10,6 +11,7 @@ use App\Models\Group;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Inertia\Response;
@@ -84,4 +86,68 @@ class ChatController extends Controller
         }])->where('id', $channelId)->first();
         return new UsersChannelResource($usersChannel);
     }
+    public function dialog()
+    {
+        // hiện tất cả group
+        // chỉ hiện với những user đã nhắn tin
+        // sắp xếp theo thời gian tin nhắn gần nhất
+        $authUser = Auth::user();
+        $channelsWithMessage = $authUser->channels()
+            ->with([
+                'messages' => function ($q) {
+                    $q->with('user.detail')->latest();
+                },
+                'group',
+                'users' => function ($query) use ($authUser) {
+                    $query->with('detail')->where('users.id', '<>', $authUser->id);
+                }
+            ])
+            ->WhereHas('messages')
+            ->joinSub(
+                Message::select('channel_id', DB::raw('MAX(created_at) as last_message_at'))
+                    ->groupBy('channel_id'),
+                'latest_messages',
+                'latest_messages.channel_id', '=', 'channels.id'
+            )
+            // Sắp xếp channels dựa trên thời gian tin nhắn mới nhất
+            ->orderBy('last_message_at', 'desc')
+            ->get();
+        $newGroup = $authUser
+            ->channels()
+            ->with([
+                'messages' => function ($q) {
+                    $q->with('user.detail')->latest();
+                },
+                'group',
+                'users' => function ($query) use ($authUser) {
+                    $query->with('detail')->where('users.id', '<>', $authUser->id);
+                }
+            ])
+            ->where('channels.type', 'group')
+            ->whereDoesntHave('messages')
+            ->get();
+        $mergedResults = $newGroup->merge($channelsWithMessage);
+        $perPage = 10;
+        $page = LengthAwarePaginator::resolveCurrentPage() ?: 1;
+        $itemsForCurrentPage = $mergedResults->slice(($page - 1) * $perPage, $perPage)->all();
+        $merge = new LengthAwarePaginator($itemsForCurrentPage, $mergedResults->count(), $perPage, $page, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+        ]);
+        foreach ($merge as $channel) {
+            if (!empty($channel->group) && $channel->type === "group") {
+                $channel->detail = $channel->group;
+            }
+            if ($channel->users->count() === 1 && $channel->type === "dm") {
+                $channel->detail = new UserResource($channel->users[0]);
+            }
+            $channel->lastestMessage =(isset($channel->messages[0])) ? new MessageResource($channel->messages->first()) :null;
+            $channel->unsetRelation('group');
+            $channel->unsetRelation('users');
+            $channel->unsetRelation('messages');
+            $channel->unsetRelation('pivot');
+        }
+// Return the paginated merged results
+        return $merge;
+    }
 }
+

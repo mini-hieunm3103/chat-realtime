@@ -2,7 +2,6 @@ import React, {lazy} from "react";
 import {adventurer, adventurerNeutral} from "@dicebear/collection";
 import {createAvatar} from "@dicebear/core";
 import {useOpen} from "@/Helper/hooks.js";
-import {isOnline} from "@/Helper/functions.js";
 
 const ShowUserModal = lazy(() => (import('@/Components/Modals/ShowUserModal.jsx')))
 function UserAvatar(

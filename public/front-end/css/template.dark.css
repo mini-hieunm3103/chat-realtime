@@ -17326,7 +17326,7 @@ a.text-muted.active {
 
 @media (min-width: 992px) and (max-width: 1440px) {
     .message-content {
-        max-width: 45%
+        max-width: 55%
     }
 
     .sidebar-is-open .message-content {
@@ -17348,7 +17348,7 @@ a.text-muted.active {
     }
 
     .message-content {
-        max-width: 45%
+        max-width: 55%
     }
 }
 

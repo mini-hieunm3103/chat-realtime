@@ -47,7 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserDetail::class, 'user_id');
     }
     public function channels() {
-        return $this->belongsToMany('App\Channel', 'user_channel')->withTimestamps();
+        return $this->belongsToMany(Channel::class, 'user_channel')->withTimestamps();
     }
     public function messages()
     {

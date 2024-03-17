@@ -1,15 +1,25 @@
-import React, {useState, useEffect} from "react";
-import {useGetUsers} from "@/Helper/hooks.js";
-
-import {convertBaseJs, isOnline} from "@/Helper/functions.js";
+import React, {useState, useEffect, useContext} from "react";
+import {useEchoChatUsersId, useGetUsers} from "@/Helper/hooks.js";
+import {useFetch, useOpen} from "@/Helper/hooks.js";
+import {convertBaseJs} from "@/Helper/functions.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
+import GroupAvatar from "@/Components/GroupAvatar.jsx";
 import {usePage} from "@inertiajs/react";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
-
+import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 export default function Dialog({startUp}){
+    const {allUserOnlineIds} = useContext(AuthenticatedContext)
     const user = usePage().props.auth.data;
     const [keyword, setKeyword] = useState('')
+    const [dialogCards, setDialogCards] = useState([]);
     const allUsersOnline = useGetUsers(keyword,true);
+    const {data, isPending, error} = useFetch(route('message.dialog'));
+    useEffect(()=> {
+        if(data.hasOwnProperty('data') && !isPending ){
+            setDialogCards(data.data);
+        }
+    }, [isPending])
+    console.log(dialogCards)
     return (
         <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-dialogs" role="tabpanel">
             <div className="d-flex flex-column h-100">
@@ -53,49 +63,45 @@ export default function Dialog({startUp}){
 
                         </div>
 
-                        <nav className="nav d-block list-discussions-js mb-n6">
-                            <a className="text-reset nav-link p-0 mb-3" href={"/t/" + convertBaseJs("gr-1", 37, 10)}>
-                                <div className="card card-active-listener">
-                                    <div className="card-body">
-                                        <div className="media">
-                                            <div className="avatar mr-5  avatar-offline bg-primary text-white">
-                                                <span>DG</span>
-                                            </div>
-                                            <div className="media-body overflow-hidden">
-                                                <div className="d-flex align-items-center mb-1">
-                                                    <h6 className="text-truncate mb-0 mr-auto">Global Chat</h6>
-                                                    <p className="small text-muted text-nowrap ml-4">10:42 am</p>
+                        {dialogCards.length>0
+                        ?   <nav className="nav d-block list-discussions-js mb-n6">
+                                {dialogCards.map((dialogCard, i) => {
+                                    const link = (dialogCard.type ==="group") ? "/t/" + convertBaseJs("gr-"+dialogCard.detail.id, 37, 10) : "/t/"+convertBaseJs("dm-"+dialogCard.detail.id, 37, 10);
+                                    return (
+                                        <a className="text-reset nav-link p-0 mb-3" href={link}>
+                                            <div className="card card-active-listener">
+                                                <div className="card-body">
+                                                    <div className="media">
+                                                    {
+                                                        (dialogCard.type ==="group")
+                                                        ? <GroupAvatar
+                                                            name = {dialogCard.detail.name}
+                                                            className = " mr-5"
+                                                        />
+                                                        : <UserAvatar
+                                                            user = {dialogCard.detail}
+                                                            isOnline = {allUserOnlineIds.includes(dialogCard.detail.id)}
+                                                            className = " mr-5"
+                                                         />
+                                                    }
+                                                        <div className="media-body overflow-hidden">
+                                                            <div className="d-flex align-items-center mb-1">
+                                                                <h6 className="text-truncate mb-0 mr-auto">{dialogCard.detail.name}</h6>
+                                                                <p className="small text-muted text-nowrap ml-4">{(dialogCard.lastestMessage)? dialogCard.lastestMessage.sendTime.full : null}</p>
+                                                            </div>
+                                                            {(dialogCard.lastestMessage) ? <div className="text-truncate">{dialogCard.lastestMessage.user.name}: {dialogCard.lastestMessage.content}</div> : null}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="text-truncate">Anna Bridges: Hey, Maher! How are you?
-                                                    The weather is great isn't it?
+                                                <div className="badge badge-circle badge-primary badge-border-light badge-top-right">
+                                                    <span>3</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className="badge badge-circle badge-primary badge-border-light badge-top-right">
-                                        <span>3</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <a className="text-reset nav-link p-0 mb-3" href={"/t/"+convertBaseJs("ib-", 37, 10)}>
-                                <div className="card card-active-listener">
-                                    <div className="card-body">
-                                        <div className="media">
-                                            <div className="avatar mr-5 avatar-online bg-primary text-white">
-                                                <span>A</span>
-                                            </div>
-                                            <div className="media-body overflow-hidden">
-                                                <div className="d-flex align-items-center mb-1">
-                                                    <h6 className="text-truncate mb-0 mr-auto"> Bridges</h6>
-                                                    <p className="small text-muted text-nowrap ml-4">10:42 am</p>
-                                                </div>
-                                                <div className="text-truncate">is typing<span className='typing-dots'><span>.</span><span>.</span><span>.</span></span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </nav>
+                                        </a>
+                                    )
+                                })}
+                            </nav>
+                        : null}
                     </div>
                 </div>
             </div>

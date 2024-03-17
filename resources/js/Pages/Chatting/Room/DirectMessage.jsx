@@ -1,22 +1,21 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
-import { isOnline} from "@/Helper/functions.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import IsTyping from "@/Pages/Chatting/Partials/IsTyping.jsx";
 import Message from "@/Pages/Chatting/Partials/Message.jsx";
 import ChatSidebar from "@/Pages/Chatting/Partials/DM/Chatsidebar.jsx";
 import {useFetch, useOpen} from "@/Helper/hooks.js";
 import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
-
+import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 
 function DirectMessage({channelId, auth}){
+    const {allUserOnlineIds} = useContext(AuthenticatedContext);
     const [searchMessage, setSearchMessage] = useState(null)
     const [listMessages, setListMessages] = useState([])
     const [other, setOther ] = useState(false)
     const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
     const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId}))
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
-
 
     useEffect(() => {
         if (getMessages.hasOwnProperty('data') && !loadMessages ) {
@@ -58,17 +57,17 @@ function DirectMessage({channelId, auth}){
                                         <UserAvatar
                                             user={other}
                                             showProfile={true}
-                                            isOnline={isOnline(other.id)}
+                                            isOnline={allUserOnlineIds.includes(other.id)}
                                             className=" d-none d-lg-inline-block mr-5 "
                                             size="sm"
                                         />
                                         { other && <div className="media-body align-self-center text-truncate">
                                             <h6 className="text-truncate mb-n1">{other.name}</h6>
-                                            {other.online &&
+                                            {allUserOnlineIds.includes(other.id) &&
                                                 <span
                                                     className="badge badge-dot badge-success d-inline-block d-xl-none mr-1"></span>}
                                             <small
-                                                className="text-muted">{(other.online) ? "Online" : "Offline"}</small>
+                                                className="text-muted">{(allUserOnlineIds.includes(other.id) ) ? "Online" : "Offline"}</small>
                                         </div>}
                                     </div>
                                 </div>
@@ -86,7 +85,6 @@ function DirectMessage({channelId, auth}){
                                                 <div className="nav-link text-muted px-3" onClick={toggleChatsidebar}>
                                                     <i className="icon-md fe-more-vertical"></i>
                                                 </div>
-
                                             </li>
                                             {/*Mobile*/}
                                             <li className="nav-item list-inline-item d-block d-xl-none">
@@ -147,16 +145,16 @@ function DirectMessage({channelId, auth}){
                                     </div>
                                 </div>
                                 {
-                                    listMessages.length && (
+                                    listMessages.length ? (
                                         listMessages.map((message, i) => {
                                             if (i+1 < listMessages.length) {
                                                 continuous = (listMessages[i].user_id === listMessages[i+1].user_id)
                                             } else {
                                                 continuous = false
                                             }
-                                            return (<Message authId={auth.id} message={message} keyword={searchMessage} hasAvatar={!continuous}/>)
+                                            return (<Message authId={auth.id} message={message} keyword={searchMessage} hasAvatar={!continuous} isLast={i+1 === listMessages.length}/>)
                                         })
-                                    )
+                                    ) : null
                                 }
                             </div>
 

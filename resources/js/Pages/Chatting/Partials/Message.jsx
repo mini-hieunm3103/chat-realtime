@@ -2,12 +2,22 @@ import PopupMessage from "@/Pages/Chatting/Partials/PopupMessage.jsx";
 import Highlighter from "react-highlight-words";
 import React, {createContext, useContext} from "react";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-import {isOnline} from "@/Helper/functions.js";
+import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 const MessageContext = createContext()
-const Message = ({authId, message, keyword, hasAvatar = true}) => {
+const Message = (
+    {
+        authId,
+        message,
+        keyword,
+        hasAvatar = true,
+        hasName = false, // false: direct message || true: group
+        isLast =false,
+        isFirst,
+    }
+) => {
     const isAuthUser = authId === message.user.id
     return (
-        <MessageContext.Provider value={{message, keyword, hasAvatar}}>
+        <MessageContext.Provider value={{message, keyword, hasAvatar, isLast, isFirst, hasName}}>
             {isAuthUser
                 ? <MyMessage />
                 : <OtherMessage />
@@ -16,15 +26,15 @@ const Message = ({authId, message, keyword, hasAvatar = true}) => {
     )
 }
 const MyMessage = () => {
-    const {message, keyword, hasAvatar} = useContext(MessageContext)
+    const {message, keyword, hasAvatar, isLast, isFirst} = useContext(MessageContext)
     return (
-        <div className={"message message-right "  + ((hasAvatar) ? "mb-10 mt-2" : "mt-2")}>
+        <div className={"message message-right mt-2 " + ((hasAvatar && !isLast) ? "mb-10 " : "")}>
 
-            <div className="message-body message">
+            <div className="message-body">
 
                 <div className="message-row">
                     <div className="d-flex align-items-center justify-content-end">
-                        <PopupMessage />
+                        <PopupMessage/>
                         <div className="message-content bg-primary text-white">
 
                             <div>
@@ -52,14 +62,15 @@ const MyMessage = () => {
     )
 }
 const OtherMessage = () => {
-    const {message, keyword, hasAvatar} = useContext(MessageContext)
+    const {message, keyword, hasAvatar, isLast, isFirst, hasName} = useContext(MessageContext)
+    const {allUserOnlineIds} = useContext(AuthenticatedContext)
     const other = message.user;
     return (
-        <div className={"message "  + ((hasAvatar) ? "mb-10 mt-2" : "mt-2")}>
+        <div className={"message mt-2 " + ((hasAvatar && !isLast) ? "mb-10 " : "")}>
             {hasAvatar
                 ? <UserAvatar
                     user={other}
-                    isOnline={isOnline(other.id)}
+                    isOnline={allUserOnlineIds.includes(other.id)}
                     showProfile={true}
                     size="sm"
                     className=" mr-4 mr-lg-5 "
@@ -69,9 +80,13 @@ const OtherMessage = () => {
             <div className="message-body">
 
                 <div className="message-row">
-                    <div className="d-flex align-items-center">
-
-                        <div className="message-content bg-light">
+                    <div className="d-flex flex-row align-items-center">
+                        <div className="message-content bg-light position-relative">
+                            {(isFirst || hasName) &&
+                                <div className="position-absolute p-0" style={{top: "-30px"}}>
+                                    <h6 className="mb-2">{message.user.name}</h6>
+                                </div>
+                            }
                             <div>
                                 <Highlighter
                                     highlightClassName="highlighted-text"
