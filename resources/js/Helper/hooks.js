@@ -116,18 +116,18 @@ export const  useEchoChatUsersId = () =>  {
     * */
 }
 
-export const useGetUsers  = (keyword, justOnline = false) =>  {
+export const useGetUsers  = (keyword, justOnline = false, withAuthUser=false) =>  {
     const allUsersOnlineId = useEchoChatUsersId();
     const [allUsers, setAllUsers] = useState([])
     useEffect(() => {
         if (justOnline && allUsersOnlineId.length){
-            fetch(route('user.get-all-users', {online: allUsersOnlineId}))
+            fetch(route('user.get-all-users', {online: allUsersOnlineId, needAuth:withAuthUser}))
                 .then(res => res.json())
                 .then((data)=> {
                     setAllUsers(data.data)
                 })
         } else if (!justOnline) {
-            fetch(route('user.get-all-users', {keyword: keyword}))
+            fetch(route('user.get-all-users', {keyword: keyword, needAuth:withAuthUser}))
                 .then(res => res.json())
                 .then((data)=> {
                     data.data.map(e => {

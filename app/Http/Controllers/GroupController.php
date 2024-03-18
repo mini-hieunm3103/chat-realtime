@@ -57,4 +57,15 @@ class GroupController extends Controller
         $group->admins()->attach(Auth::id());
         return Redirect::back();
     }
+    public function addUsers(Request $request)
+    {
+        foreach ($request->users as $userId) {
+            $addUsers[$userId] = [
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ];
+        }
+        Channel::find($request->channelId)->users()->attach($addUsers);
+        return Redirect::back();
+    }
 }

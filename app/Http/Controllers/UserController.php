@@ -35,7 +35,11 @@ class UserController extends Controller
                 }
             });
         }
-        $users = $users->where('id', '<>', Auth::id())->with('detail')->get();
+        if ($request->needAuth) {
+            $users = $users->with('detail')->get();
+        } else {
+            $users = $users->where('id', '<>', Auth::id())->with('detail')->get();
+        }
         return UserResource::collection($users);
     }
     public function inviteFriend(Request $request)

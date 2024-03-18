@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::group(['prefix' => 'room'], function (){
         Route::post('/group/store', [GroupController::class, 'store'])->name('group.store');
+        Route::patch('/group/addUsers', [GroupController::class, 'addUsers'])->name('group.addUsers');
         Route::get('/group/{group_id}', [GroupController::class, 'detail'])->name('group.detail');
         Route::post('/direct-message', [ChatController::class, 'directMessage'])->name('directMessage');
     });

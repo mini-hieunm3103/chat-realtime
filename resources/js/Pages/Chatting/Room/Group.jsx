@@ -12,6 +12,7 @@ import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 import GalleryCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/GalleryCS.jsx";
 import FilesCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/FilesCS.jsx";
 import LinkCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/LinkCS.jsx";
+import AddUsersToGroup from "@/Components/Modals/AddUsersToGroup.jsx";
 export default function Group({ auth ,channelId}){
     const trueUrl = convertBaseJs(window.location.pathname.match(/\d+/)[0], 10, 37)
     const groupId = trueUrl.match(/\d+/)[0]
@@ -20,6 +21,7 @@ export default function Group({ auth ,channelId}){
     const [groupDetail, setGroupDetail] = useState(false)
     const [listUsers, setListUsers] = useState([])
     const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
+    const {open: openAddUsersModal, toggle:  toggleOpenAddUsersModal} = useOpen()
     const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page:1}))
     const {data: getGroupDetail, isPending: loadGroupDetail, error: errorGroupDetail} = useFetch(route('group.detail', {group_id: groupId}))
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
@@ -97,10 +99,12 @@ export default function Group({ auth ,channelId}){
                                         </li>
 
                                         <li className="nav-item list-inline-item d-none d-xl-block mr-3">
-                                            <a className="nav-link text-muted px-3" href="#"
-                                               data-chat-sidebar-toggle="#chat-1-members" title="Add People">
+                                            <div className="nav-link text-muted px-3"
+                                                 onClick={toggleOpenAddUsersModal}
+                                            >
                                                 <i className="icon-md fe-user-plus"></i>
-                                            </a>
+                                            </div>
+                                            <AddUsersToGroup channelId={channelId} isShowing={openAddUsersModal} hide={toggleOpenAddUsersModal} usersChannel={listUsers}/>
                                         </li>
 
                                         <li className="nav-item list-inline-item d-none d-xl-block mr-0">

@@ -19,7 +19,6 @@ export default function Dialog({startUp}){
             setDialogCards(data.data);
         }
     }, [isPending])
-    console.log(dialogCards)
     return (
         <div className={"tab-pane fade h-100 " +(startUp && "show active")} id="tab-content-dialogs" role="tabpanel">
             <div className="d-flex flex-column h-100">

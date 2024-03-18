@@ -195,20 +195,20 @@ function CreateGroup({startUp}) {
                                                             <div className="align-self-center ml-auto">
                                                                 <div className="custom-control custom-checkbox">
                                                                     <CheckboxInput
-                                                                        id={`id-user-${i}`}
+                                                                        id={`id-create-group-user-${i}`}
                                                                         name = 'users[]'
                                                                         value = {user.id}
                                                                         onChange={(e) => handleCheckboxChange(e.target.value, e.target.checked)}
                                                                     />
                                                                     <label className="custom-control-label"
-                                                                           htmlFor={`id-user-${i}`}></label>
+                                                                           htmlFor={`id-create-group-user-${i}`}></label>
                                                                 </div>
                                                             </div>
                                                         </div>
 
                                                     </div>
 
-                                                    <label className="stretched-label" htmlFor={`id-user-${i}`}></label>
+                                                    <label className="stretched-label" htmlFor={`id-create-group-user-${i}`}></label>
                                                 </div>
                                             </>
                                         )
