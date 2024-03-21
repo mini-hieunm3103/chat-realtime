@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-
+use App\Models\User;
 class GroupResource extends JsonResource
 {
     /**
@@ -16,8 +16,9 @@ class GroupResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
-            'owner' => $this->owner,
+            'owner' => new UserResource(User::find($this->owner)),
             'topic' => $this->topic,
             'description' => $this->description,
             'approval' => ($this->approval),

@@ -13,10 +13,11 @@ import GalleryCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/GalleryCS.jsx";
 import FilesCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/FilesCS.jsx";
 import LinkCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/LinkCS.jsx";
 import AddUsersToGroup from "@/Components/Modals/AddUsersToGroup.jsx";
+import SearchInput from "@/Components/Input/SearchInput.jsx";
 export default function Group({ auth ,channelId}){
     const trueUrl = convertBaseJs(window.location.pathname.match(/\d+/)[0], 10, 37)
     const groupId = trueUrl.match(/\d+/)[0]
-    const [searchMessage, setSearchMessage] = useState(null)
+    const [searchMessage, setSearchMessage] = useState("")
     const [listMessages, setListMessages] = useState([])
     const [groupDetail, setGroupDetail] = useState(false)
     const [listUsers, setListUsers] = useState([])
@@ -70,7 +71,7 @@ export default function Group({ auth ,channelId}){
                                         <GroupAvatar
                                             className=" d-none d-xl-inline-block mr-5"
                                             size="sm"
-                                            name="Global Chat Admin"
+                                            name={groupDetail.name}
                                         />
 
                                         {groupDetail && listUsers.length > 0 &&
@@ -104,7 +105,8 @@ export default function Group({ auth ,channelId}){
                                             >
                                                 <i className="icon-md fe-user-plus"></i>
                                             </div>
-                                            <AddUsersToGroup channelId={channelId} isShowing={openAddUsersModal} hide={toggleOpenAddUsersModal} usersChannel={listUsers}/>
+                                            <AddUsersToGroup channelId={channelId} isShowing={openAddUsersModal}
+                                                             hide={toggleOpenAddUsersModal} usersChannel={listUsers}/>
                                         </li>
 
                                         <li className="nav-item list-inline-item d-none d-xl-block mr-0">
@@ -155,19 +157,11 @@ export default function Group({ auth ,channelId}){
 
                     <div className="collapse border-bottom px-lg-8" id="chat-1-search">
                         <div className="container-xxl py-4 py-lg-6">
-
-                            <div className="input-group">
-                                <input type="text" className="form-control form-control-lg"
-                                       placeholder="Search this chat" aria-label="Search this chat"/>
-
-                                <div className="input-group-append">
-                                    <button className="btn btn-lg btn-ico btn-secondary btn-minimal"
-                                            type="submit">
-                                        <i className="fe-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-
+                            <SearchInput
+                                keyword={searchMessage}
+                                setKeyword={setSearchMessage}
+                                placeHolder="Search this chat"
+                            />
                         </div>
                     </div>
 
@@ -175,7 +169,7 @@ export default function Group({ auth ,channelId}){
                         <div className="container-xxl py-6 py-lg-10">
 
                             {
-                                listMessages.length && (
+                                listMessages.length ? (
                                     listMessages.map((message, i) => {
                                         const hasName = next===i
                                         // continous: liền kề -> tạo 1 group message và chỉ hiện 1 lần avatar ở message cuối cùng group đó
@@ -190,7 +184,7 @@ export default function Group({ auth ,channelId}){
                                         }
                                         return (<Message authId={auth.id} message={message} keyword={searchMessage} hasName={hasName} hasAvatar={!continuous} isFirst={i===0} isLast={i+1 === listMessages.length}/>)
                                     })
-                                )
+                                ) : null
                             }
 
                         </div>

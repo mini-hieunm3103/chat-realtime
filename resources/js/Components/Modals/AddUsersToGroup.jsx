@@ -1,13 +1,16 @@
 import BaseModal from "@/Components/Modals/Base/BaseModal.jsx";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {useGetUsers} from "@/Helper/hooks.js";
+import React, {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import Highlighter from "react-highlight-words";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import {useForm} from "@inertiajs/react";
 import Swal from "sweetalert2";
 import Button from "@/Components/Button.jsx";
+import LoadingDiv from "@/Components/LoadingDiv.jsx";
+import {useFetch} from "@/Helper/hooks.js";
+import {isObjectEmpty} from "@/Helper/functions.js";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const AddUsersToGroupContext = createContext()
 const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
@@ -16,15 +19,50 @@ const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
         users: []
     });
     const [usersPostData, setUsersPostData] = useState([]);
-    const [keyword, setKeyword] = useState("")
-    const allUsers = useGetUsers(keyword, false, true);
-    var currentFirstIndexName = null
-    const handleCheckboxChange = (userId, isChecked) => {
-        if (isChecked) {
-            setUsersPostData(prevState => [...prevState, userId])
-        } else {
-            setUsersPostData(prevState => prevState.filter(id => id !== userId))
+
+    const [keyword, setKeyword] = useState("");
+    const [pageNumber, setPageNumber] = useState(1);
+    const [query, setQuery] = useState({
+        page: 1,
+        keyword: "",
+        needAuth:false,
+    })
+    const urlFetch = route('user.getAllUsers', query)
+    //get
+    const {data:getUsers, isPending, error} = useFetch(urlFetch)
+    const [allUsers, setAllUsers] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
+    const fetchMoreUsers = useCallback(() => {
+        setPageNumber(prevState => prevState+1)
+    })
+    useEffect(() => {
+        if (!isObjectEmpty(getUsers)){
+            setAllUsers(prevUsers =>{
+                return [...new Set([...prevUsers, ...getUsers.data])]
+            });
+            setHasMore(query.page <= getUsers.meta.last_page)
         }
+    }, [getUsers]);
+    useEffect(() => {
+        setPageNumber(1)
+        setQuery({
+            ...query,
+            keyword: keyword,
+            page: pageNumber
+        })
+        setAllUsers([]);
+    }, [keyword]);
+    useEffect(() => {
+        setQuery({
+            ...query,
+            page: pageNumber
+        })
+    }, [pageNumber]);
+    const handleCheckboxChange = (userId, isChecked) => {
+        if (isChecked)
+            setUsersPostData(prevState => [...prevState, userId])
+        else
+            setUsersPostData(prevState => prevState.filter(id => id !== userId))
     }
     const addUsers = (e) => {
         e.preventDefault();
@@ -50,10 +88,12 @@ const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
     useEffect(() => {
         setData('users', usersPostData)
     }, [usersPostData]);
+    var currentFirstIndexName = null
     return (<AddUsersToGroupContext.Provider value={{
         handleCheckboxChange,
         keyword,
         isInGroup: usersChannel,
+        data: data
     }}>
         <BaseModal
             isShowing={isShowing}
@@ -76,31 +116,40 @@ const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
                     </button>
                 </div>
 
-                <div className="modal-body">
+                <div className="modal-body h-100">
                     <SearchInput setKeyword={setKeyword} keyword={keyword}
                                  placeHolder="Search for name or email..."/>
                     <nav className="list-group list-group-flush mb-n6">
-                        {allUsers.map((user, i) => {
-                            var groupNameHtml = (currentFirstIndexName !== user.name.charAt(0))
-                                ? <div className="mb-6">
-                                    <small className="text-uppercase">{user.name.charAt(0)}</small>
-                                </div>
-                                : null
-                            let isInGroup = false;
-                            currentFirstIndexName = user.name.charAt(0)
-                            return (
-                                <>
-                                    {groupNameHtml}
-                                    {usersChannel.map((userChannel) => {
-                                        if (userChannel.id === user.id) {
-                                            isInGroup = true
-                                            return (<IsInGroup user={user} i={i}/>)
-                                        }
-                                    })}
-                                    {!isInGroup && <NotInGroup user={user} i={i}/>}
-                                </>
-                            )
-                        })}
+                        <InfiniteScroll
+                            next={fetchMoreUsers}
+                            dataLength={allUsers.length}
+                            hasMore={hasMore}
+                            loader={<LoadingDiv />}
+                            height="48rem"
+                            className="hide-scrollbar"
+                        >
+                            {allUsers.map((user, i) => {
+                                var groupNameHtml = (currentFirstIndexName !== user.name.charAt(0))
+                                    ? <div className="mb-6">
+                                        <small className="text-uppercase">{user.name.charAt(0)}</small>
+                                    </div>
+                                    : null
+                                let isInGroup = false;
+                                currentFirstIndexName = user.name.charAt(0)
+                                return (
+                                    <>
+                                        {groupNameHtml}
+                                        {usersChannel.map((userChannel) => {
+                                            if (userChannel.id === user.id) {
+                                                isInGroup = true
+                                                return (<IsInGroup user={user} i={i}/>)
+                                            }
+                                        })}
+                                        {!isInGroup && <NotInGroup user={user} i={i}/>}
+                                    </>
+                                )
+                            })}
+                        </InfiniteScroll>
                     </nav>
                 </div>
 
@@ -177,7 +226,7 @@ const IsInGroup = ({user, i}) => {
     )
 }
 const NotInGroup = ({user, i}) => {
-    const {handleCheckboxChange, keyword, isInGroup} = useContext(AddUsersToGroupContext);
+    const {handleCheckboxChange, keyword, data} = useContext(AddUsersToGroupContext);
     return (
         <div className="card mb-4" key={i}>
             <div className="card-body">
@@ -215,8 +264,8 @@ const NotInGroup = ({user, i}) => {
                             <CheckboxInput
                                 id={`id-update-group-user-${i}`}
                                 name='users[]'
-                                value={user.id}
-                                onChange={(e) => handleCheckboxChange(e.target.value, e.target.checked)}
+                                checked= {data.users.includes(user.id)}
+                                onChange={(e) => handleCheckboxChange(user.id, e.target.checked)}
                             />
                             <label className="custom-control-label"
                                    htmlFor={`id-update-group-user-${i}`}></label>

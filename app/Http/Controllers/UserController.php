@@ -36,9 +36,9 @@ class UserController extends Controller
             });
         }
         if ($request->needAuth) {
-            $users = $users->with('detail')->get();
+            $users = $users->with('detail')->paginate(10)->withQueryString();
         } else {
-            $users = $users->where('id', '<>', Auth::id())->with('detail')->get();
+            $users = $users->where('id', '<>', Auth::id())->with('detail')->paginate(10)->withQueryString();
         }
         return UserResource::collection($users);
     }

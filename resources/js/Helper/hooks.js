@@ -121,13 +121,13 @@ export const useGetUsers  = (keyword, justOnline = false, withAuthUser=false) =>
     const [allUsers, setAllUsers] = useState([])
     useEffect(() => {
         if (justOnline && allUsersOnlineId.length){
-            fetch(route('user.get-all-users', {online: allUsersOnlineId, needAuth:withAuthUser}))
+            fetch(route('user.getAllUsers', {online: allUsersOnlineId, needAuth:withAuthUser}))
                 .then(res => res.json())
                 .then((data)=> {
                     setAllUsers(data.data)
                 })
         } else if (!justOnline) {
-            fetch(route('user.get-all-users', {keyword: keyword, needAuth:withAuthUser}))
+            fetch(route('user.getAllUsers', {keyword: keyword, needAuth:withAuthUser}))
                 .then(res => res.json())
                 .then((data)=> {
                     data.data.map(e => {

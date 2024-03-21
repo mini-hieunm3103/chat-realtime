@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/t/{base10}', [ChatController::class, 'chatting'])->where('base10', '[0-9]+')->name('chatting');
 
     Route::group(['prefix' => 'user', 'as' => 'user.'], function (){
-        Route::get('/get-all-users', [UserController::class, 'getAllUsers'])->name('get-all-users');
+        Route::get('', [UserController::class, 'getAllUsers'])->name('getAllUsers');
         Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
         Route::patch('/update-account', [UserController::class, 'updateAccount'])->name('updateAccount');
         Route::patch('/update-details', [UserController::class, 'updateDetails'])->name('updateDetails');

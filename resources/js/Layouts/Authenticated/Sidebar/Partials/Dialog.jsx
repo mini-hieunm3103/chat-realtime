@@ -10,7 +10,7 @@ import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.j
 export default function Dialog({startUp}){
     const {allUserOnlineIds} = useContext(AuthenticatedContext)
     const user = usePage().props.auth.data;
-    const [keyword, setKeyword] = useState('')
+    const [keyword, setKeyword] = useState("")
     const [dialogCards, setDialogCards] = useState([]);
     const allUsersOnline = useGetUsers(keyword,true);
     const {data, isPending, error} = useFetch(route('message.dialog'));

@@ -10,7 +10,7 @@ import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.j
 
 function DirectMessage({channelId, auth}){
     const {allUserOnlineIds} = useContext(AuthenticatedContext);
-    const [searchMessage, setSearchMessage] = useState(null)
+    const [searchMessage, setSearchMessage] = useState("")
     const [listMessages, setListMessages] = useState([])
     const [other, setOther ] = useState(false)
     const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()

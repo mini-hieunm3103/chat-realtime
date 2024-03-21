@@ -82,3 +82,6 @@ export const convertTimestamp = (timestamp) =>{
 export const asset = (path) => {
     return `${appUrl}/storage/${path}`
 }
+export const isObjectEmpty = (objectName) => {
+    return JSON.stringify(objectName) === "{}";
+};

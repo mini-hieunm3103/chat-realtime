@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import InputLabel from "@/Components/InputLabel.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import InputError from "@/Components/InputError.jsx";
@@ -6,11 +6,19 @@ import {useForm} from "@inertiajs/react";
 import TextareaInput from "@/Components/TextareaInput.jsx";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
-import {useGetUsers} from "@/Helper/hooks.js";
+import {useFetch, useGetUsers} from "@/Helper/hooks.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import Highlighter from "react-highlight-words";
+import SearchInput from "@/Components/Input/SearchInput.jsx";
+import Button from "@/Components/Button.jsx";
+import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
+import InfiniteScroll from "react-infinite-scroll-component";
+import LoadingDiv from "@/Components/LoadingDiv.jsx";
+import {isObjectEmpty} from "@/Helper/functions.js";
 
 function CreateGroup({startUp}) {
+    const {allUserOnlineIds} = useContext(AuthenticatedContext);
+    // post
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         topic: '',
@@ -18,18 +26,51 @@ function CreateGroup({startUp}) {
         users: []
     });
     const [usersPostData, setUsersPostData] = useState([]);
-    const [keyword, setKeyword] = useState('');
-    const allUsers = useGetUsers(keyword);
-    var currentFirstIndexName = null
-
+    const [keyword, setKeyword] = useState("");
+    const [pageNumber, setPageNumber] = useState(1);
+    const [query, setQuery] = useState({
+        page: 1,
+        keyword: "",
+        needAuth:false,
+    })
+    const urlFetch = route('user.getAllUsers', query)
+    //get
+    const {data:getUsers, isPending, error} = useFetch(urlFetch)
+    const [allUsers, setAllUsers] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
+    const fetchMoreUsers = useCallback(() => {
+        setPageNumber(prevState => prevState+1)
+    })
+    useEffect(() => {
+        if (!isObjectEmpty(getUsers)){
+            setAllUsers(prevUsers =>{
+                return [...new Set([...prevUsers, ...getUsers.data])]
+            });
+            setHasMore(query.page <= getUsers.meta.last_page)
+        }
+    }, [getUsers]);
+    useEffect(() => {
+        setPageNumber(1)
+        setQuery({
+            ...query,
+            keyword: keyword,
+            page: pageNumber
+        })
+        setAllUsers([]);
+    }, [keyword]);
+    useEffect(() => {
+        setQuery({
+            ...query,
+            page: pageNumber
+        })
+    }, [pageNumber]);
     const handleCheckboxChange = (userId, isChecked) => {
-        if(isChecked) {
+        if (isChecked) {
             setUsersPostData(prevState => [...prevState, userId])
         } else {
-            setUsersPostData(prevState => prevState.filter(id=> id!== userId))
+            setUsersPostData(prevState => prevState.filter(id => id !== userId))
         }
     }
-
     const createChatroom = (e) => {
         e.preventDefault();
         post(route('group.store'), {
@@ -50,11 +91,12 @@ function CreateGroup({startUp}) {
     useEffect(() => {
         setData('users', usersPostData)
     }, [usersPostData]);
+    var currentFirstIndexName = null
     return (
         <div className={"tab-pane fade h-100 " + (startUp && "show active")} id="tab-content-create-chat"
              role="tabpanel">
             <form onSubmit={createChatroom} className="d-flex flex-column h-100">
-                <div className="hide-scrollbar">
+                <div className="hide-scrollbar h-100">
                     <div className="container-fluid py-6">
 
                         <h2 className="font-bold mb-6">Create group</h2>
@@ -130,20 +172,7 @@ function CreateGroup({startUp}) {
                             </div>
 
                             <div id="create-group-members" className="tab-pane fade" role="tabpanel">
-                                <div className="input-group mb-6">
-                                    <TextInput
-                                        value={keyword}
-                                        onChange={(e) => setKeyword(e.target.value)}
-                                        placeholder="Search for name or email..."
-                                        aria-label="Search for name or email..."
-                                    />
-
-                                    <div className="input-group-append">
-                                        <div className="btn btn-lg btn-ico btn-secondary btn-minimal">
-                                            <i className="fe-search"></i>
-                                        </div>
-                                    </div>
-                                </div>
+                                <SearchInput className="mb-3" keyword={keyword} setKeyword={setKeyword} placeHolder="Search for name or email..." />
                                 <nav className="list-group list-group-flush mb-n6">
                                     {(errors.users) &&
                                         <>
@@ -152,67 +181,76 @@ function CreateGroup({startUp}) {
                                             </div>
                                         </>
                                     }
-                                    {allUsers.map((user, i) => {
-                                        var groupNameHtml = (currentFirstIndexName  !== user.name.charAt(0))
-                                            ? <div className="mb-6">
-                                                <small className="text-uppercase">{user.name.charAt(0)}</small>
-                                            </div>
-                                            : null
-                                        currentFirstIndexName = user.name.charAt(0)
-                                        return (
-                                            <>
-                                                {groupNameHtml}
-                                                <div className="card mb-4" key={i}>
-                                                    <div className="card-body">
+                                    <InfiniteScroll
+                                        next={fetchMoreUsers}
+                                        dataLength={allUsers.length}
+                                        hasMore={hasMore}
+                                        loader={<LoadingDiv />}
+                                        height="44rem"
+                                        className="hide-scrollbar"
+                                    >
+                                        {allUsers.map((user, i) => {
+                                            var groupNameHtml = (currentFirstIndexName  !== user.name.charAt(0))
+                                                ? <div className="mb-6">
+                                                    <small className="text-uppercase">{user.name.charAt(0)}</small>
+                                                </div>
+                                                : null
+                                            currentFirstIndexName = user.name.charAt(0)
+                                            return (
+                                                <>
+                                                    {groupNameHtml}
+                                                    <div className="card mb-4" key={i}>
+                                                        <div className="card-body">
 
-                                                        <div className="media">
-                                                            <UserAvatar
-                                                                user={user}
-                                                                isOnline={(user.online === 1)}
-                                                                className="mr-5"
-                                                            />
+                                                            <div className="media">
+                                                                <UserAvatar
+                                                                    user={user}
+                                                                    isOnline={allUserOnlineIds.includes(user.id)}
+                                                                    className="mr-5"
+                                                                />
 
-                                                            <div className="media-body align-self-center">
-                                                                <h6 className="mb-0">
-                                                                    <Highlighter
-                                                                        highlightClassName="highlighted-text"
-                                                                        searchWords={[keyword]}
-                                                                        autoEscape={true}
-                                                                        textToHighlight={user.name}
-                                                                    />
-                                                                </h6>
-                                                                <small
-                                                                    className="text-muted text-truncate">
-                                                                    <Highlighter
-                                                                        highlightClassName="highlighted-text"
-                                                                        searchWords={[keyword]}
-                                                                        autoEscape={true}
-                                                                        textToHighlight={user.email}
-                                                                    />
-                                                                </small>
-                                                            </div>
+                                                                <div className="media-body align-self-center">
+                                                                    <h6 className="mb-0">
+                                                                        <Highlighter
+                                                                            highlightClassName="highlighted-text"
+                                                                            searchWords={[keyword]}
+                                                                            autoEscape={true}
+                                                                            textToHighlight={user.name}
+                                                                        />
+                                                                    </h6>
+                                                                    <small
+                                                                        className="text-muted text-truncate">
+                                                                        <Highlighter
+                                                                            highlightClassName="highlighted-text"
+                                                                            searchWords={[keyword]}
+                                                                            autoEscape={true}
+                                                                            textToHighlight={user.email}
+                                                                        />
+                                                                    </small>
+                                                                </div>
 
-                                                            <div className="align-self-center ml-auto">
-                                                                <div className="custom-control custom-checkbox">
-                                                                    <CheckboxInput
-                                                                        id={`id-create-group-user-${i}`}
-                                                                        name = 'users[]'
-                                                                        value = {user.id}
-                                                                        onChange={(e) => handleCheckboxChange(e.target.value, e.target.checked)}
-                                                                    />
-                                                                    <label className="custom-control-label"
-                                                                           htmlFor={`id-create-group-user-${i}`}></label>
+                                                                <div className="align-self-center ml-auto">
+                                                                    <div className="custom-control custom-checkbox">
+                                                                        <CheckboxInput
+                                                                            id={`id-create-group-user-${i}`}
+                                                                            name = 'users[]'
+                                                                            checked= {data.users.includes(user.id)}
+                                                                            onChange={(e) => handleCheckboxChange(user.id, e.target.checked)}
+                                                                        />
+                                                                        <label className="custom-control-label"
+                                                                               htmlFor={`id-create-group-user-${i}`}></label>
+                                                                    </div>
                                                                 </div>
                                                             </div>
+
                                                         </div>
 
+                                                        <label className="stretched-label" htmlFor={`id-create-group-user-${i}`}></label>
                                                     </div>
-
-                                                    <label className="stretched-label" htmlFor={`id-create-group-user-${i}`}></label>
-                                                </div>
-                                            </>
-                                        )
-                                    })}
+                                                </>
+                                            )
+                                        })}
+                                    </InfiniteScroll>
                                 </nav>
                             </div>
 
@@ -221,9 +259,9 @@ function CreateGroup({startUp}) {
                     </div>
                 </div>
 
-                <div className="pb-6">
+                <div className="pb-6 " style={{bottom: 0}}>
                     <div className="container-fluid" style={{zIndex: 99}}>
-                        <button className="btn btn-lg btn-primary btn-block" type="submit">Create group</button>
+                        <Button size="lg" className="btn-block" type="submit">Create group</Button>
                     </div>
                 </div>
 

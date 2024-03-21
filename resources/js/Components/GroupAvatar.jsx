@@ -1,7 +1,9 @@
 import React from "react";
 
 export default function GroupAvatar({name, size, className}) {
-
+    if (!name) {
+        return null;
+    }
     let avatarText = "";
     const splitName = name.split(" ");
     let limit;
