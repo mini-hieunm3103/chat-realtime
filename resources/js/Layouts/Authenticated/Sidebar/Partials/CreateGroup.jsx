@@ -186,7 +186,7 @@ function CreateGroup({startUp}) {
                                         dataLength={allUsers.length}
                                         hasMore={hasMore}
                                         loader={<LoadingDiv />}
-                                        height="44rem"
+                                        height="40rem"
                                         className="hide-scrollbar"
                                     >
                                         {allUsers.map((user, i) => {

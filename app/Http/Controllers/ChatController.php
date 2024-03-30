@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GroupResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Resources\UsersChannelResource;
 use App\Http\Resources\MessageResource;
@@ -81,16 +82,22 @@ class ChatController extends Controller
     }
     public function getUsersChannel($channelId)
     {
+        // phải render ra hết không phân trang do phần add user render ra hết => nếu phân page sẽ có lỗi
         $usersChannel = Channel::with(['users' => function ($q) {
-            $q->with('detail');
+            $q->orderBy('name', 'asc')->with('detail');
         }])->where('id', $channelId)->first();
         return new UsersChannelResource($usersChannel);
     }
-    public function dialog()
+    public function dialog(Request $request)
     {
         // hiện tất cả group
         // chỉ hiện với những user đã nhắn tin
         // sắp xếp theo thời gian tin nhắn gần nhất
+        $keyword=null;
+        if ($request->keyword){
+            $keyword = $request->keyword;
+        }
+//        dd($keyword);
         $authUser = Auth::user();
         $channelsWithMessage = $authUser->channels()
             ->with([
@@ -125,6 +132,7 @@ class ChatController extends Controller
             ])
             ->where('channels.type', 'group')
             ->whereDoesntHave('messages')
+            ->orderBy('created_at', 'desc')
             ->get();
         $mergedResults = $newGroup->merge($channelsWithMessage);
         $perPage = 10;
@@ -135,7 +143,7 @@ class ChatController extends Controller
         ]);
         foreach ($merge as $channel) {
             if (!empty($channel->group) && $channel->type === "group") {
-                $channel->detail = $channel->group;
+                $channel->detail = new GroupResource($channel->group);
             }
             if ($channel->users->count() === 1 && $channel->type === "dm") {
                 $channel->detail = new UserResource($channel->users[0]);

@@ -25,7 +25,7 @@ const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
     const [query, setQuery] = useState({
         page: 1,
         keyword: "",
-        needAuth:false,
+        needAuth:true,
     })
     const urlFetch = route('user.getAllUsers', query)
     //get
@@ -116,8 +116,8 @@ const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
                     </button>
                 </div>
 
-                <div className="modal-body h-100">
-                    <SearchInput setKeyword={setKeyword} keyword={keyword}
+                <div className="modal-body h-100 hide-scrollbar">
+                    <SearchInput setKeyword={setKeyword} keyword={keyword} className="mb-4"
                                  placeHolder="Search for name or email..."/>
                     <nav className="list-group list-group-flush mb-n6">
                         <InfiniteScroll
@@ -125,7 +125,7 @@ const AddUsersToGroup = ({isShowing, hide, usersChannel, channelId}) => {
                             dataLength={allUsers.length}
                             hasMore={hasMore}
                             loader={<LoadingDiv />}
-                            height="48rem"
+                            height="40rem"
                             className="hide-scrollbar"
                         >
                             {allUsers.map((user, i) => {

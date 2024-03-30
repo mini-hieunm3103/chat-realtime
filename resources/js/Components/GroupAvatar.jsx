@@ -17,7 +17,7 @@ export default function GroupAvatar({name, size, className}) {
     }
     return (
         <div className={
-            "avatar "
+            "cursor-default avatar "
             + ((size) ? " avatar-" + size : " ")
             + " bg-success text-white "
             + className

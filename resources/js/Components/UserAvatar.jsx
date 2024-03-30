@@ -31,7 +31,7 @@ function UserAvatar(
     return (
         <>
             <div className={
-                "avatar "
+                "cursor-default avatar "
                 + ((size) ? " avatar-" + size : " ")
                 + ((isOnline) ? " avatar-online" : " ")
                 + ((isNull) ? " bg-primary text-white " : " ")

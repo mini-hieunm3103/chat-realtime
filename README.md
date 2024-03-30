@@ -5,17 +5,6 @@
 + Front-end: [Chat template](https://devforum.info/messenger-chat-template-with-css-and-javascript-p392.html)
 + [Laravel Breeze and Inertia for auth](https://laravel.com/docs/10.x/starter-kits#breeze-and-inertia) 
 
-## Features:
-### Login, Register, Forgot password, Reset password, Verify email
-### Setting Page:
-+ Change your information 
-+ Change your password
-### Friends Sidebar
-+ Invite Friends
-  + Max 3 emails
-  + Validation emails : is email? has been registered? 
-  + Use queue to send mail from admin's email to others
-
 ## Run In Local
 ### Prerequisites
 1. Make sure you have `redis` installed on your computer. Try run `redis-cli` in terminal to see
@@ -89,14 +78,47 @@ npm run watch
 laravel-echo-serve start
 php artisan queue:work
 ```
-## Hướng đi
-1. Trong channel có type : 
-    - private: direct message: nhắn riêng 2 người
-    - presence: cho nhóm tạo bởi người dùng có thể hiển thị người đang ở trong nhóm chat
-2. Trong input của room trước khi gửi đến request thì sẽ xác nhận sẵn luôn room đó là type nào
-3. Sẽ có 1 channel là `chat` để lấy ra online users:
-   - 
-### Lỗi chưa fix:
-1. Khi login, register, ... (Chưa auth) thì khi hoàn thành ( sau login, sau register ) thì 
-    - trong laravel-echo-server: người dùng vẫn chưa auth làm cho lỗi không joined presence channel : 'chat' -> không xác định đc online hay không
-    - từ đó dẫn đến show online ở sidebar: dialog, global friends, create chatroom bị lỗi không hiển thị user online
+## Features:
+### Login, Register, Forgot password, Reset password, Verify email
+### Sidebar:
++ Friends Sidebar:
+  + Show all users with [Infinity scroll component](https://www.npmjs.com/package/react-infinite-scroll-component)
+  + Search name or email
+  + Click Friends Sidebar card to redirect DMs
+  + Invite Friends join our website use emails: 
+   + Max 3 emails
+   + Validation emails: 
+     + valid email?
+     + has been registered?
+   + Use queue to send mail from admin's email to others
++ Create Group: min 3 people: you and 2 others
++ Dialog:
+  + Show users online 
+  + Render the groups you've joined and the direct conversations that have messages
+  + Pin the conversations
++ Profile: show your profile and logout action
++ Notifications:
+  +
+
+### Setting Page:
++ Change your information
++ Change your password
++ Custom avatar with [dicebear](https://www.dicebear.com/playground/)
+### Direct Messages
++ Click avatar to show other profile 
+
+### Group Chat
++ If members = 1, the last people can delete this conversation
++ 
+#### Members:
++ Mute, pin, add members
++ See files, pictures, links
++ Change avatar, group name (if members are allowed)
++ Leave Chat:
+  + You can still view the files, messages before you leave the group
+#### Owner/Admins
++ __allows users to see all members of the group__: if the group is more than `50` people, you can config this in `resources/js/Helper/config.js`
++ __membership approval__: When enabled, new members must be approved by owner or admins to join the group
++ __highlight messages from owner/admins__: When enabled, messages from owner or admin will have a key symbol.
++ __Allow joining group via link__: All members can invite people to join the group by sharing a link with them
++ __Manage blocked members__: Blocked users cannot rejoin the group, unless they are unblocked or added by the group owner or admins.

@@ -216,3 +216,4 @@ export const avatarOptions = {
     backgroundType: returnOptions(dicebearAvatar.backgroundType)
 }
 export const appUrl = import.meta.env.APP_URL || 'http://127.0.0.1:8000'
+export const isCommunityUsersLength = 20; //

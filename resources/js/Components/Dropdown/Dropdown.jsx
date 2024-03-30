@@ -1,31 +1,28 @@
-import {createContext, useContext, useState} from "react";
+import {createContext, useContext, useEffect, useState} from "react";
 
 const DropdownContext = createContext()
-
-const Dropdown = ({dropdownId, children}) => {
-    const [isOpen, setIsOpen] = useState(false)
-    const [openId, setOpenId] = useState("")
+const Dropdown = ({dropdownId, children, defaultOpen=true}) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen)
     return (
-        <DropdownContext.Provider value={{dropdownId, isOpen, setIsOpen, openId, setOpenId}}>
+        <DropdownContext.Provider value={{dropdownId, isOpen, setIsOpen}}>
             {children}
         </DropdownContext.Provider>
     )
 }
-const OpenDropdown = ({targetId, children}) => {
-    const {dropdownId, isOpen, setIsOpen, openId, setOpenId} = useContext(DropdownContext)
+const OpenDropdown = ({children}) => {
+    const {setIsOpen} = useContext(DropdownContext)
     const toggle = () => {
-        setOpenId(targetId)
         setIsOpen(prevState => !prevState)
     }
     return (
-        <div onClick={toggle}>
+        <div onClick={toggle} className="cursor-default">
             {children}
         </div>
     )
 }
 const Content = ({children}) => {
-    const {dropdownId, isOpen, openId} = useContext(DropdownContext)
-    return isOpen && openId === dropdownId && (
+    const {dropdownId, isOpen} = useContext(DropdownContext)
+    return isOpen && (
         <div id={dropdownId}>
             {children}
         </div>

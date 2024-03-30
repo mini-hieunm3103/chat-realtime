@@ -24,6 +24,7 @@
     "dependencies": {
         "@dicebear/collection": "^7.0.5",
         "@dicebear/core": "^7.0.5",
+        "@flaticon/flaticon-uicons": "^3.1.0",
         "laravel-echo": "^1.15.3",
         "react-colorful": "^5.6.1",
         "react-highlight-words": "^0.20.0",

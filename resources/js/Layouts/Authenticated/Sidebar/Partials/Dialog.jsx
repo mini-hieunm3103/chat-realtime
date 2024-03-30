@@ -13,10 +13,10 @@ export default function Dialog({startUp}){
     const [keyword, setKeyword] = useState("")
     const [dialogCards, setDialogCards] = useState([]);
     const allUsersOnline = useGetUsers(keyword,true);
-    const {data, isPending, error} = useFetch(route('message.dialog'));
+    const {data:getDialog, isPending, error} = useFetch(route('message.dialog', {keyword: keyword}));
     useEffect(()=> {
-        if(data.hasOwnProperty('data') && !isPending ){
-            setDialogCards(data.data);
+        if(getDialog.hasOwnProperty('data') && !isPending ){
+            setDialogCards(getDialog.data);
         }
     }, [isPending])
     return (
@@ -27,15 +27,7 @@ export default function Dialog({startUp}){
                     <div className="container-fluid py-6">
 
                         <h2 className="font-bold mb-6">Chats</h2>
-
-                        <div className="input-group">
-                            <input type="text" className="form-control form-control-lg" placeholder="Search for name or group..." aria-label="Search for name or group..." />
-                            <div className="input-group-append">
-                                <button className="btn btn-lg btn-ico btn-secondary btn-minimal" type="submit">
-                                    <i className="fe-search"></i>
-                                </button>
-                            </div>
-                        </div>
+                        <SearchInput keyword={keyword} setKeyword={setKeyword} placeHolder="Search for name or group" />
                         <div className="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
                             <div className="d-block text-reset mr-7 mr-lg-6">
                                 <UserAvatar
@@ -61,6 +53,7 @@ export default function Dialog({startUp}){
                             }
 
                         </div>
+                        {/*Global Chat*/}
 
                         {dialogCards.length>0
                         ?   <nav className="nav d-block list-discussions-js mb-n6">
@@ -86,14 +79,14 @@ export default function Dialog({startUp}){
                                                         <div className="media-body overflow-hidden">
                                                             <div className="d-flex align-items-center mb-1">
                                                                 <h6 className="text-truncate mb-0 mr-auto">{dialogCard.detail.name}</h6>
-                                                                <p className="small text-muted text-nowrap ml-4">{(dialogCard.lastestMessage)? dialogCard.lastestMessage.sendTime.full : null}</p>
+                                                                <p className="small text-muted text-nowrap ml-4">{(dialogCard.lastestMessage)? dialogCard.lastestMessage.sendTime.full : dialogCard.detail.time}</p>
                                                             </div>
-                                                            {(dialogCard.lastestMessage) ? <div className="text-truncate">{dialogCard.lastestMessage.user.name}: {dialogCard.lastestMessage.content}</div> : null}
+                                                            {(dialogCard.lastestMessage) ? (<div className="text-truncate">{dialogCard.lastestMessage.user.name}: {dialogCard.lastestMessage.content}</div>) : (dialogCard.detail.owner.name + " has created group")}
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="badge badge-circle badge-primary badge-border-light badge-top-right">
-                                                    <span>3</span>
+                                                <div className="badge badge-circle badge-light badge-border-light badge-top-right">
+                                                    <i className="fi fi-ss-thumbtack"></i>
                                                 </div>
                                             </div>
                                         </a>

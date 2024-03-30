@@ -1,29 +1,42 @@
 import CollapseButton from "@/Components/CollapseButton.jsx";
-import React, {useEffect, useState} from "react";
+import React, {createContext, useContext, useEffect, useRef, useState} from "react";
 import {useFetch, useOpen} from "@/Helper/hooks.js";
-import {router} from "@inertiajs/react";
-import {asset, convertBaseJs} from "@/Helper/functions.js";
-import {data} from "autoprefixer";
+import {asset, convertBaseJs, isObjectEmpty} from "@/Helper/functions.js";
 import GroupAvatar from "@/Components/GroupAvatar.jsx";
 import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
 import Message from "@/Pages/Chatting/Partials/Message.jsx";
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
-import GalleryCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/GalleryCS.jsx";
-import FilesCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/FilesCS.jsx";
-import LinkCS from "@/Pages/Chatting/Partials/DM/ChildrenCS/LinkCS.jsx";
 import AddUsersToGroup from "@/Components/Modals/AddUsersToGroup.jsx";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
-export default function Group({ auth ,channelId}){
+import InfiniteScroll from "react-infinite-scroll-component";
+import UserAvatar from "@/Components/UserAvatar.jsx";
+import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
+import ShowUserModal from "@/Components/Modals/ShowUserModal.jsx";
+import GroupSettings from "@/Pages/Chatting/Partials/ChildrenCS/GroupSettings.jsx";
+import LoadingDiv from "@/Components/LoadingDiv.jsx";
+import GroupUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupUsers.jsx";
+import GroupAdminsCS from "@/Pages/Chatting/Partials/ChildrenCS/GroupAdmins.jsx";
+import GroupBlockedUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupBlockedUsers.jsx";
+import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
+
+const GroupInfoContext = createContext();
+// CS: ChatSidebar
+function Group({ auth ,channelId}){
     const trueUrl = convertBaseJs(window.location.pathname.match(/\d+/)[0], 10, 37)
     const groupId = trueUrl.match(/\d+/)[0]
-    const [searchMessage, setSearchMessage] = useState("")
+
+    const [searchMessages, setSearchMessages] = useState("")
     const [listMessages, setListMessages] = useState([])
     const [groupDetail, setGroupDetail] = useState(false)
     const [listUsers, setListUsers] = useState([])
+    const [messagesPage, setMessagesPage] = useState(1)
+    const [hasMoreMessages, setHasMoreMessages] = useState(true);
+
     const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
     const {open: openAddUsersModal, toggle:  toggleOpenAddUsersModal} = useOpen()
-    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page:1}))
+
+    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page:messagesPage}))
     const {data: getGroupDetail, isPending: loadGroupDetail, error: errorGroupDetail} = useFetch(route('group.detail', {group_id: groupId}))
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
     useEffect(() => {
@@ -46,11 +59,14 @@ export default function Group({ auth ,channelId}){
     let next;
     return (
         <>
+            {/*Modal*/}
+            <AddUsersToGroup channelId={channelId} isShowing={openAddUsersModal}
+                             hide={toggleOpenAddUsersModal} usersChannel={listUsers}/>
             <LoadingModal isShowing={openLoadingModal} hide={toggleLoadingModal}/>
+            {/*Modal*/}
             <div id="chat-1" className="chat dropzone-form-js" data-dz-url="some.php">
 
                 <div className="chat-body">
-
                     <div className="chat-header border-bottom py-4 py-lg-6 px-lg-8">
                         <div className="container-xxl">
 
@@ -105,8 +121,6 @@ export default function Group({ auth ,channelId}){
                                             >
                                                 <i className="icon-md fe-user-plus"></i>
                                             </div>
-                                            <AddUsersToGroup channelId={channelId} isShowing={openAddUsersModal}
-                                                             hide={toggleOpenAddUsersModal} usersChannel={listUsers}/>
                                         </li>
 
                                         <li className="nav-item list-inline-item d-none d-xl-block mr-0">
@@ -158,8 +172,8 @@ export default function Group({ auth ,channelId}){
                     <div className="collapse border-bottom px-lg-8" id="chat-1-search">
                         <div className="container-xxl py-4 py-lg-6">
                             <SearchInput
-                                keyword={searchMessage}
-                                setKeyword={setSearchMessage}
+                                keyword={searchMessages}
+                                setKeyword={setSearchMessages}
                                 placeHolder="Search this chat"
                             />
                         </div>
@@ -182,14 +196,12 @@ export default function Group({ auth ,channelId}){
                                         if (!continuous) {
                                             next = i+1
                                         }
-                                        return (<Message authId={auth.id} message={message} keyword={searchMessage} hasName={hasName} hasAvatar={!continuous} isFirst={i===0} isLast={i+1 === listMessages.length}/>)
+                                        return (<Message authId={auth.id} message={message} keyword={searchMessages} hasName={hasName} hasAvatar={!continuous} isFirst={i===0} isLast={i+1 === listMessages.length}/>)
                                     })
                                 ) : null
                             }
 
                         </div>
-
-                        <div className="end-of-chat"></div>
                     </div>
 
                     <div className="chat-files hide-scrollbar px-lg-8">
@@ -205,12 +217,10 @@ export default function Group({ auth ,channelId}){
                                 <div className="form-row align-items-center">
                                     <div className="col">
                                         <div className="input-group">
-
-                                                    <textarea id="chat-id-1-input"
-                                                              className="form-control bg-transparent border-0"
-                                                              placeholder="Type your message..." rows="1"
-                                                              data-emoji-input="" data-autosize="true"></textarea>
-
+                                            <textarea id="chat-id-1-input"
+                                                      className="form-control bg-transparent border-0"
+                                                      placeholder="Type your message..." rows="1"
+                                                      data-emoji-input="" data-autosize="true"></textarea>
                                             <div className="input-group-append">
                                                 <button
                                                     className="btn btn-ico btn-secondary btn-minimal bg-transparent border-0"
@@ -248,1283 +258,33 @@ export default function Group({ auth ,channelId}){
                     </div>
                 </div>
 
-                <div id="chat-1-info" className="chat-sidebar">
-                    <div className="d-flex h-100 flex-column">
-
-                        <div className="border-bottom py-4 py-lg-6">
-                            <div className="container-fluid">
-
-                                <ul className="nav justify-content-between align-items-center">
-                                    <li className="nav-item list-inline-item">
-                                        <a className="nav-link text-muted px-0" href="#"
-                                           data-chat-sidebar-close="">
-                                            <i className="icon-md fe-chevron-left"></i>
-                                        </a>
-                                    </li>
-
-                                    <li className="text-center d-block d-lg-none">
-                                        <h6 className="mb-n2">Bootstrap Themes</h6>
-                                        <small className="text-muted">Chat Details</small>
-                                    </li>
-
-                                    <li className="nav-item list-inline-item">
-                                        <div className="dropdown">
-                                            <a className="nav-link text-muted px-0" href="#"
-                                               data-toggle="dropdown" aria-haspopup="true"
-                                               aria-expanded="false">
-                                                <i className="icon-md fe-sliders"></i>
-                                            </a>
-                                            <div className="dropdown-menu">
-                                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                                    Mute
-                                                    <span className="ml-auto fe-bell"></span>
-                                                </a>
-                                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                                    Delete
-                                                    <span className="ml-auto fe-trash-2"></span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-
-                            </div>
-                        </div>
-
-                        <div className="hide-scrollbar flex-fill">
-
-                            <div className="border-bottom text-center py-9 px-10">
-                                <div className="avatar avatar-xl mx-5 mb-5">
-                                    <img className="avatar-img" src="" alt=""/>
-                                </div>
-                                <h5>Bootstrap Themes</h5>
-                                <p className="text-muted">Bootstrap is an open source toolkit for developing web
-                                    with HTML, CSS, and JS.</p>
-                            </div>
-
-                            <ul className="nav nav-tabs nav-justified bg-light rounded-0" role="tablist">
-                                <li className="nav-item">
-                                    <a href="#chat-id-1-members" className="nav-link active" data-toggle="tab"
-                                       role="tab" aria-selected="true">Members</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a href="#chat-id-1-files" className="nav-link" data-toggle="tab"
-                                       role="tab">Files</a>
-                                </li>
-                            </ul>
-
-                            <div className="tab-content">
-                                <div id="chat-id-1-members" className="tab-pane fade show active">
-                                    <ul className="list-group list-group-flush list-group-no-border-first">
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm avatar-online mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="Anna Bridges"/>
-                                                </div>
-
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Anna Bridges</a>
-                                                    </h6>
-                                                    <small className="text-muted">Online</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm avatar-online mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="Simon Hensley"/>
-                                                </div>
-
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Simon Hensley</a>
-                                                    </h6>
-                                                    <small className="text-muted">Online</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src=""
-                                                         alt="William Wright"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">William Wright</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 7 hours ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="Leslie Sutton"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Leslie Sutton</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 6 days ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src=""
-                                                         alt="Matthew Wiggins"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Matthew Wiggins</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 2 days ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="Thomas Walker"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Thomas Walker</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 10 minutes
-                                                        ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="Zane Mayes"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Zane Mayes</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 6 days ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="Brian Dawson"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">Brian Dawson</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 2 days ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li className="list-group-item py-6">
-                                            <div className="media align-items-center">
-
-
-                                                <div className="avatar avatar-sm mr-5">
-                                                    <img className="avatar-img"
-                                                         src="" alt="William Greer"/>
-                                                </div>
-
-                                                <div className="media-body">
-                                                    <h6 className="mb-0">
-                                                        <a href="#" className="text-reset">William Greer</a>
-                                                    </h6>
-                                                    <small className="text-muted">last seen 10 minutes
-                                                        ago</small>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Promote <span
-                                                                className="ml-auto fe-trending-up"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Restrict <span
-                                                                className="ml-auto fe-trending-down"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-user-x"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-
-                                    </ul>
-                                </div>
-
-                                <div id="chat-id-1-files" className="tab-pane fade">
-                                    <ul className="list-group list-group-flush list-group-no-border-first">
-                                        <li className="list-group-item py-6">
-                                            <div className="media">
-
-                                                <div className="icon-shape bg-primary text-white mr-5">
-                                                    <i className="fe-paperclip"></i>
-                                                </div>
-
-                                                <div className="media-body align-self-center overflow-hidden">
-                                                    <h6 className="text-truncate mb-0">
-                                                        <a href="#" className="text-reset"
-                                                           title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
-                                                    </h6>
-
-                                                    <ul className="list-inline small mb-0">
-                                                        <li className="list-inline-item">
-                                                            <span className="text-muted">79.2 KB</span>
-                                                        </li>
-                                                        <li className="list-inline-item">
-                                                                    <span
-                                                                        className="text-muted text-uppercase">txt</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Download <span
-                                                                className="ml-auto fe-download"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Share <span
-                                                                className="ml-auto fe-share-2"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-trash-2"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-
-                                        <li className="list-group-item py-6">
-                                            <div className="media">
-
-                                                <div className="icon-shape bg-primary text-white mr-5">
-                                                    <i className="fe-paperclip"></i>
-                                                </div>
-
-                                                <div className="media-body align-self-center overflow-hidden">
-                                                    <h6 className="text-truncate mb-0">
-                                                        <a href="#" className="text-reset"
-                                                           title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
-                                                    </h6>
-
-                                                    <ul className="list-inline small mb-0">
-                                                        <li className="list-inline-item">
-                                                            <span className="text-muted">79.2 KB</span>
-                                                        </li>
-                                                        <li className="list-inline-item">
-                                                                    <span
-                                                                        className="text-muted text-uppercase">psd</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Download <span
-                                                                className="ml-auto fe-download"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Share <span
-                                                                className="ml-auto fe-share-2"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-trash-2"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-
-                                        <li className="list-group-item py-6">
-                                            <div className="media">
-
-                                                <div className="icon-shape bg-primary text-white mr-5">
-                                                    <i className="fe-paperclip"></i>
-                                                </div>
-
-                                                <div className="media-body align-self-center overflow-hidden">
-                                                    <h6 className="text-truncate mb-0">
-                                                        <a href="#" className="text-reset"
-                                                           title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
-                                                    </h6>
-
-                                                    <ul className="list-inline small mb-0">
-                                                        <li className="list-inline-item">
-                                                            <span className="text-muted">79.2 KB</span>
-                                                        </li>
-                                                        <li className="list-inline-item">
-                                                                    <span
-                                                                        className="text-muted text-uppercase">pdf</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Download <span
-                                                                className="ml-auto fe-download"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Share <span
-                                                                className="ml-auto fe-share-2"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-trash-2"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-
-                                        <li className="list-group-item py-6">
-                                            <div className="media">
-
-                                                <div className="icon-shape bg-primary text-white mr-5">
-                                                    <i className="fe-paperclip"></i>
-                                                </div>
-
-                                                <div className="media-body align-self-center overflow-hidden">
-                                                    <h6 className="text-truncate mb-0">
-                                                        <a href="#" className="text-reset"
-                                                           title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
-                                                    </h6>
-
-                                                    <ul className="list-inline small mb-0">
-                                                        <li className="list-inline-item">
-                                                            <span className="text-muted">79.2 KB</span>
-                                                        </li>
-                                                        <li className="list-inline-item">
-                                                                    <span
-                                                                        className="text-muted text-uppercase">txt</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Download <span
-                                                                className="ml-auto fe-download"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Share <span
-                                                                className="ml-auto fe-share-2"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-trash-2"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-
-                                        <li className="list-group-item py-6">
-                                            <div className="media">
-
-                                                <div className="icon-shape bg-primary text-white mr-5">
-                                                    <i className="fe-paperclip"></i>
-                                                </div>
-
-                                                <div className="media-body align-self-center overflow-hidden">
-                                                    <h6 className="text-truncate mb-0">
-                                                        <a href="#" className="text-reset"
-                                                           title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
-                                                    </h6>
-
-                                                    <ul className="list-inline small mb-0">
-                                                        <li className="list-inline-item">
-                                                            <span className="text-muted">79.2 KB</span>
-                                                        </li>
-                                                        <li className="list-inline-item">
-                                                                    <span
-                                                                        className="text-muted text-uppercase">pdf</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-
-                                                <div className="align-self-center ml-5">
-                                                    <div className="dropdown">
-                                                        <a href="#"
-                                                           className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                           data-toggle="dropdown" aria-haspopup="true"
-                                                           aria-expanded="false">
-                                                            <i className="fe-more-vertical"></i>
-                                                        </a>
-                                                        <div className="dropdown-menu">
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Download <span
-                                                                className="ml-auto fe-download"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Share <span
-                                                                className="ml-auto fe-share-2"></span>
-                                                            </a>
-                                                            <a className="dropdown-item d-flex align-items-center"
-                                                               href="#">
-                                                                Delete <span
-                                                                className="ml-auto fe-trash-2"></span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </li>
-
-
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div id="chat-1-members" className="chat-sidebar">
-                    <div className="d-flex h-100 flex-column">
-
-                        <div className="border-bottom py-4 py-lg-6">
-                            <div className="container-fluid">
-
-                                <ul className="nav justify-content-between align-items-center">
-                                    <li className="nav-item">
-                                        <a className="nav-link text-muted px-0" href="#"
-                                           data-chat-sidebar-close="">
-                                            <i className="icon-md fe-chevron-left"></i>
-                                        </a>
-                                    </li>
-
-                                    <li className="text-center d-block d-lg-none">
-                                        <h6 className="mb-n2">Bootstrap Themes</h6>
-                                        <small className="text-muted">Add Members</small>
-                                    </li>
-
-                                    <li className="nav-item">
-                                        <div className="dropdown">
-                                            <a className="nav-link text-muted px-0" href="#"
-                                               data-toggle="dropdown" aria-haspopup="true"
-                                               aria-expanded="false">
-                                                <i className="icon-md fe-sliders"></i>
-                                            </a>
-                                            <div className="dropdown-menu">
-                                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                                    Mute
-                                                    <span className="ml-auto fe-bell"></span>
-                                                </a>
-                                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                                    Delete
-                                                    <span className="ml-auto fe-trash-2"></span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-
-                            </div>
-                        </div>
-
-                        <div className="hide-scrollbar flex-fill">
-                            <div className="border-bottom py-7">
-                                <div className="container-fluid">
-
-                                    <form action="#">
-                                        <div className="input-group">
-                                            <input type="text" className="form-control form-control-lg"
-                                                   placeholder="Search for users..."
-                                                   aria-label="Search users..."/>
-                                            <div className="input-group-append">
-                                                <button className="btn btn-lg btn-ico btn-secondary btn-minimal"
-                                                        type="submit">
-                                                    <i className="fe-search"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-
-                                </div>
-                            </div>
-
-                            <form action="#">
-                                <ul className="list-group list-group-flush">
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">A</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm avatar-online mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="Anna Bridges"/>
-                                            </div>
-
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">Anna Bridges</h6>
-                                                <small className="text-muted">Online</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-1" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-1"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-1"></label>
-                                    </li>
-
-
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">B</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="Brian Dawson"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">Brian Dawson</h6>
-                                                <small className="text-muted">last seen 2 hours ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-2" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-2"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-2"></label>
-                                    </li>
-
-
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">L</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="Leslie Sutton"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">Leslie Sutton</h6>
-                                                <small className="text-muted">last seen 3 days ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-3" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-3"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-3"></label>
-                                    </li>
-
-
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">M</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="Matthew Wiggins"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">Matthew Wiggins</h6>
-                                                <small className="text-muted">last seen 3 days ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-4" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-4"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-4"></label>
-                                    </li>
-
-
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">S</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="Simon Hensley"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">Simon Hensley</h6>
-                                                <small className="text-muted">last seen 3 days ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-5" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-5"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-5"></label>
-                                    </li>
-
-
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">W</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="William Wright"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">William Wright</h6>
-                                                <small className="text-muted">last seen 3 days ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-6" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-6"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-6"></label>
-                                    </li>
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="William Greer"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">William Greer</h6>
-                                                <small className="text-muted">last seen 10 minutes ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-7" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-7"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-7"></label>
-                                    </li>
-
-
-                                    <li className="list-group-item py-4">
-                                        <small className="text-uppercase">Z</small>
-                                    </li>
-
-                                    <li className="list-group-item py-6">
-                                        <div className="media align-items-center">
-
-
-                                            <div className="avatar avatar-sm mr-5">
-                                                <img className="avatar-img" src=""
-                                                     alt="Zane Mayes"/>
-                                            </div>
-
-                                            <div className="media-body">
-                                                <h6 className="mb-0">Zane Mayes</h6>
-                                                <small className="text-muted">last seen 3 days ago</small>
-                                            </div>
-
-                                            <div className="align-self-center ml-auto">
-                                                <div className="custom-control custom-checkbox">
-                                                    <input className="custom-control-input"
-                                                           id="id-add-user-chat-1-user-8" type="checkbox"/>
-                                                    <label className="custom-control-label"
-                                                           htmlFor="id-add-user-chat-1-user-8"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <label className="stretched-label"
-                                               htmlFor="id-add-user-chat-1-user-8"></label>
-                                    </li>
-
-                                </ul>
-                            </form>
-                        </div>
-
-                        <div className="border-top py-7">
-                            <div className="container-fluid">
-                                <button className="btn btn-lg btn-block btn-primary d-flex align-items-center"
-                                        type="submit">
-                                    Add members
-                                    <span className="fe-user-plus ml-auto"></span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div id="chat-1-user-profile" className="chat-sidebar">
-                    <div className="d-flex h-100 flex-column">
-
-                        <div className="border-bottom py-4 py-lg-6">
-                            <div className="container-fluid">
-
-                                <ul className="nav justify-content-between align-items-center">
-                                    <li className="nav-item list-inline-item">
-                                        <a className="nav-link text-muted px-0" href="#"
-                                           data-chat-sidebar-close="">
-                                            <i className="icon-md fe-chevron-left"></i>
-                                        </a>
-                                    </li>
-
-                                    <li className="text-center d-block d-lg-none">
-                                        <h6 className="mb-n2">William Wright</h6>
-                                        <small className="text-muted">User Details</small>
-                                    </li>
-
-                                    <li className="nav-item list-inline-item">
-                                        <div className="dropdown">
-                                            <a className="nav-link text-muted px-0" href="#"
-                                               data-toggle="dropdown" aria-haspopup="true"
-                                               aria-expanded="false">
-                                                <i className="icon-md fe-sliders"></i>
-                                            </a>
-                                            <div className="dropdown-menu">
-                                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                                    Mute <span className="ml-auto fe-bell"></span>
-                                                </a>
-                                                <a className="dropdown-item d-flex align-items-center" href="#">
-                                                    Delete <span className="ml-auto fe-trash-2"></span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-
-                            </div>
-                        </div>
-
-                        <div className="hide-scrollbar flex-fill">
-
-                            <div className="border-bottom text-center py-9 px-10">
-                                <div className="avatar avatar-xl mx-5 mb-5">
-                                    <img className="avatar-img" src="" alt=""/>
-                                    <div
-                                        className="badge badge-sm badge-pill badge-primary badge-border-basic badge-top-right">
-                                        <span className="text-uppercase">Pro</span>
-                                    </div>
-                                </div>
-                                <h5>William Wright</h5>
-                                <p className="text-muted">Bootstrap is an open source toolkit for developing web
-                                    with HTML, CSS, and JS.</p>
-                            </div>
-
-                            <ul className="list-group list-group-flush mb-8">
-                                <li className="list-group-item py-6">
-                                    <div className="media align-items-center">
-                                        <div className="media-body">
-                                            <p className="small text-muted mb-0">Country</p>
-                                            <p>Warsaw, Poland</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-globe"></i>
-                                    </div>
-                                </li>
-
-                                <li className="list-group-item py-6">
-                                    <div className="media align-items-center">
-                                        <div className="media-body">
-                                            <p className="small text-muted mb-0">Phone</p>
-                                            <p>+39 02 87 21 43 19</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-mic"></i>
-                                    </div>
-                                </li>
-
-                                <li className="list-group-item py-6">
-                                    <div className="media align-items-center">
-                                        <div className="media-body">
-                                            <p className="small text-muted mb-0">Email</p>
-                                            <p>anna@gmail.com</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-mail"></i>
-                                    </div>
-                                </li>
-
-                                <li className="list-group-item py-6">
-                                    <div className="media align-items-center">
-                                        <div className="media-body">
-                                            <p className="small text-muted mb-0">Time</p>
-                                            <p>10:03 am</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-clock"></i>
-                                    </div>
-                                </li>
-                            </ul>
-
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item py-6">
-                                    <a href="#" className="media text-muted">
-                                        <div className="media-body align-self-center">
-                                            Twitter
-                                        </div>
-                                        <i className="icon-sm fe-twitter"></i>
-                                    </a>
-                                </li>
-
-                                <li className="list-group-item py-6">
-                                    <a href="#" className="media text-muted">
-                                        <div className="media-body align-self-center">
-                                            Facebook
-                                        </div>
-                                        <i className="icon-sm fe-facebook"></i>
-                                    </a>
-                                </li>
-
-                                <li className="list-group-item py-6">
-                                    <a href="#" className="media text-muted">
-                                        <div className="media-body align-self-center">
-                                            Github
-                                        </div>
-                                        <i className="icon-sm fe-github"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="border-top py-7">
-                            <div className="container-fluid">
-                                <button className="btn btn-lg btn-block btn-primary d-flex align-items-center"
-                                        type="submit">
-                                    Add friend
-                                    <span className="fe-user-plus ml-auto"></span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                {<ChatSidebar groupDetail = {groupDetail} users={listUsers} open={openChatSidebar} toggleOpen={toggleChatsidebar}/>}
+                <GroupInfoContext.Provider
+                    value={{
+                        groupDetail: groupDetail,
+                        admins: groupDetail.admins,
+                        owner: groupDetail.owner,
+                        users: listUsers,
+                        open: openChatSidebar,
+                        toggleOpen: toggleChatsidebar,
+                        openAddUsersModal: openAddUsersModal,
+                        toggleOpenAddUsersModal: toggleOpenAddUsersModal,
+                    }}>
+                    <GroupInfo/>
+                </GroupInfoContext.Provider>
             </div>
         </>
 
     )
 }
-const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
-    if(users.length === 0 || !groupDetail) {
+
+const GroupInfo = () => {
+    const {groupDetail, users, open, toggleOpen, toggleOpenAddUsersModal} = useContext(GroupInfoContext)
+    const [targetMediaTabId, setTargetMediaTabId] = useState("")
+
+    if (users.length === 0 || !groupDetail) {
         return null
     }
+    const allowedInviteViaLink = true;
     return (
         <BaseChatSidebar isOpenCS={open} hide={toggleOpen}>
             <BaseChatSidebar.MainCS chatSidebarId="chat-info">
@@ -1547,8 +307,44 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                                     className=" mx-5 mb-5"
                                 />
                                 <h5>{groupDetail.name}</h5>
-
                                 <p className="text-muted">{groupDetail.description}</p>
+                            </div>
+                            <div className="w-100 d-flex justify-content-around mb-5">
+                                <div className="d-flex flex-wrap justify-content-center align-items-start w-25">
+                                    <div className="w-100 d-flex justify-content-center">
+                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                            <i className="text-muted icon-sm fe-bell"></i>
+                                        </div>
+                                    </div>
+                                    <span className="text-center cursor-pointer">Mute</span>
+                                </div>
+                                <div className="d-flex flex-wrap justify-content-center w-25">
+                                    <div className="w-100 d-flex justify-content-center">
+                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                            <i className="text-muted icon-sm fi fi-rs-thumbtack"></i>
+                                        </div>
+                                    </div>
+                                    <span className="text-center cursor-pointer">Pin</span>
+                                </div>
+                                <div className="d-flex flex-wrap justify-content-center w-25" onClick={toggleOpenAddUsersModal}>
+                                    <div className="w-100 d-flex justify-content-center">
+                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                            <i className="text-muted icon-sm fe-user-plus"></i>
+                                        </div>
+                                    </div>
+                                    <span className="text-center cursor-pointer">Add members</span>
+                                </div>
+                                <BaseChatSidebar.OpenChildrenCS
+                                    childrenCSId="render-group-manage"
+                                    className="d-flex flex-wrap justify-content-center w-25">
+                                    <div className="w-100 d-flex justify-content-center">
+                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                            <i className="text-muted icon-sm fe-settings"></i>
+                                        </div>
+                                    </div>
+                                    <span className="text-center cursor-pointer">Manage group</span>
+                                </BaseChatSidebar.OpenChildrenCS>
+
                             </div>
                         </div>
 
@@ -1563,40 +359,69 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                                         <i className="text-muted icon-sm fe-bell"></i>
                                     </div>
                                 </li>
-
-                                <li className="list-group-item py-2">
-                                    <div className="media align-items-center" style={{height: 45}}>
-                                        <div className="media-body">
-                                            <p className=" h5 small text-muted mb-0">Turn Off
-                                                Notifications</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-bell"></i>
-                                    </div>
-                                </li>
-                                <li className="list-group-item py-2">
-                                    <div className="media align-items-center" style={{height: 45}}>
-                                        <div className="media-body">
-                                            <p className=" h5 small text-muted mb-0">Same Group: </p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-users"></i>
-                                    </div>
-                                </li>
-                                <li className="list-group-item py-2">
-                                    <div className="media align-items-center" style={{height: 45}}>
-                                        <div className="media-body">
-                                            <p className=" h5 small text-muted mb-0">Turn Off
-                                                Notifications</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-bell"></i>
-                                    </div>
-                                </li>
+                            </ul>
+                        </div>
+                        {/*Group's users*/}
+                        <div className="card mb-3 border-0 rounded-0">
+                            <ul className="list-group list-group-flush">
+                                <Dropdown dropdownId="group-users" defaultOpen={true}>
+                                    <Dropdown.Open>
+                                        <li className="list-group-item py-2">
+                                            <div className="media align-items-center" style={{height: 45}}>
+                                                <div className="media-body">
+                                                    <p className=" h5 small text-muted mb-0"
+                                                       style={{fontWeight: "bold"}}>Group member</p>
+                                                </div>
+                                                <i className={"text-muted icon-sm fe-chevron-down"}></i>
+                                            </div>
+                                        </li>
+                                    </Dropdown.Open>
+                                    <Dropdown.Content>
+                                        <BaseChatSidebar.OpenChildrenCS
+                                            childrenCSId="render-group-users"
+                                        >
+                                            <div className="list-group-item py-2 cursor-pointer">
+                                                <div className="media align-items-center" style={{height: 45}}>
+                                                    <i className="mr-5 text-muted icon-sm fe-users"></i>
+                                                    <div className="media-body">
+                                                        <span
+                                                            className=" h5 small text-muted mb-0"> {users.length} members (Click to see all members) </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </BaseChatSidebar.OpenChildrenCS>
+                                        {allowedInviteViaLink
+                                            ? <div
+                                                className="list-group-item py-4 cursor-pointer d-flex justify-content-between">
+                                                <div className="media align-items-center"
+                                                     style={{height: 45, width: "fit-content"}}>
+                                                    <i className="mr-5 text-muted icon-sm fe-link"></i>
+                                                    <div className="media-body">
+                                                        <span className=" text-muted mb-0"> Group Link</span>
+                                                        <br/>
+                                                        <span className=" small text-primary mb-0">Link to group</span>
+                                                    </div>
+                                                </div>
+                                                <div className="d-flex justify-content-around align-items-center">
+                                                    <button className=" btn btn-secondary py-2 px-4 mr-2">
+                                                        <i className="fe-copy"></i>
+                                                    </button>
+                                                    <button className=" btn btn-secondary py-2 px-4 mr-2">
+                                                        <i className="fe-share-2"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            :null
+                                        }
+                                    </Dropdown.Content>
+                                </Dropdown>
                             </ul>
                         </div>
                         {/*Gallery*/}
                         <div className="card mb-3 border-0 rounded-0">
                             <ul className="list-group list-group-flush">
                                 <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open targetId="user-social">
+                                    <Dropdown.Open>
                                         <li className="list-group-item py-2">
                                             <div className="media align-items-center" style={{height: 45}}>
                                                 <div className="media-body">
@@ -1612,20 +437,21 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                                             <div className="d-flex flex-wrap justify-content-around">
                                                 <div className="media-store">
                                                     <div className="px-3 py-3">
-                                                        <img style={{height: 70, width: 70}}
-                                                             loading="lazy"
-                                                             src={asset("images/neom-brFQojtwSzE-unsplash.jpg")}
-                                                             alt=""/>
+                                                        {/*<img style={{height: 70, width: 70}}*/}
+                                                        {/*     loading="lazy"*/}
+                                                        {/*     src={asset("images/neom-brFQojtwSzE-unsplash.jpg")}*/}
+                                                        {/*     alt=""/>*/}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <BaseChatSidebar.TriggerChildrenCS
-                                                childrenCSId="render-img"
-                                                className="nav nav-pills nav-justified bg-light border-0 rounded-0 px-5 py-5 card-bg-color">
-                                                <button className="nav-item btn btn-secondary rounded-0">
+
+                                            <BaseChatSidebar.OpenChildrenCS
+                                                childrenCSId="render-chat-info-media"
+                                                className="nav nav-pills nav-justified border-0 rounded-0 px-5 pb-5 pt-3 card-bg-color">
+                                                <button className="nav-item btn btn-secondary rounded-0" onClick={()=> {setTargetMediaTabId("render-chat-images-videos")}}>
                                                     Show All
                                                 </button>
-                                            </BaseChatSidebar.TriggerChildrenCS>
+                                            </BaseChatSidebar.OpenChildrenCS>
                                         </ul>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -1634,8 +460,8 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                         {/*Files*/}
                         <div className="card mb-3 border-0 rounded-0">
                             <ul className="list-group list-group-flush">
-                                <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open targetId="user-social">
+                                <Dropdown dropdownId="user-social" >
+                                    <Dropdown.Open>
                                         <li className="list-group-item py-2">
                                             <div className="media align-items-center" style={{height: 45}}>
                                                 <div className="media-body">
@@ -1700,13 +526,13 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
 
                                                 </div>
                                             </li>
-                                            <BaseChatSidebar.TriggerChildrenCS
-                                                childrenCSId="render-files"
-                                                className="nav nav-pills nav-justified bg-light border-0 rounded-0 px-5 py-5 card-bg-color">
-                                                <button className="nav-item btn btn-secondary rounded-0">
+                                            <BaseChatSidebar.OpenChildrenCS
+                                                childrenCSId="render-chat-info-media"
+                                                className="nav nav-pills nav-justified border-0 rounded-0 px-5 pb-5 pt-3 card-bg-color">
+                                                <button className="nav-item btn btn-secondary rounded-0" onClick={()=> {setTargetMediaTabId("render-chat-files")}}>
                                                     Show All
                                                 </button>
-                                            </BaseChatSidebar.TriggerChildrenCS>
+                                            </BaseChatSidebar.OpenChildrenCS>
                                         </ul>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -1714,9 +540,9 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                         </div>
                         {/*Links*/}
                         <div className="card mb-3 border-0 rounded-0">
-                            <ul className="list-group list-group-flush">
+                            <div className="list-group list-group-flush">
                                 <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open targetId="user-social">
+                                    <Dropdown.Open>
                                         <li className="list-group-item py-2">
                                             <div className="media align-items-center" style={{height: 45}}>
                                                 <div className="media-body">
@@ -1774,22 +600,23 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
 
                                                 </div>
                                             </li>
-                                            <BaseChatSidebar.TriggerChildrenCS
-                                                childrenCSId="render-links"
-                                                className="nav nav-pills nav-justified bg-light border-0 rounded-0 px-5 py-5 card-bg-color">
-                                                <button className="nav-item btn btn-secondary rounded-0">
+                                            <BaseChatSidebar.OpenChildrenCS
+                                                childrenCSId="render-chat-info-media"
+                                                className="nav nav-pills nav-justified border-0 rounded-0 px-5 pb-5 pt-3 card-bg-color">
+                                                <button className="nav-item btn btn-secondary rounded-0" onClick={()=> {setTargetMediaTabId("render-chat-links")}}>
                                                     Show All
                                                 </button>
-                                            </BaseChatSidebar.TriggerChildrenCS>
+                                            </BaseChatSidebar.OpenChildrenCS>
                                         </ul>
                                     </Dropdown.Content>
                                 </Dropdown>
-                            </ul>
+                            </div>
                         </div>
+                        {/*Security*/}
                         <div className="card mb-3 border-0 rounded-0">
-                            <ul className="list-group list-group-flush">
+                            <div className="list-group list-group-flush">
                                 <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open targetId="user-social">
+                                    <Dropdown.Open>
                                         <li className="list-group-item py-2">
                                             <div className="media align-items-center" style={{height: 45}}>
                                                 <div className="media-body">
@@ -1803,6 +630,14 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                                     <Dropdown.Content>
                                         <ul className="list-group list-group-flush">
                                             <li className="list-group-item py-6">
+                                                <a href="#" className="media text-muted">
+                                                    <div className="media-body align-self-center">
+                                                        Report
+                                                    </div>
+                                                    <i className="icon-sm fe-alert-triangle"></i>
+                                                </a>
+                                            </li>
+                                            <li className="list-group-item py-6">
                                                 <a href="#" className="media text-danger">
                                                     <div className="media-body align-self-center">
                                                         Delete This Conversation
@@ -1810,17 +645,30 @@ const ChatSidebar = ({users, open, toggleOpen, groupDetail}) => {
                                                     <i className="icon-sm fe-trash"></i>
                                                 </a>
                                             </li>
+                                            <li className="list-group-item py-6">
+                                                <a href="#" className="media text-danger">
+                                                    <div className="media-body align-self-center">
+                                                        Leave group
+                                                    </div>
+                                                    <i className="icon-sm fe-log-out"></i>
+                                                </a>
+                                            </li>
                                         </ul>
                                     </Dropdown.Content>
                                 </Dropdown>
-                            </ul>
+                            </div>
                         </div>
                     </div>
                 </BaseChatSidebar.Body>
             </BaseChatSidebar.MainCS>
-            <GalleryCS/>
-            <FilesCS/>
-            <LinkCS/>
+            <GroupSettings/>
+            <GroupAdminsCS />
+            <GroupBlockedUsers />
+            <GroupUsers/>
+            <ChatInfoMedia targetMediaTabId={targetMediaTabId} setTargetMediaTabId={setTargetMediaTabId} />
         </BaseChatSidebar>
     )
 }
+
+Group.GroupInfoContext = GroupInfoContext;
+export default Group;

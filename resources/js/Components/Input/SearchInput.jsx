@@ -1,7 +1,7 @@
 import React, {useRef} from "react";
 
 
-export default function SearchInput({keyword, setKeyword, placeHolder, className})
+export default function SearchInput({keyword, setKeyword, placeHolder, className, inputSize="form-control-lg"})
 {
     const clearSearch = () => {
         setKeyword("")
@@ -16,7 +16,7 @@ export default function SearchInput({keyword, setKeyword, placeHolder, className
             <input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                type="text" className="form-control form-control-lg" placeholder={placeHolder}
+                type="text" className={"form-control " + inputSize} placeholder={placeHolder}
                 aria-label={placeHolder}/>
 
             {(keyword.length !== 0) &&

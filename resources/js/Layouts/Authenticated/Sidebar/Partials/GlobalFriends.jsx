@@ -19,9 +19,8 @@ function GlobalFriends({startUp}) {
         keyword: "",
         needAuth:false,
     })
-    const urlFetch = route('user.getAllUsers', query)
 
-    const {data:getUsers, isPending, error} = useFetch(urlFetch)
+    const {data:getUsers, isPending, error} = useFetch(route('user.getAllUsers', query))
     const [allUsers, setAllUsers] = useState([]);
     const [hasMore, setHasMore] = useState(true);
     const fetchMoreUsers = useCallback(() => {
@@ -35,11 +34,6 @@ function GlobalFriends({startUp}) {
             setHasMore(query.page <= getUsers.meta.last_page)
         }
     }, [getUsers]);
-    console.log("%c --------------",  'background: #222; color: #bada55')
-    console.log("pageNumber: ", pageNumber)
-    console.log("keyword: ", keyword)
-    console.log("query: ", query)
-    console.log("allUsers: ", allUsers)
     useEffect(() => {
         setPageNumber(1)
         setQuery({
@@ -145,7 +139,7 @@ const UserDropdown = ({user}) => {
     const {open, toggle} = useOpen()
     return (
         <>
-        <div className="align-self-center pl-5">
+        <div className="align-self-center pl-5 py-4">
                 <div className="dropdown">
                     <a href="#"
                        className="btn btn-sm btn-ico btn-link text-muted w-auto"

@@ -5,7 +5,7 @@ import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.j
 export default function Authenticated({authLayoutData, children, open= false}) {
     const allUserOnlineIds  = useEchoChatUsersId();
     return (
-        <AuthenticatedContext.Provider value={{allUserOnlineIds}}>
+        <AuthenticatedContext.Provider value={{allUserOnlineIds, authLayoutData}}>
             <Navbar
                 route={authLayoutData.currentRoute}
             />

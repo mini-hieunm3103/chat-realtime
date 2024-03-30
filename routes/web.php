@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\FileController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [RouteController::class, 'welcome'])->name('welcome');
     Route::get('/settings', [RouteController::class, 'settings'])->name('settings');
     Route::get('/t/{base10}', [ChatController::class, 'chatting'])->where('base10', '[0-9]+')->name('chatting');
+    Route::post('upload/image', [FileController::class, 'upload'])->name('upload');
 
     Route::group(['prefix' => 'user', 'as' => 'user.'], function (){
         Route::get('', [UserController::class, 'getAllUsers'])->name('getAllUsers');
