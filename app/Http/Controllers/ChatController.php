@@ -55,7 +55,7 @@ class ChatController extends Controller
      */
     public function getMessages($channelId)
     {
-        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'asc')->with('user.detail')->paginate(15);
+        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with('user.detail')->paginate(10);
         return MessageResource::collection($messages);
     }
     public function directMessage(Request $request)

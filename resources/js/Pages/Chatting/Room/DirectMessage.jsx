@@ -9,6 +9,8 @@ import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 import {asset} from "@/Helper/functions.js";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
+import InfiniteScroll from "react-infinite-scroll-component";
+import FetchAndRenderMessages from "@/Pages/Chatting/Partials/FetchAndRenderMessages.jsx";
 
 // CS: ChatSidebar
 
@@ -16,28 +18,20 @@ const ChatInfoContext = createContext()
 function DirectMessage({channelId, auth}){
     const {allUserOnlineIds} = useContext(AuthenticatedContext);
     const [searchMessage, setSearchMessage] = useState("")
-    const [listMessages, setListMessages] = useState([])
     const [other, setOther ] = useState(false)
     const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
-    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId}))
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
 
-    useEffect(() => {
-        if (getMessages.hasOwnProperty('data') && !loadMessages ) {
-            setListMessages(getMessages.data)
-        }
-    }, [loadMessages]);
     useEffect(() => {
         if (getChannelUsers.hasOwnProperty('data') && !loadChannelUsers ) {
             const otherUser = getChannelUsers.data.find(user => user.id !== auth.id)
             setOther(otherUser)
         }
     }, [loadChannelUsers]);
-    const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen(loadMessages || !other)
-    let continuous
+    // const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen(loadMessages || !other)
     return  (
         <>
-            <LoadingModal isShowing={openLoadingModal} hide={toggleLoadingModal}/>
+            {/*<LoadingModal isShowing={openLoadingModal} hide={toggleLoadingModal}/>*/}
             <div id="chat-2" className="chat dropzone-form-js" data-dz-url="some.php">
                 {
 
@@ -130,41 +124,7 @@ function DirectMessage({channelId, auth}){
                             </div>
                         </div>
 
-                        <div className="chat-content px-lg-8">
-                            <div className="container-xxl py-6 py-lg-10">
-
-                                <div className="message-divider my-9 mx-lg-5">
-                                    <div className="row align-items-center">
-
-                                        <div className="col">
-                                            <hr/>
-                                        </div>
-
-                                        <div className="col-auto">
-                                            <small className="text-muted">Today</small>
-                                        </div>
-
-                                        <div className="col">
-                                            <hr/>
-                                        </div>
-                                    </div>
-                                </div>
-                                {
-                                    listMessages.length ? (
-                                        listMessages.map((message, i) => {
-                                            if (i+1 < listMessages.length) {
-                                                continuous = (listMessages[i].user_id === listMessages[i+1].user_id)
-                                            } else {
-                                                continuous = false
-                                            }
-                                            return (<Message authId={auth.id} message={message} keyword={searchMessage} hasAvatar={!continuous} isLast={i+1 === listMessages.length}/>)
-                                        })
-                                    ) : null
-                                }
-                            </div>
-
-                            <div className="end-of-chat"></div>
-                        </div>
+                        <FetchAndRenderMessages channelId={channelId} searchMessageKeyword={searchMessage} />
 
                         <div className="chat-files hide-scrollbar px-lg-8">
                             <div className="container-xxl">

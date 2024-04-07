@@ -17305,7 +17305,7 @@ a.text-muted.active {
 .message-content {
     border-radius: .625rem .625rem .625rem 2px;
     display: inline-block;
-    padding: 1.125rem
+    padding: 1rem
 }
 
 .message-right .avatar {

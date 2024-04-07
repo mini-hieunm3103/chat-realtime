@@ -4,21 +4,16 @@ import {useFetch, useOpen} from "@/Helper/hooks.js";
 import {asset, convertBaseJs, isObjectEmpty} from "@/Helper/functions.js";
 import GroupAvatar from "@/Components/GroupAvatar.jsx";
 import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
-import Message from "@/Pages/Chatting/Partials/Message.jsx";
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 import AddUsersToGroup from "@/Components/Modals/AddUsersToGroup.jsx";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
-import InfiniteScroll from "react-infinite-scroll-component";
-import UserAvatar from "@/Components/UserAvatar.jsx";
-import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
-import ShowUserModal from "@/Components/Modals/ShowUserModal.jsx";
 import GroupSettings from "@/Pages/Chatting/Partials/ChildrenCS/GroupSettings.jsx";
-import LoadingDiv from "@/Components/LoadingDiv.jsx";
 import GroupUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupUsers.jsx";
 import GroupAdminsCS from "@/Pages/Chatting/Partials/ChildrenCS/GroupAdmins.jsx";
 import GroupBlockedUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupBlockedUsers.jsx";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
+import FetchAndRenderMessages from "@/Pages/Chatting/Partials/FetchAndRenderMessages.jsx";
 
 const GroupInfoContext = createContext();
 // CS: ChatSidebar
@@ -27,23 +22,14 @@ function Group({ auth ,channelId}){
     const groupId = trueUrl.match(/\d+/)[0]
 
     const [searchMessages, setSearchMessages] = useState("")
-    const [listMessages, setListMessages] = useState([])
     const [groupDetail, setGroupDetail] = useState(false)
     const [listUsers, setListUsers] = useState([])
-    const [messagesPage, setMessagesPage] = useState(1)
-    const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
     const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
     const {open: openAddUsersModal, toggle:  toggleOpenAddUsersModal} = useOpen()
 
-    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page:messagesPage}))
     const {data: getGroupDetail, isPending: loadGroupDetail, error: errorGroupDetail} = useFetch(route('group.detail', {group_id: groupId}))
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
-    useEffect(() => {
-        if (getMessages.hasOwnProperty('data') && !loadMessages) {
-            setListMessages(getMessages.data)
-        }
-    }, [loadMessages]);
     useEffect(() => {
         if (getGroupDetail.hasOwnProperty('data') && !loadGroupDetail) {
             setGroupDetail(getGroupDetail.data)
@@ -54,9 +40,7 @@ function Group({ auth ,channelId}){
             setListUsers(getChannelUsers.data)
         }
     }, [loadChannelUsers]);
-    const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen(loadMessages || !groupDetail || !listUsers.length > 0)
-    let continuous;
-    let next;
+    const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen( !groupDetail || !listUsers.length > 0)
     return (
         <>
             {/*Modal*/}
@@ -179,30 +163,7 @@ function Group({ auth ,channelId}){
                         </div>
                     </div>
 
-                    <div className="chat-content px-lg-8">
-                        <div className="container-xxl py-6 py-lg-10">
-
-                            {
-                                listMessages.length ? (
-                                    listMessages.map((message, i) => {
-                                        const hasName = next===i
-                                        // continous: liền kề -> tạo 1 group message và chỉ hiện 1 lần avatar ở message cuối cùng group đó
-                                        // next: cũng với group đó thì message đầu tiên sẽ render ra name
-                                        if (i+1 < listMessages.length) {
-                                            continuous = (listMessages[i].user_id === listMessages[i+1].user_id)
-                                        } else {
-                                            continuous = false
-                                        }
-                                        if (!continuous) {
-                                            next = i+1
-                                        }
-                                        return (<Message authId={auth.id} message={message} keyword={searchMessages} hasName={hasName} hasAvatar={!continuous} isFirst={i===0} isLast={i+1 === listMessages.length}/>)
-                                    })
-                                ) : null
-                            }
-
-                        </div>
-                    </div>
+                    <FetchAndRenderMessages channelId={channelId} searchMessageKeyword={searchMessages} />
 
                     <div className="chat-files hide-scrollbar px-lg-8">
                         <div className="container-xxl">
