@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // bảng naày dùng để chưứa kênh inbox
-        Schema::create('user_channel', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->unsigned();
+            $table->string('name');
+            $table->bigInteger('owner')->unsigned();
             $table->bigInteger('channel_id')->unsigned();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->timestamps();
+            $table->foreign('owner')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('channel_id')->references('id')->on('channels')->onDelete('cascade');
 
-            $table->timestamps();
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_channel');
+        Schema::dropIfExists('groups');
     }
 };

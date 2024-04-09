@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // bảng quản trị viên của gr: sẽ bao gồm owner của group đó và những người trong group được chỉ định  | có thể nhường quyền
-        Schema::create('admin_group', function (Blueprint $table) {
+        Schema::create('channel_user', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
-            $table->bigInteger('group_id')->unsigned();
+            $table->bigInteger('channel_id')->unsigned();
+            $table->timestamp("last_seen_at")->nullable();
+            $table->string("nickname")->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
+            $table->foreign('channel_id')->references('id')->on('channels')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('admin_group');
+        Schema::dropIfExists('channel_user');
     }
 };

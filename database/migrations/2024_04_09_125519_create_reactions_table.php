@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_details', function (Blueprint $table) {
+        Schema::create('reactions', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('message_id')->unsigned();
             $table->bigInteger('user_id')->unsigned();
-            $table->text('avatar')->nullable();
-            $table->string('bio')->nullable();
-            $table->string('facebook', 100)->nullable();
-            $table->string('twitter', 100)->nullable();
-            $table->string('github', 100)->nullable();
+            $table->bigInteger('emoji_id')->unsigned();
             $table->timestamps();
 
+            $table->foreign('message_id')->references('id')->on('messages')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('emoji_id')->references('id')->on('emoji')->onDelete('cascade');
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_details');
+        Schema::dropIfExists('reactions');
     }
 };
