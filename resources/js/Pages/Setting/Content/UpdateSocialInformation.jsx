@@ -3,7 +3,7 @@ import InputLabel from "@/Components/InputLabel.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import InputError from "@/Components/InputError.jsx";
 import {useForm, usePage} from "@inertiajs/react";
-import TextareaInput from "@/Components/TextareaInput.jsx";
+import TextareaInput from "@/Components/Input/TextareaInput.jsx";
 import Button from "@/Components/Button.jsx";
 import {Transition} from "@headlessui/react";
 

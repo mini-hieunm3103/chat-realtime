@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Resources\UserResource;
 /*
@@ -18,4 +19,9 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 Broadcast::channel('chat', function ($user){
     return $user->id;
+});
+Broadcast::channel('chat.dm.{channel_id}', function ($user, $channel_id) {
+    return User::where('id', $user->id)->whereHas('channels', function ($q) use ($channel_id) {
+        $q->where('channel_id', $channel_id);
+    })->first();
 });

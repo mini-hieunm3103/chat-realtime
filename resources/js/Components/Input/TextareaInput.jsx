@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useRef } from 'react';
 
-export default forwardRef(function TextareaInput({error='', className = '', isFocused = false, children, ...props }, ref) {
+export default forwardRef(function TextareaInput({error='', className = '', isFocused = false, autoSize = true, children, ...props }, ref) {
     const input = ref ? ref : useRef();
 
     useEffect(() => {
@@ -12,7 +12,7 @@ export default forwardRef(function TextareaInput({error='', className = '', isFo
     return (
         <textarea
             className={"form-control form-control-lg "+className+ ((error) ? " is-invalid" : null)}
-            data-autosize="true"
+            data-autosize={autoSize}
             {...props}
         >
             {children}

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessagePosted;
 use App\Http\Resources\GroupResource;
+use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Resources\UsersChannelResource;
 use App\Http\Resources\MessageResource;
@@ -55,8 +57,22 @@ class ChatController extends Controller
      */
     public function getMessages($channelId)
     {
-        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with('user.detail')->paginate(10);
+        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with('user.detail')->paginate(20);
         return MessageResource::collection($messages);
+    }
+    public function postMessage(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string'
+        ]);
+        $message = new Message();
+        $message->content = $request->message;
+        $message->channel_id = $request->channel_id;
+        $message->user_id = Auth::id();
+        $message->save();
+        $message = new MessageResource($message->load('user.detail'));
+        $user = Auth::user();
+        broadcast(new MessagePosted($user, $message, $request->channel_id, $request->channel_type))->toOthers();
     }
     public function directMessage(Request $request)
     {

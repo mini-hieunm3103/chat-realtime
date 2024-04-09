@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dialog', [ChatController::class, 'dialog'])->name('dialog');
         Route::post('/direct-message', [ChatController::class, 'directMessage'])->name('direct');
         Route::get('/{channel_id}', [ChatController::class, 'getMessages'])->name('getMessages');
+        Route::post('/', [ChatController::class, 'postMessage'])->name('postMessage');
     });
 });
 

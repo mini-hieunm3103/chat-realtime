@@ -1,16 +1,13 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-import Message from "@/Pages/Chatting/Partials/Message.jsx";
 import {useFetch, useOpen} from "@/Helper/hooks.js";
-import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
-import {asset} from "@/Helper/functions.js";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
-import InfiniteScroll from "react-infinite-scroll-component";
 import FetchAndRenderMessages from "@/Pages/Chatting/Partials/FetchAndRenderMessages.jsx";
+import SendMessage from "@/Pages/Chatting/Partials/SendMessage.jsx";
 
 // CS: ChatSidebar
 
@@ -28,13 +25,10 @@ function DirectMessage({channelId, auth}){
             setOther(otherUser)
         }
     }, [loadChannelUsers]);
-    // const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen(loadMessages || !other)
     return  (
         <>
-            {/*<LoadingModal isShowing={openLoadingModal} hide={toggleLoadingModal}/>*/}
             <div id="chat-2" className="chat dropzone-form-js" data-dz-url="some.php">
                 {
-
                     <div className="chat-body">
                         <div className="chat-header border-bottom py-4 py-lg-6 px-lg-8">
                             <div className="container-xxl">
@@ -132,58 +126,15 @@ function DirectMessage({channelId, auth}){
                             </div>
                         </div>
 
-                        <div id="chat-id-2-form" className="chat-footer border-top py-4 py-lg-6 px-lg-8">
-                            <div className="container-xxl">
-                                <form action="assets/php/upload.php" data-emoji-form="">
-                                    <div className="form-row align-items-center">
-                                        <div className="col">
-                                            <div className="input-group">
-
-                                            <textarea id="chat-id-2-input"
-                                                      className="form-control bg-transparent border-0"
-                                                      placeholder="Type your message..." rows="1" data-emoji-input=""
-                                                      data-autosize="true"></textarea>
-
-                                                <div className="input-group-append">
-                                                    <button
-                                                        className="btn btn-ico btn-secondary btn-minimal bg-transparent border-0"
-                                                        type="button" data-emoji-btn="">
-                                                        <img src="" data-inject-svg="" alt=""/>
-                                                    </button>
-                                                </div>
-
-                                                <div className="input-group-append">
-                                                    <button id="chat-upload-btn-2"
-                                                            className="btn btn-ico btn-secondary btn-minimal bg-transparent border-0 dropzone-button-js"
-                                                            type="button">
-                                                        <img src="" data-inject-svg="" alt=""/>
-                                                    </button>
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div className="col-auto">
-                                            <button className="btn btn-ico btn-primary rounded-circle" type="submit">
-                                                <span className="fe-send"></span>
-                                            </button>
-                                        </div>
-
-                                    </div>
-
-                                </form>
-
-                            </div>
-                        </div>
+                        <SendMessage channelId={channelId} channelType="dm" />
                     </div>
                 }
                 <ChatInfoContext.Provider value={{
                     other,
                     open: openChatSidebar,
                     toggleOpen: toggleChatsidebar
-                }} >
-                    <ChatInfo />
+                }}>
+                    <ChatInfo/>
                 </ChatInfoContext.Provider>
             </div>
         </>
@@ -191,8 +142,9 @@ function DirectMessage({channelId, auth}){
     )
 
 }
+
 const ChatInfo = () => {
-    const {other, open, toggleOpen } = useContext(ChatInfoContext)
+    const {other, open, toggleOpen} = useContext(ChatInfoContext)
     const [targetMediaTabId, setTargetMediaTabId] = useState("")
     return (
         <BaseChatSidebar isOpenCS={open} hide={toggleOpen}>

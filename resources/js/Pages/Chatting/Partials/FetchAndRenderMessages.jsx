@@ -1,12 +1,12 @@
 import React, {createContext, useContext, useEffect, useRef, useState} from "react";
 import {useFetch} from "@/Helper/hooks.js";
-import PopupMessage from "@/Pages/Chatting/Partials/PopupMessage.jsx";
 import Highlighter from "react-highlight-words";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import LoadingDiv from "@/Components/LoadingDiv.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {isObjectEmpty} from "@/Helper/functions.js";
+import TextMessagePopup from "@/Pages/Chatting/Partials/Popup/TextMessagePopup.jsx";
 
 //NOTE: RESERVE RENDER
 
@@ -42,14 +42,25 @@ const FetchAndRenderMessages = ({channelId, searchMessageKeyword}) => {
     const [hasMoreMessages, setHasMoreMessages] = useState(true)
     const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page: messagesPage}))
     useEffect(() => {
+        Echo.channel(`private-chat.dm.${channelId}`)
+            .listen('.message.created', (data)=> {
+                console.log("data", data)
+            })
+            .error((err)=> {console.log(err)})
+        return ()=> {
+            Echo.leave(`private-chat.dm.${channelId}`)
+        }
+    }, [channelId]);
+    console.log("listMessages", listMessages)
+    useEffect(() => {
         if (getMessages.hasOwnProperty('data') && !loadMessages ) {
             setListMessages(getMessages.data)
         }
     }, [loadMessages]);
     useEffect(() => {
         if (!isObjectEmpty(getMessages)){
-            setListMessages(prevUsers =>{
-                return [...new Set([...prevUsers, ...getMessages.data])]
+            setListMessages(prevMessages =>{
+                return [...new Set([...prevMessages, ...getMessages.data])]
             })
             setHasMoreMessages(messagesPage <= getMessages.meta.last_page)
         }
@@ -72,14 +83,13 @@ const FetchAndRenderMessages = ({channelId, searchMessageKeyword}) => {
                         flexDirection: 'column-reverse',
                     }}
                 >
-                    {/*Put the scroll bar always on the bottom*/}
                     <InfiniteScroll
                         dataLength={listMessages.length}
                         next={fetchMoreData}
                         style={{
                             display: 'flex',
                             flexDirection: 'column-reverse'
-                        }} //To put endMessage and loader to the top.
+                        }}
                         inverse={true} //
                         hasMore={hasMoreMessages}
                         loader={<LoadingDiv />}
@@ -145,7 +155,7 @@ const MyMessage = () => {
 
                 <div className="message-row">
                     <div className="d-flex align-items-center justify-content-end">
-                        <PopupMessage/>
+                        <TextMessagePopup copyText={message.content} />
                         <div className="message-content bg-primary text-white" style={{borderRadius: msgBorderRadius}}
                              title={message.sendTime.full}>
                             <div>
@@ -156,7 +166,6 @@ const MyMessage = () => {
                                     textToHighlight={message.content}
                                 />
                             </div>
-
                         </div>
 
                     </div>
@@ -211,7 +220,7 @@ const OtherMessage = () => {
                                 />
                             </div>
                         </div>
-                        <PopupMessage/>
+                        <TextMessagePopup copyText={message.content}/>
                     </div>
                 </div>
             </div>

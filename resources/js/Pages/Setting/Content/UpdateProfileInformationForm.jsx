@@ -4,7 +4,6 @@ import Button from "@/Components/Button";
 import {Transition} from "@headlessui/react";
 import TextInput from '@/Components/TextInput';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import TextareaInput from "@/Components/TextareaInput.jsx";
 import SettingCard from "@/Pages/Setting/Partials/SettingCard.jsx";
 
 export default function UpdateProfileInformation({ mustVerifyEmail, status, showStatus,  className = '' }) {

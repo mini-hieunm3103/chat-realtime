@@ -3,7 +3,7 @@ import InputLabel from "@/Components/InputLabel.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import InputError from "@/Components/InputError.jsx";
 import {useForm} from "@inertiajs/react";
-import TextareaInput from "@/Components/TextareaInput.jsx";
+import TextareaInput from "@/Components/Input/TextareaInput.jsx";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
 import {useFetch, useGetUsers} from "@/Helper/hooks.js";

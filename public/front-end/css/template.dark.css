@@ -4398,7 +4398,7 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
 .dropdown-item {
     display: block;
     width: 100%;
-    padding: .5rem 1rem;
+    padding: .5rem .7rem;
     clear: both;
     font-weight: 400;
     color: #a7a7a7;
@@ -4414,11 +4414,6 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
     background-color: #2f2a30
 }
 
-.dropdown-item.active, .dropdown-item:active {
-    color: #fff;
-    text-decoration: none;
-    background-color: #0176ff
-}
 
 .dropdown-item.disabled, .dropdown-item:disabled {
     color: #aab0b7;
@@ -17243,7 +17238,7 @@ a.text-muted.active {
 .dropdown-menu {
     -webkit-box-shadow: 0 0 1.875rem rgba(0, 0, 0, .25);
     box-shadow: 0 0 1.875rem rgba(0, 0, 0, .25);
-    padding: .625rem
+    padding: .7rem
 }
 
 .dropdown-item {
