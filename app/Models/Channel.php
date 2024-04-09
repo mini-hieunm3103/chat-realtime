@@ -17,7 +17,7 @@ class Channel extends Model
         return $this->hasOne(Group::class);
     }
     public function users() {
-        return $this->belongsToMany(User::class, 'user_channel');
+        return $this->belongsToMany(User::class, 'channel_user');
     }
     // get channel messages
     public function messages()

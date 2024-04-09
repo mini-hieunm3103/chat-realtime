@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class UserDetail extends Model
 {
     use HasFactory;
-    protected $table = 'user_details';
+    protected $table = 'user_detail';
     protected $fillable = [
         'user_id',
-        'avatar',
+        'avatar_id',
         'bio',
         'twitter',
         'facebook',
-        'github'
+        'github',
+        'last_activity',
     ];
 }

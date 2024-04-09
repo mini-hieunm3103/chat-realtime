@@ -42,19 +42,15 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function detail()
+    public function userDetail()
     {
         return $this->hasOne(UserDetail::class, 'user_id');
     }
     public function channels() {
-        return $this->belongsToMany(Channel::class, 'user_channel')->withTimestamps();
+        return $this->belongsToMany(Channel::class, 'channel_user');
     }
     public function messages()
     {
         return $this->hasMany(Message::class);
-    }
-    public function groups()
-    {
-        return $this->belongsToMany(Group::class, 'user_group');
     }
 }

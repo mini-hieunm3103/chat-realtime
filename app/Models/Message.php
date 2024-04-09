@@ -17,4 +17,12 @@ class Message extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function reactions()
+    {
+        return $this->belongsToMany(Emoji::class, 'reactions', 'message_id', 'emoji_id');
+    }
+    public function file()
+    {
+        return $this->belongsTo(File::class, 'file_id');
+    }
 }
