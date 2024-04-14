@@ -18,4 +18,8 @@ class UserDetail extends Model
         'github',
         'last_activity',
     ];
+    public function userAvatarFile()
+    {
+        return $this->hasOne(File::class, 'id', 'avatar_id');
+    }
 }

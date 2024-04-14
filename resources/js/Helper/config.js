@@ -217,3 +217,4 @@ export const avatarOptions = {
 }
 export const appUrl = import.meta.env.APP_URL || 'http://127.0.0.1:8000'
 export const isCommunityUsersLength = 20; //
+export const avatarFileSize = 3072000; // 3mb

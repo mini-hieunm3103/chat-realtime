@@ -232,3 +232,52 @@ svg {
     background-color: rgba(0, 0, 0, 0.45)
 }
 
+.custom-selected-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(45, 50, 56);
+    border: 1px solid rgb(45, 50, 56);
+    border-radius: 6px;
+}
+
+.custom-selected-file .file-name {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.custom-selected-file .trash {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8A3FFC;
+    background-color: transparent;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-selected-file .trash:hover {
+    color: #fff;
+    background-color: #8A3FFC;
+}
+.custom-selected-file .choose-file {
+    padding-right: .75rem;
+    padding-left: .75rem;
+    border-radius: 5px;
+    border: 2px solid rgb(72 76 81 / 75%);
+    color: #fff;
+    width: max-content;
+    background-color: rgba(45, 50, 56, .5);
+}
+.custom-selected-file .choose-file:hover {
+    color: #fff;
+    background-color: #8A3FFC;
+    border: 2px solid #8A3FFC;
+}
+.custom-selected-file .choose-file:focus {
+    border: 2px solid rgba(45, 50, 56, .5);
+}

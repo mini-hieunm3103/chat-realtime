@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {useFetch, useOpen} from "@/Helper/hooks.js";
+import {useFetch, useToggle} from "@/Helper/hooks.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import {convertBaseJs, isObjectEmpty} from "@/Helper/functions.js";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
@@ -49,7 +49,7 @@ function GlobalFriends({startUp}) {
             page: pageNumber
         })
     }, [pageNumber]);
-    const {open, toggle} = useOpen()
+    const {on: open, toggle} = useToggle()
     var currentFirstIndexName = null
     return (
         <div className={"tab-pane fade h-100 " + (startUp && "show active")} id="tab-content-friends" role="tabpanel">
@@ -136,7 +136,7 @@ function GlobalFriends({startUp}) {
     )
 }
 const UserDropdown = ({user}) => {
-    const {open, toggle} = useOpen()
+    const {on: open, toggle} = useToggle()
     return (
         <>
         <div className="align-self-center pl-5 py-4">

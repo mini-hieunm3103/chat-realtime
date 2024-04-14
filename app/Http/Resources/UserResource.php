@@ -15,17 +15,23 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $avatar = ($this->userDetail->avatar_id) ? [
+            "file_id" => $this->userDetail->userAvatarFile->id,
+            "name" => $this->userDetail->userAvatarFile->name,
+            "path" => $this->userDetail->userAvatarFile->path,
+        ] : null;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'avatar' => ($this->detail->avatar) ?? null,
             'email' => $this->email,
+            'email_verified_at' => $this->email_verified_at,
+            'avatar' => $avatar,
             'time' => Carbon::parse($this->created_at)->format('M j o H:i'),
-            'bio' => ($this->detail->bio) ?? null,
-            'github' => $this->detail->github ?? null,
-            'facebook' => $this->detail->facebook ?? null,
-            'twitter' => $this->detail->twitter ?? null,
-            'email_verified_at' => $this->email_verified_at
+            'bio' => ($this->userDetail->bio) ?? null,
+            'github' => $this->userDetail->github ?? null,
+            'facebook' => $this->userDetail->facebook ?? null,
+            'twitter' => $this->userDetail->twitter ?? null,
         ];
     }
 }

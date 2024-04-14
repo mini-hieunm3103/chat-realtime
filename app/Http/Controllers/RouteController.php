@@ -15,14 +15,14 @@ class RouteController extends Controller
     public function welcome()
     {
         return Inertia::render('Welcome', [
-            'auth' => getAuthUser()
+            'auth' => getAuthUserResource()
         ]);
     }
 
     public function settings(Request $request): Response
     {
         return Inertia::render('Setting/Edit', [
-            'auth' => getAuthUser(),
+            'auth' => getAuthUserResource(),
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);

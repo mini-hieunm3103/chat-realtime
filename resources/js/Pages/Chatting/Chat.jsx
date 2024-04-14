@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import Group from "@/Pages/Chatting/Room/Group.jsx";
 import DirectMessage from "@/Pages/Chatting/Room/DirectMessage.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-import {useFetch, useOpen} from "@/Helper/hooks.js";
+import {useFetch} from "@/Helper/hooks.js";
 import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
 export default function Chat({ auth, isGroup, channelId }) {
     const showStatus = (message, type="success", title="Handle Successfully", position="top-end", time=2000) => {

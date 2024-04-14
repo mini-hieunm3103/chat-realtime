@@ -65,11 +65,9 @@ function convertBasePhp($str, $fromBase, $toBase) {
 
     return $out;
 }
-function getAuthUser()
+function getAuthUserResource()
 {
     // cho sidebar
-    $user = Auth::user();
-    $detail = $user->detail;
-    $user->detail = $detail;
+    $user = \App\Models\User::where('id', Auth::id())->with('userDetail.userAvatarFile')->first();
     return new UserResource($user);
 }

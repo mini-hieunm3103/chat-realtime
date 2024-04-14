@@ -1,6 +1,6 @@
 import CollapseButton from "@/Components/CollapseButton.jsx";
 import React, {createContext, useContext, useEffect, useRef, useState} from "react";
-import {useFetch, useOpen} from "@/Helper/hooks.js";
+import {useFetch, useToggle} from "@/Helper/hooks.js";
 import {asset, convertBaseJs, isObjectEmpty} from "@/Helper/functions.js";
 import GroupAvatar from "@/Components/GroupAvatar.jsx";
 import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
@@ -24,9 +24,8 @@ function Group({ auth ,channelId}){
     const [searchMessages, setSearchMessages] = useState("")
     const [groupDetail, setGroupDetail] = useState(false)
     const [listUsers, setListUsers] = useState([])
-
-    const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
-    const {open: openAddUsersModal, toggle:  toggleOpenAddUsersModal} = useOpen()
+    const {on: openChatSidebar, toggle:  toggleChatsidebar} = useToggle()
+    const {on: openAddUsersModal, toggle:  toggleOpenAddUsersModal} = useToggle()
 
     const {data: getGroupDetail, isPending: loadGroupDetail, error: errorGroupDetail} = useFetch(route('group.detail', {group_id: groupId}))
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
@@ -40,7 +39,7 @@ function Group({ auth ,channelId}){
             setListUsers(getChannelUsers.data)
         }
     }, [loadChannelUsers]);
-    const {open: openLoadingModal, toggle: toggleLoadingModal} = useOpen( !groupDetail || !listUsers.length > 0)
+    const {on: openLoadingModal, toggle: toggleLoadingModal} = useToggle( !groupDetail || !listUsers.length > 0)
     return (
         <>
             {/*Modal*/}

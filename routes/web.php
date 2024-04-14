@@ -28,10 +28,13 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => 'user', 'as' => 'user.'], function (){
         Route::get('', [UserController::class, 'getAllUsers'])->name('getAllUsers');
+        Route::get('/getUsersChannel/{channel_id}', [ChatController::class, 'getUsersChannel'])->name('getUsersChannel');
         Route::post('/invite-friend', [UserController::class, 'inviteFriend'])->name('invite');
         Route::patch('/update-account', [UserController::class, 'updateAccount'])->name('updateAccount');
-        Route::patch('/update-details', [UserController::class, 'updateDetails'])->name('updateDetails');
-        Route::get('/getUsersChannel/{channel_id}', [ChatController::class, 'getUsersChannel'])->name('getUsersChannel');
+        // use post because we need upload avatar file and inertia just sp post method
+        Route::post('/update-details', [UserController::class, 'updateDetails'])->name('updateDetails');
+
+        Route::delete('/delete-avatar', [UserController::class, 'deleteAvatar'])->name('deleteAvatar');
     });
     Route::group(['prefix' => 'room'], function (){
         Route::post('/group/store', [GroupController::class, 'store'])->name('group.store');

@@ -1,7 +1,8 @@
 import React, {lazy} from "react";
 import {adventurer, adventurerNeutral} from "@dicebear/collection";
 import {createAvatar} from "@dicebear/core";
-import {useOpen} from "@/Helper/hooks.js";
+import {useToggle} from "@/Helper/hooks.js";
+import {asset} from "@/Helper/functions.js";
 
 const ShowUserModal = lazy(() => (import('@/Components/Modals/ShowUserModal.jsx')))
 function UserAvatar(
@@ -10,38 +11,29 @@ function UserAvatar(
         showProfile = false,
         size=false,
         className='',
-        user
+        user,
+        ...props
     }
 )
 {
-    if (!user) {
+    if (!user)
         return null
-    }
-    const {open, toggle} = useOpen()
-    const avatarDb = JSON.parse(user.avatar)
-    const patternLink =
-        /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
-    const isLink = patternLink.test(avatarDb)
-    const isNull = Object.is(avatarDb, null)
-    const avatarStyleArr = [
-        adventurer,
-        adventurerNeutral
-    ]
-    const svg = (!isLink && !isNull) ?  createAvatar(avatarStyleArr[avatarDb.style.position], avatarDb).toString() : false;
+    const {on: open, toggle} = useToggle()
     return (
         <>
             <div className={
                 "cursor-default avatar "
                 + ((size) ? " avatar-" + size : " ")
                 + ((isOnline) ? " avatar-online" : " ")
-                + ((isNull) ? " bg-primary text-white " : " ")
+                + ((!user.avatar) ? " bg-primary text-white " : " ")
                 + className
             }
                  onClick={toggle}
+                 {...props}
             >
-                {(svg) && <div dangerouslySetInnerHTML={{__html: svg}}/>}
-                {(isLink) && <img src={avatarDb} alt="avatar" className="avatar-img" style={{borderRadius: "50%"}}/>}
-                {(isNull) && <span style={(size === "xl") ? {fontSize: 38, fontWeight: "bold"} : {fontWeight: "bold"}}>{user.name.charAt(0)}</span>}
+                {(user.avatar)
+                    ? <img className="avatar-img" src={asset(user.avatar.path)} alt={user.name}/>
+                    : <span style={(size === "xl") ? {fontSize: 38, fontWeight: "bold"} : {fontWeight: "bold"}}>{user.name.charAt(0)}</span>}
             </div>
             {showProfile && <ShowUserModal isShowing={open} hide={toggle} user={user}/>}
         </>

@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-import {useFetch, useOpen} from "@/Helper/hooks.js";
+import {useFetch, useToggle} from "@/Helper/hooks.js";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
@@ -16,7 +16,8 @@ function DirectMessage({channelId, auth}){
     const {allUserOnlineIds} = useContext(AuthenticatedContext);
     const [searchMessage, setSearchMessage] = useState("")
     const [other, setOther ] = useState(false)
-    const {open: openChatSidebar, toggle:  toggleChatsidebar} = useOpen()
+    const {on: openChatSidebar, toggle: toggleChatsidebar} = useToggle()
+
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
 
     useEffect(() => {

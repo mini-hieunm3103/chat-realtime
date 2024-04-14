@@ -4,7 +4,7 @@ import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.j
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import {convertBaseJs} from "@/Helper/functions.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-import {useOpen} from "@/Helper/hooks.js";
+import {useToggle} from "@/Helper/hooks.js";
 import ShowUserModal from "@/Components/Modals/ShowUserModal.jsx";
 
 const GroupAdminsCS = () => {
@@ -91,7 +91,7 @@ const GroupAdminsCS = () => {
     )
 }
 const UserDropdown = ({user}) => {
-    const {open, toggle} = useOpen()
+    const {on: open, toggle} = useToggle()
     return (
         <>
             <div className="align-self-center pl-5">

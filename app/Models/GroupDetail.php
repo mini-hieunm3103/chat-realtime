@@ -21,4 +21,8 @@ class GroupDetail extends Model
         "highlight_admin_message",
         "show_members",
     ];
+    public function groupAvatarFile()
+    {
+        return $this->belongsTo(File::class, 'avatar_id');
+    }
 }

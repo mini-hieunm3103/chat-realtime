@@ -42,12 +42,12 @@ class ChatController extends Controller
             }
             $channelId = Group::find($id)->channel_id;
         } else if ($type == 'dm'){
-            $channelId = $this->findOrNewChannel(getAuthUser()->id, $id)->id;
+            $channelId = $this->findOrNewChannel(getAuthUserResource()->id, $id)->id;
         } else {
             abort(404);
         }
         return Inertia::render('Chatting/Chat', [
-            'auth' => getAuthUser(),
+            'auth' => getAuthUserResource(),
             'isGroup' => ($type == 'gr'),
             'channelId'=> $channelId,
         ]);
@@ -57,7 +57,7 @@ class ChatController extends Controller
      */
     public function getMessages($channelId)
     {
-        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with('user.detail')->paginate(20);
+        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with('user.userDetail')->paginate(20);
         return MessageResource::collection($messages);
     }
     public function postMessage(Request $request)
@@ -118,11 +118,11 @@ class ChatController extends Controller
         $channelsWithMessage = $authUser->channels()
             ->with([
                 'messages' => function ($q) {
-                    $q->with('user.detail')->latest();
+                    $q->with('user.userDetail')->latest();
                 },
                 'group',
                 'users' => function ($query) use ($authUser) {
-                    $query->with('detail')->where('users.id', '<>', $authUser->id);
+                    $query->with('userDetail')->where('users.id', '<>', $authUser->id);
                 }
             ])
             ->WhereHas('messages')
@@ -139,11 +139,11 @@ class ChatController extends Controller
             ->channels()
             ->with([
                 'messages' => function ($q) {
-                    $q->with('user.detail')->latest();
+                    $q->with('sender.userDetail')->latest();
                 },
                 'group',
                 'users' => function ($query) use ($authUser) {
-                    $query->with('detail')->where('users.id', '<>', $authUser->id);
+                    $query->with('userDetail')->where('users.id', '<>', $authUser->id);
                 }
             ])
             ->where('channels.type', 'group')

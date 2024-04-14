@@ -80,7 +80,7 @@ export const convertTimestamp = (timestamp) =>{
     return `${month} ${day} ${year} ${hour}:${minute}`;
 }
 export const asset = (path) => {
-    return `${appUrl}/storage/${path}`
+    return `/storage/${path}`
 }
 export const isObjectEmpty = (objectName) => {
     return JSON.stringify(objectName) === "{}";

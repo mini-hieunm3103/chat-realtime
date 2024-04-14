@@ -1,18 +1,15 @@
 import {memo, useEffect, useState} from "react";
 
-export const useOpen = (initialOpen=false) => {
-    const [open, setOpen] = useState(initialOpen);
+
+export const useToggle = (initialOpen=false) => {
+    const [on, setOn] = useState(initialOpen);
     function toggle() {
-        setOpen(!open);
+        setOn(!on);
     }
     useEffect(() => {
-        let isMounted = true;
-        setOpen(initialOpen)
-        return () => {
-            isMounted = false
-        }
+        setOn(initialOpen)
     }, [initialOpen]);
-    return {open, toggle}
+    return {on, toggle}
 };
 export const useFetch = (url) => {
     const [data, setData] = useState({})

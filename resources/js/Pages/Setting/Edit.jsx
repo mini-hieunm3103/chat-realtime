@@ -5,10 +5,9 @@ import ToggleLayoutButton from "@/Components/ToggleLayoutButton.jsx";
 import { Head } from '@inertiajs/react';
 import Swal from "sweetalert2";
 import {useLocation} from "react-router-dom";
-import UpdateSocialInformation from "@/Pages/Setting/Content/UpdateSocialInformation.jsx";
+import UpdateDetailInformation from "@/Pages/Setting/Content/UpdateDetailInformation.jsx";
 import NotificationSetting from "@/Pages/Setting/Content/NotificationSetting.jsx";
 import SettingCard from "@/Pages/Setting/Partials/SettingCard.jsx";
-import UpdateUserAvatar from "@/Pages/Setting/Content/UpdateUserAvatar.jsx";
 import {useEffect} from "react";
 
 
@@ -73,17 +72,13 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                                         status={status}
                                         showStatus={showStatus}
                                     />
+                                    <UpdateDetailInformation
+                                        showStatus={showStatus}
+                                    />
                                     <UpdatePasswordForm
                                         showStatus={showStatus}
                                     />
-
                                     <NotificationSetting
-                                        showStatus={showStatus}
-                                    />
-                                    <UpdateSocialInformation
-                                        showStatus={showStatus}
-                                    />
-                                    <UpdateUserAvatar
                                         showStatus={showStatus}
                                     />
                                 </div>

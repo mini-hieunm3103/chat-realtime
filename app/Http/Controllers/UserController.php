@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Mail\InviteFriendsEmail;
+use App\Models\File;
 use App\Models\User;
+use App\Models\UserDetail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -36,10 +39,11 @@ class UserController extends Controller
             });
         }
         if ($request->needAuth) {
-            $users = $users->with('detail')->paginate(10)->withQueryString();
+            $users = $users->with('userDetail')->paginate(10)->withQueryString();
         } else {
-            $users = $users->where('id', '<>', Auth::id())->with('detail')->paginate(10)->withQueryString();
+            $users = $users->where('id', '<>', Auth::id())->with('userDetail')->paginate(10)->withQueryString();
         }
+//        return($users);
         return UserResource::collection($users);
     }
     public function inviteFriend(Request $request)
@@ -83,7 +87,7 @@ class UserController extends Controller
     }
     public function updateAccount(Request $request): RedirectResponse
     {
-        $user = Auth::user();
+        $user = getAuthUserResource();
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id ],
@@ -100,24 +104,55 @@ class UserController extends Controller
     public function updateDetails(Request $request)
     {
         $rules = [
-            'avatar' => ['nullable'],
+            'avatar_file' => ['nullable', 'image', 'mimes:jpeg,gif,png', 'max:3064'],
             'bio' => ['nullable', 'string', 'max:255'],
             'twitter' => ['nullable','url', 'max:100'],
             'facebook' => ['nullable','url', 'max:100'],
             'github' => ['nullable','url', 'max:100'],
         ];
         $request->validate($rules);
-        $details = User::find(Auth::id())->detail;
-        if ($request->updateSocial){
+        if ($request->isUpdateDetail){
+            $details = getAuthUserResource()->userDetail;
             $details->bio = $request->bio;
             $details->twitter = $request->twitter;
             $details->facebook = $request->facebook;
             $details->github = $request->github;
+            $newAvatarFile = $request->file('avatar_file');
+            if ($newAvatarFile){
+                $oldAvatarFileDB = $details->userAvatarFile;
+
+                $newAvatarFileOriginalName = $newAvatarFile->getClientOriginalName();
+                $newAvatarFileNameInStorage = time() . '_' . $newAvatarFileOriginalName;
+                Storage::disk('public')->putFileAs('/images/avatars', $newAvatarFile, $newAvatarFileNameInStorage);
+
+                $file = new File();
+                $file->name = $newAvatarFileOriginalName;
+                $file->path ='/images/avatars/'.$newAvatarFileNameInStorage;
+                $file->save();
+
+                $details->avatar_id = $file->id;
+                $details->save();
+
+                if ($oldAvatarFileDB) {
+                    Storage::disk('public')->delete($oldAvatarFileDB->path);
+                    $oldAvatarFileDB->delete();
+                }
+            }
+            $details->save();
         }
-        if ($request->updateAvatar){
-            $details->avatar =  json_encode($request->avatar);
-        }
-        $details->save();
+        return Redirect::route('settings');
+    }
+    public function deleteAvatar(Request $request)
+    {
+        $user = getAuthUserResource();
+        $userDetail = $user->userDetail;
+        $oldAvatarFileDB = $user->userDetail->userAvatarFile;
+        if (!$oldAvatarFileDB) abort(404);
+        $userDetail->avatar_id = null;
+        $userDetail->save();
+
+        Storage::disk('public')->delete($oldAvatarFileDB->path);
+        $oldAvatarFileDB->delete();
         return Redirect::route('settings');
     }
     public function destroy(Request$request)

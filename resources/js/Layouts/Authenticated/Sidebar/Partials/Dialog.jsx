@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from "react";
 import {useEchoChatUsersId, useGetUsers} from "@/Helper/hooks.js";
-import {useFetch, useOpen} from "@/Helper/hooks.js";
+import {useFetch} from "@/Helper/hooks.js";
 import {convertBaseJs} from "@/Helper/functions.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import GroupAvatar from "@/Components/GroupAvatar.jsx";
