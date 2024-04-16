@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UsersChannelResource;
 use App\Mail\InviteFriendsEmail;
+use App\Models\Channel;
 use App\Models\File;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -38,13 +40,19 @@ class UserController extends Controller
                 }
             });
         }
-        if ($request->needAuth) {
-            $users = $users->with('userDetail')->paginate(10)->withQueryString();
-        } else {
-            $users = $users->where('id', '<>', Auth::id())->with('userDetail')->paginate(10)->withQueryString();
+        if (!$request->needAuth) {
+            $users = $users->where('id', '<>', Auth::id());
         }
-//        return($users);
+        $users = $users->with('userDetail')->paginate(10)->withQueryString();
         return UserResource::collection($users);
+    }
+    public function getUsersChannel($channelId)
+    {
+        // phải render ra hết không phân trang do phần add user render ra hết => nếu phân page sẽ có lỗi
+        $usersChannel = Channel::with(['users' => function ($q) {
+            $q->orderBy('name', 'asc')->with('userDetail');
+        }])->where('id', $channelId)->first();
+        return new UsersChannelResource($usersChannel);
     }
     public function inviteFriend(Request $request)
     {

@@ -33,7 +33,7 @@ const BaseChatSidebar = ({isOpenCS, children}) => {
 }
 const MainCS = ({children}) => {
     // nếu có children id thì sẽ remove
-    const {openMainCS, setOpenMainCS, childrenId, setChildrenId} = useContext(BaseChatSidebarContext)
+    const {openMainCS} = useContext(BaseChatSidebarContext)
     return openMainCS && (
         <div className="chat-sidebar sidebar chat-sidebar-visible">
             <div className="d-flex h-100 flex-column">
@@ -45,7 +45,7 @@ const MainCS = ({children}) => {
 const OpenChildrenCS = ({childrenCSId,  className, children}) => {
 
     // sẽ là nút bên trong main sidebar và sẽ có tác dụng ẩn main CS và hiện children CS
-    const {openMainCS, setOpenMainCS, childrenId, setChildrenId, actions, setActions} = useContext(BaseChatSidebarContext)
+    const {setOpenMainCS, childrenId, setChildrenId, actions, setActions} = useContext(BaseChatSidebarContext)
     const handleOpen = () => {
         if (childrenId != null && childrenId !== childrenCSId){
             // save currentCSId
@@ -61,7 +61,7 @@ const OpenChildrenCS = ({childrenCSId,  className, children}) => {
     )
 }
 const CloseCurrentCS = ({children, className}) => {
-    const {openMainCS, setOpenMainCS, childrenId, setChildrenId, actions, setActions} = useContext(BaseChatSidebarContext)
+    const {setOpenMainCS, setChildrenId, actions, setActions} = useContext(BaseChatSidebarContext)
     const handleClose = () => {
         if (actions.length > 0) {
             // Set childrenId to the last item in the updated actions array

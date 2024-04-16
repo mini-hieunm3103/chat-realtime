@@ -17,7 +17,8 @@ class MessageResource extends JsonResource
     {
         return [
             'user_id'=> $this->user_id,
-            'content' => $this->content,
+            'type' => $this->type,
+            'text_content' => $this->text_content,
             'sendTime' => [
                 's' => Carbon::parse($this->created_at)->format('s'),
                 'i' => Carbon::parse($this->created_at)->format('i'),

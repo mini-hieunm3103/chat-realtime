@@ -96,14 +96,7 @@ class ChatController extends Controller
         }
         return $channel;
     }
-    public function getUsersChannel($channelId)
-    {
-        // phải render ra hết không phân trang do phần add user render ra hết => nếu phân page sẽ có lỗi
-        $usersChannel = Channel::with(['users' => function ($q) {
-            $q->orderBy('name', 'asc')->with('detail');
-        }])->where('id', $channelId)->first();
-        return new UsersChannelResource($usersChannel);
-    }
+
     public function dialog(Request $request)
     {
         // hiện tất cả group

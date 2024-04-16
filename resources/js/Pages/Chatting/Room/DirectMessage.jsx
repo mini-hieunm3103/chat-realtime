@@ -6,8 +6,8 @@ import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.j
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
-import FetchAndRenderMessages from "@/Pages/Chatting/Partials/FetchAndRenderMessages.jsx";
 import SendMessage from "@/Pages/Chatting/Partials/SendMessage.jsx";
+import ListMessages from "@/Pages/Chatting/Partials/Messages/ListMessages.jsx";
 
 // CS: ChatSidebar
 
@@ -119,7 +119,7 @@ function DirectMessage({channelId, auth}){
                             </div>
                         </div>
 
-                        <FetchAndRenderMessages channelId={channelId} searchMessageKeyword={searchMessage} />
+                        <ListMessages channelId={channelId} searchMessageKeyword={searchMessage} />
 
                         <div className="chat-files hide-scrollbar px-lg-8">
                             <div className="container-xxl">

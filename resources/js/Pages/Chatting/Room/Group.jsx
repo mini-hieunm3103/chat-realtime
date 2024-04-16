@@ -13,7 +13,7 @@ import GroupUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupUsers.jsx";
 import GroupAdminsCS from "@/Pages/Chatting/Partials/ChildrenCS/GroupAdmins.jsx";
 import GroupBlockedUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupBlockedUsers.jsx";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
-import FetchAndRenderMessages from "@/Pages/Chatting/Partials/FetchAndRenderMessages.jsx";
+import ListMessages from "@/Pages/Chatting/Partials/Messages/ListMessages.jsx";
 
 const GroupInfoContext = createContext();
 // CS: ChatSidebar
@@ -162,7 +162,7 @@ function Group({ auth ,channelId}){
                         </div>
                     </div>
 
-                    <FetchAndRenderMessages channelId={channelId} searchMessageKeyword={searchMessages} />
+                    <ListMessages channelId={channelId} searchMessageKeyword={searchMessages} />
 
                     <div className="chat-files hide-scrollbar px-lg-8">
                         <div className="container-xxl">
