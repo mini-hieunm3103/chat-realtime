@@ -99,23 +99,7 @@ export default function ShowUserModal({isShowing, hide, user}){
                                                     <div className="media-body align-self-center">
                                                         Chặn tin nhắn và cuộc gọi
                                                     </div>
-                                                    <i className="fa-solid fa-ban"></i>
-                                                </div>
-                                            </li>
-                                            <li className="list-group-item py-6">
-                                                <div className="media text-muted">
-                                                    <div className="media-body align-self-center">
-                                                        Chặn tin nhắn và cuộc gọi
-                                                    </div>
-                                                    <i className="fa-solid fa-ban"></i>
-                                                </div>
-                                            </li>
-                                            <li className="list-group-item py-6">
-                                                <div className="media text-muted">
-                                                    <div className="media-body align-self-center">
-                                                        Chặn tin nhắn và cuộc gọi
-                                                    </div>
-                                                    <i className="fa-solid fa-ban"></i>
+                                                    <i className="m-auto fe-slash"></i>
                                                 </div>
                                             </li>
                                         </ul>

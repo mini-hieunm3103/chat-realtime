@@ -11,7 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessagePosted implements ShouldBroadcastNow
+class MessagePosted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -41,9 +41,5 @@ class MessagePosted implements ShouldBroadcastNow
         }else if ($this->channelType == "group") {
             return new PrivateChannel("chat.group.".$this->channelId);
         }
-    }
-    public function broadcastAs()
-    {
-        return 'message.created';
     }
 }

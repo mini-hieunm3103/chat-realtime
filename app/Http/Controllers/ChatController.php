@@ -62,21 +62,20 @@ class ChatController extends Controller
     }
     public function postMessage(Request $request)
     {
-        $request->validate([
-            'message' => 'required|string'
-        ]);
         $message = new Message();
-        $message->content = $request->message;
+        $message->type = $request->message_type;
+        if ($request->message_type === "text") {
+            $message->text_content = $request->text_content;
+        } else {
+            $message->text_content = null;
+        }
+        $message->file_id = null;
         $message->channel_id = $request->channel_id;
         $message->user_id = Auth::id();
         $message->save();
-        $message = new MessageResource($message->load('user.detail'));
+        $message = new MessageResource($message->load('user.userDetail'));
         $user = Auth::user();
-        broadcast(new MessagePosted($user, $message, $request->channel_id, $request->channel_type))->toOthers();
-    }
-    public function directMessage(Request $request)
-    {
-//        dd($request);
+        broadcast(new MessagePosted($user, $message, $request->channel_id, $request->channel_type));
     }
     // channel inbox
     public function findOrNewChannel($sender, $receiver) {

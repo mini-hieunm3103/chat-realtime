@@ -8,7 +8,7 @@ import Button from "@/Components/Button.jsx";
 import {Transition} from "@headlessui/react";
 import React, {useEffect, useRef, useState} from "react";
 import {useToggle} from "@/Helper/hooks.js";
-import {avatarFileSize} from "@/Helper/config.js";
+import {maxAvatarFileSize} from "@/Helper/config.js";
 import ConfirmModal from "@/Components/Modals/ConfirmModal.jsx";
 import {asset} from "@/Helper/functions.js";
 
@@ -49,7 +49,7 @@ export default function UpdateDetailInformation({status, showStatus,  className 
 
         if (!selectedFile) return;
 
-        const isFileSizeAllowed = selectedFile.size <= avatarFileSize;
+        const isFileSizeAllowed = selectedFile.size <= maxAvatarFileSize;
         const isFileTypeAllowed = allowedTypes.includes(selectedFile.type)
 
         if (isFileTypeAllowed && isFileSizeAllowed){

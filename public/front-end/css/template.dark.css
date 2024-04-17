@@ -17325,7 +17325,7 @@ a.text-muted.active {
     }
 
     .sidebar-is-open .message-content {
-        max-width: 100%
+        max-width: 75%
     }
 }
 

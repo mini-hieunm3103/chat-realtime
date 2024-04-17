@@ -1,29 +1,11 @@
 import { forwardRef, useEffect, useRef } from 'react';
 
-export default forwardRef(function TextareaInput({error='', className = '', isFocused = false, autoSize = true, children, ...props }, ref) {
-    const input = ref ? ref : useRef();
-
-    useEffect(() => {
-        if (isFocused) {
-            input.current.focus();
-        }
-    }, []);
-
+export default function TextareaInput({ref, error='', className = '', isFocused = false, autoSize = true, children, ...props }) {
     return (
         <textarea
-            className={"form-control form-control-lg "+className+ ((error) ? " is-invalid" : null)}
-            data-autosize={autoSize}
+            className={"form-control form-control-lg "+className+ ((error) ? " is-invalid" : "")}
+            style={{resize: "none"}}
             {...props}
-        >
-            {children}
-        </textarea>
-        // <input
-        //     {...props}
-        //     type={type}
-        //     className={
-        //         'form-control form-control-lg ' + className + ((error) ? " is-invalid" : null)
-        //     }
-        //     ref={input}
-        // />
+        />
     );
-});
+};

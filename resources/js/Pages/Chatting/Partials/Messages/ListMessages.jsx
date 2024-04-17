@@ -23,9 +23,13 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
     const [hasMoreMessages, setHasMoreMessages] = useState(true)
     const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page: messagesPage}))
     useEffect(() => {
-        Echo.channel(`private-chat.dm.${channelId}`)
-            .listen('.message.created', (data)=> {
-                console.log("data", data)
+        Echo.private(`chat.dm.${channelId}`)
+            // do là private channel nên bên phía ChatController.postMessage có toOthers()
+            // chỉ có other nhận được tin nhắn
+            // còn bên auth user sẽ k thêm vaò listMessage chính message vừa gửi
+            .listen('MessagePosted', (data)=> {
+                const newMessage = data.message
+                setListMessages((prevState)=> [newMessage, ...prevState])
             })
             .error((err)=> {console.log(err)})
         return ()=> {
@@ -56,7 +60,7 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
                 ? <LoadingDiv className={"h-100"}/>
                 : <div
                     id="scrollableDiv"
-                    className={"chat-content px-lg-8 py-lg-5"}
+                    className={"chat-content px-lg-8 py-lg-5 px-5"}
                     style={{
                         height: 300,
                         overflow: 'auto',

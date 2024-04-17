@@ -6,16 +6,17 @@ import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.j
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
-import SendMessage from "@/Pages/Chatting/Partials/SendMessage.jsx";
+import SendMessage from "@/Pages/Chatting/Partials/Messages/SendMessage.jsx";
 import ListMessages from "@/Pages/Chatting/Partials/Messages/ListMessages.jsx";
 
 // CS: ChatSidebar
-
-const ChatInfoContext = createContext()
+const ListMessagesContext = createContext();
+const ChatInfoContext = createContext();
 function DirectMessage({channelId, auth}){
     const {allUserOnlineIds} = useContext(AuthenticatedContext);
     const [searchMessage, setSearchMessage] = useState("")
     const [other, setOther ] = useState(false)
+    const [listMessages, setListMessages] = useState([])
     const {on: openChatSidebar, toggle: toggleChatsidebar} = useToggle()
 
     const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
@@ -118,16 +119,10 @@ function DirectMessage({channelId, auth}){
                                 />
                             </div>
                         </div>
-
-                        <ListMessages channelId={channelId} searchMessageKeyword={searchMessage} />
-
-                        <div className="chat-files hide-scrollbar px-lg-8">
-                            <div className="container-xxl">
-                                <div className="dropzone-previews-js form-row py-4"></div>
-                            </div>
-                        </div>
-
-                        <SendMessage channelId={channelId} channelType="dm" />
+                        <ListMessagesContext.Provider value={setListMessages} >
+                            <ListMessages channelId={channelId} searchMessageKeyword={searchMessage} />
+                            <SendMessage channelId={channelId} channelType="dm" />
+                        </ListMessagesContext.Provider>
                     </div>
                 }
                 <ChatInfoContext.Provider value={{
