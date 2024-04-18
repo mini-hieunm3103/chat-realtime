@@ -101,9 +101,9 @@ export default function UpdateDetailInformation({status, showStatus,  className 
                     <div className="d-flex justify-content-start flex-wrap">
                         {/*    User Avatar*/}
                         <div
-                            className={"cursor-default avatar avatar-xl mr-15" + ((!data.avatar) ? " bg-primary text-white " : " ")}>
+                            className={"cursor-default avatar avatar-xl mr-15" + ((!data.avatar_file) ? " bg-primary text-white " : " ")}>
                             {(avatarFile || user.avatar)
-                                ? <img className="avatar-img"
+                                ? <img className="avatar-img border border-primary"
                                        src={(avatarFile) ? URL.createObjectURL(avatarFile) : asset(user.avatar.path)}
                                        alt={user.name}/>
                                 : <span style={{fontSize: 38, fontWeight: "bold"}}>{user.name.charAt(0)}</span>}
@@ -125,7 +125,7 @@ export default function UpdateDetailInformation({status, showStatus,  className 
                     <div className="form-group mt-6">
                         <InputLabel value="Avatar" className="small"/>
                         <div className="custom-selected-file col-12 form-control-lg pl-4">
-                            <div className="choose-file btn px-4 py-1" onClick={onChooseFile}><span>Choose file</span>
+                            <div className="choose-file btn px-4 py-1 col-auto" onClick={onChooseFile}><span>Choose file</span>
                             </div>
                             <p className="file-name m-0 ml-3 text-truncate text-center">{(avatarFile) ? avatarFile.name : ((user.avatar) ? user.avatar.name : null)}</p>
                             <div className={"trash btn " + ((!avatarFile && !user.avatar) ? "d-none" : "")}

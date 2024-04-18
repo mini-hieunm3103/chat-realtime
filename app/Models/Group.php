@@ -11,6 +11,7 @@ class Group extends Model
     protected $fillable = [
         'name',
         'owner',
+        'channel_id'
     ];
     public function admins()
     {

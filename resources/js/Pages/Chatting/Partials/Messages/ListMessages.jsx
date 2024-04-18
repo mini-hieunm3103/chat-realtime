@@ -61,13 +61,9 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
                 } else
                     return message
             })
-            console.log("updateListMessagesAfterRecall", updateListMessagesAfterRecall)
             setListMessages(updateListMessagesAfterRecall)
         }
     }, [isRecallSuccessfully]);
-    console.log("listMessages", listMessages)
-    console.log("recallMessageId", recallMessageId)
-    console.log("isRecallSuccessfully", isRecallSuccessfully)
     const fetchMoreData = () => {
         setMessagesPage(prevState => prevState+1)
     }

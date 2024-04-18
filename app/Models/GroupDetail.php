@@ -11,8 +11,6 @@ class GroupDetail extends Model
     protected $table = "group_detail";
     protected $fillable = [
         "group_id",
-        "topic",
-        "description",
         "avatar_id",
         "approval",
         "join_group_via_link",

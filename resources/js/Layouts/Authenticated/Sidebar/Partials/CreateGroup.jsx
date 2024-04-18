@@ -6,7 +6,7 @@ import {useForm} from "@inertiajs/react";
 import TextareaInput from "@/Components/Input/TextareaInput.jsx";
 import CheckboxInput from "@/Components/CheckboxInput.jsx";
 import Swal from "sweetalert2";
-import {useFetch, useGetUsers} from "@/Helper/hooks.js";
+import {useFetch, useGetUsers, useToggle} from "@/Helper/hooks.js";
 import UserAvatar from "@/Components/UserAvatar.jsx";
 import Highlighter from "react-highlight-words";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
@@ -14,15 +14,16 @@ import Button from "@/Components/Button.jsx";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LoadingDiv from "@/Components/LoadingDiv.jsx";
-import {isObjectEmpty} from "@/Helper/functions.js";
+import {asset, isObjectEmpty} from "@/Helper/functions.js";
+import {maxAvatarFileSize} from "@/Helper/config.js";
+import GroupAvatar from "@/Components/GroupAvatar.jsx";
 
 function CreateGroup({startUp}) {
     const {allUserOnlineIds} = useContext(AuthenticatedContext);
     // post
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        topic: '',
-        description: '',
+        avatar_file: null,
         users: []
     });
     const [usersPostData, setUsersPostData] = useState([]);
@@ -41,6 +42,45 @@ function CreateGroup({startUp}) {
     const fetchMoreUsers = useCallback(() => {
         setPageNumber(prevState => prevState+1)
     })
+    const selectedFileInputRef = useRef(null)
+    const [avatarFile, setAvatarFile] = useState(null)
+    const [errorAvatarFile, setErrorAvatarFile] = useState({
+        fileSizeError: false,
+        fileTypeError: false,
+    })
+    const handleOnChange = (event) => {
+        const selectedFile = event.target.files[0];
+        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+
+        if (!selectedFile) return;
+
+        const isFileSizeAllowed = selectedFile.size <= maxAvatarFileSize;
+        const isFileTypeAllowed = allowedTypes.includes(selectedFile.type)
+
+        if (isFileTypeAllowed && isFileSizeAllowed){
+            setAvatarFile(selectedFile)
+        }
+        setErrorAvatarFile({
+            fileSizeError: !isFileSizeAllowed,
+            fileTypeError: !isFileTypeAllowed
+        })
+    };
+    const onChooseFile = () =>
+        selectedFileInputRef.current.click();
+    const handleRemoveFile = () => {
+        setAvatarFile(null)
+        setErrorAvatarFile({
+            fileSizeError: false,
+            fileTypeError: false,
+        })
+    }
+    const handleCheckboxChange = (userId, isChecked) => {
+        if (isChecked) {
+            setUsersPostData(prevState => [...prevState, userId])
+        } else {
+            setUsersPostData(prevState => prevState.filter(id => id !== userId))
+        }
+    }
     useEffect(() => {
         if (!isObjectEmpty(getUsers)){
             setAllUsers(prevUsers =>{
@@ -64,13 +104,14 @@ function CreateGroup({startUp}) {
             page: pageNumber
         })
     }, [pageNumber]);
-    const handleCheckboxChange = (userId, isChecked) => {
-        if (isChecked) {
-            setUsersPostData(prevState => [...prevState, userId])
-        } else {
-            setUsersPostData(prevState => prevState.filter(id => id !== userId))
+    useEffect(() => {
+        if (!errorAvatarFile.fileSizeError && !errorAvatarFile.fileTypeError) {
+            setData("avatar_file", avatarFile)
         }
-    }
+    }, [avatarFile]);
+    console.log("data", data)
+    console.log("avatarFile", avatarFile)
+    console.log("errorAvatarFile", errorAvatarFile)
     const createChatroom = (e) => {
         e.preventDefault();
         post(route('group.store'), {
@@ -110,12 +151,14 @@ function CreateGroup({startUp}) {
                         <ul className="nav nav-tabs nav-justified mb-6" role="tablist">
                             <li className="nav-item">
                                 <a href="#create-group-details" className="nav-link active" data-toggle="tab" role="tab"
-                                   aria-selected="true">Details</a>
+                                   aria-selected="true">
+                                    <span className={((errors.name || errorAvatarFile.fileSizeError || errorAvatarFile.fileTypeError) ? "text-danger" : "")}>Details</span>
+                                </a>
                             </li>
 
                             <li className="nav-item">
                                 <a href="#create-group-members" className="nav-link" data-toggle="tab" role="tab"
-                                   aria-selected="false">Members</a>
+                                   aria-selected="false"><span className={(errors.users ? "text-danger" : "")}>Members</span></a>
                             </li>
                         </ul>
 
@@ -137,42 +180,58 @@ function CreateGroup({startUp}) {
 
                                     <InputError message={errors.name} className="mt-2"/>
                                 </div>
-                                <div className="form-group">
-                                    <InputLabel htmlFor="new-chat-topic" value="Topic (optional)"
-                                                className="small"/>
-
-                                    <TextInput
-                                        id="new-chat-topic"
-                                        name="name"
-                                        value={data.topic}
-                                        error={errors.topic}
-                                        isFocused={true}
-                                        placeholder="Group Topic"
-                                        onChange={(e) => setData('topic', e.target.value)}
-                                    />
-
-                                    <InputError message={errors.topic} className="mt-2"/>
+                                <div className="form-group mt-6">
+                                    <InputLabel value="Avatar" className="small"/>
+                                    <div className="custom-selected-file col-12 form-control-lg pl-4">
+                                        <div className="choose-file btn px-4 py-1 col-auto" onClick={onChooseFile}>
+                                            <span>Choose file</span>
+                                        </div>
+                                        <p className="file-name m-0 ml-3 text-truncate text-center">{(avatarFile) ? avatarFile.name : null}</p>
+                                        <div
+                                            className={"trash btn " + ((!avatarFile) ? "d-none" : "")}
+                                            onClick={handleRemoveFile}>
+                                            {avatarFile
+                                                ? <i className="fe-x"></i>
+                                                : null
+                                            }
+                                        </div>
+                                        <input
+                                            ref={selectedFileInputRef}
+                                            className="d-none"
+                                            onChange={handleOnChange}
+                                            type="file"/>
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <InputLabel htmlFor="new-chat-description" value="Description" className="small"/>
+                                <div className="form-group text-center">
+                                    <div
+                                        className={"cursor-default avatar avatar-xl " + ((!data.avatar_file) ? " bg-success text-white " : " ")}>
+                                        {(avatarFile)
+                                            ? <img className="avatar-img border border-primary"
+                                                   src={URL.createObjectURL(avatarFile)}
+                                                   alt={data.name}/>
+                                            : <GroupAvatar name={data.name} size="xl" />
+                                        }
+                                    </div>
+                                    <div
+                                        className="d-flex flex-md-column align-content-center justify-content-center mt-4">
+                                         <span
+                                             className={"mb-4 " + ((errorAvatarFile.fileSizeError) ? "text-danger" : ((avatarFile) ? "text-success" : ""))}>
+                                            <i className={`fe-${(!errorAvatarFile.fileSizeError && avatarFile) ? "check" : "alert"}-circle mr-2`}></i>
+                                            Max file size 3mb.
+                                        </span>
+                                        <span
+                                            className={((errorAvatarFile.fileTypeError) ? "text-danger" : ((avatarFile) ? "text-success" : ""))}>
+                                            <i className={`fe-${(!errorAvatarFile.fileTypeError && avatarFile) ? "check" : "alert"}-circle mr-2`}></i>
+                                            Only JPEG, PNG, and GIF images are allowed.
+                                        </span>
 
-                                    <TextareaInput
-                                        id="new-chat-description"
-                                        name="description"
-                                        value={data.description}
-                                        error={errors.description}
-                                        placeholder="Group Description"
-                                        data-autosize="true"
-                                        rows="6"
-                                        onChange={(e) => setData('description', e.target.value)}
-                                    />
-
-                                    <InputError message={errors.description} className="mt-2"/>
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="create-group-members" className="tab-pane fade" role="tabpanel">
-                                <SearchInput className="mb-3" keyword={keyword} setKeyword={setKeyword} placeHolder="Search for name or email..." />
+                                <SearchInput className="mb-3" keyword={keyword} setKeyword={setKeyword}
+                                             placeHolder="Search for name or email..."/>
                                 <nav className="list-group list-group-flush mb-n6">
                                     {(errors.users) &&
                                         <>
@@ -185,12 +244,12 @@ function CreateGroup({startUp}) {
                                         next={fetchMoreUsers}
                                         dataLength={allUsers.length}
                                         hasMore={hasMore}
-                                        loader={<LoadingDiv />}
+                                        loader={<LoadingDiv/>}
                                         height="40rem"
                                         className="hide-scrollbar"
                                     >
                                         {allUsers.map((user, i) => {
-                                            var groupNameHtml = (currentFirstIndexName  !== user.name.charAt(0))
+                                            var groupNameHtml = (currentFirstIndexName !== user.name.charAt(0))
                                                 ? <div className="mb-6">
                                                     <small className="text-uppercase">{user.name.charAt(0)}</small>
                                                 </div>
