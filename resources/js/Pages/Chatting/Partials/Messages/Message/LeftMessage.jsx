@@ -1,9 +1,10 @@
 import React, {useContext} from "react";
 import MessageContext from "@/Pages/Chatting/Partials/Messages/Message/MessageContext.jsx";
-import TextMessagePopup from "@/Pages/Chatting/Partials/Popup/TextMessagePopup.jsx";
+import TextMessagePopup from "@/Pages/Chatting/Partials/Messages/Popup/TextMessagePopup.jsx";
 import Highlighter from "react-highlight-words";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
+import MessageRecalled from "@/Pages/Chatting/Partials/Messages/Message/MessageRecalled.jsx";
 
 
 const style = {
@@ -51,7 +52,8 @@ const TextMessage = () => {
         searchMessageKeyword,
         message,
         isFirstMsgInGroupMessages,
-        isLastMsgInGroupMessages
+        isLastMsgInGroupMessages,
+        setRecallMessageId
     } = useContext(MessageContext)
     let msgBorderRadius;
     if (isFirstMsgInGroupMessages && isLastMsgInGroupMessages) {
@@ -67,16 +69,17 @@ const TextMessage = () => {
         <div className="d-flex flex-row align-items-center">
             <div className="message-content bg-light position-relative" style={{borderRadius: msgBorderRadius}}
                  title={message.sendTime.full}>
-                <div>
-                    <Highlighter
+                {!message.is_recalled
+                    ?  <Highlighter
                         highlightClassName="highlighted-text"
                         searchWords={[searchMessageKeyword]}
                         autoEscape={true}
                         textToHighlight={message.text_content}
                     />
-                </div>
+                    : <MessageRecalled position="left"/>
+                }
             </div>
-            <TextMessagePopup copyText={message.text_content}/>
+            <TextMessagePopup message={message} setRecallMessageId={setRecallMessageId}/>
         </div>
     )
 }

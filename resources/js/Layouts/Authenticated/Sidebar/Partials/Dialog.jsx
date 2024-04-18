@@ -7,6 +7,7 @@ import GroupAvatar from "@/Components/GroupAvatar.jsx";
 import {usePage} from "@inertiajs/react";
 import SearchInput from "@/Components/Input/SearchInput.jsx";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
+import { LiaThumbtackSolid } from "react-icons/lia";
 export default function Dialog({startUp}){
     const {allUserOnlineIds} = useContext(AuthenticatedContext)
     const user = usePage().props.auth.data;
@@ -86,7 +87,7 @@ export default function Dialog({startUp}){
                                                     </div>
                                                 </div>
                                                 <div className="badge badge-circle badge-light badge-border-light badge-top-right">
-                                                    <i className="fi fi-ss-thumbtack"></i>
+                                                    <LiaThumbtackSolid />
                                                 </div>
                                             </div>
                                         </a>

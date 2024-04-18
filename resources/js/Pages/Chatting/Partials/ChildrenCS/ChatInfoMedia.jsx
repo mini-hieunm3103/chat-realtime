@@ -4,7 +4,6 @@ import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 
 const ChatInfoMediaContext = createContext()
 const ChatInfoMedia = ({children, targetMediaTabId, setTargetMediaTabId}) => {
-    console.log("chatinfo",targetMediaTabId)
     // const {} = useContext(Group.GroupInfoContext)
     return (
         <BaseChatSidebar.ChildrenCS childrenCSId="render-chat-info-media">

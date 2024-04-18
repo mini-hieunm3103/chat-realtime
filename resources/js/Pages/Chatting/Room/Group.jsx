@@ -14,6 +14,8 @@ import GroupAdminsCS from "@/Pages/Chatting/Partials/ChildrenCS/GroupAdmins.jsx"
 import GroupBlockedUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupBlockedUsers.jsx";
 import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
 import ListMessages from "@/Pages/Chatting/Partials/Messages/ListMessages.jsx";
+import SendMessage from "@/Pages/Chatting/Partials/Messages/SendMessage.jsx";
+import {LiaThumbtackSolid} from "react-icons/lia";
 
 const GroupInfoContext = createContext();
 // CS: ChatSidebar
@@ -170,52 +172,7 @@ function Group({ auth ,channelId}){
                         </div>
                     </div>
 
-                    <div className="chat-footer border-top py-4 py-lg-6 px-lg-8">
-                        <div className="container-xxl">
-
-                            <form id="chat-id-1-form" action="" data-emoji-form="">
-                                <div className="form-row align-items-center">
-                                    <div className="col">
-                                        <div className="input-group">
-                                            <textarea id="chat-id-1-input"
-                                                      className="form-control bg-transparent border-0"
-                                                      placeholder="Type your message..." rows="1"
-                                                      data-emoji-input="" data-autosize="true"></textarea>
-                                            <div className="input-group-append">
-                                                <button
-                                                    className="btn btn-ico btn-secondary btn-minimal bg-transparent border-0"
-                                                    type="button" data-emoji-btn="">
-                                                    <img src="" data-inject-svg=""
-                                                         alt=""/>
-                                                </button>
-                                            </div>
-
-                                            <div className="input-group-append">
-                                                <button id="chat-upload-btn-1"
-                                                        className="btn btn-ico btn-secondary btn-minimal bg-transparent border-0 dropzone-button-js"
-                                                        type="button">
-                                                    <img src="" data-inject-svg=""
-                                                         alt=""/>
-                                                </button>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div className="col-auto">
-                                        <button className="btn btn-ico btn-primary rounded-circle"
-                                                type="submit">
-                                            <span className="fe-send"></span>
-                                        </button>
-                                    </div>
-
-                                </div>
-
-                            </form>
-
-                        </div>
-                    </div>
+                    <SendMessage channelId={channelId} channelType="group" />
                 </div>
 
                 <GroupInfoContext.Provider
@@ -280,8 +237,8 @@ const GroupInfo = () => {
                                 </div>
                                 <div className="d-flex flex-wrap justify-content-center w-25">
                                     <div className="w-100 d-flex justify-content-center">
-                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
-                                            <i className="text-muted icon-sm fi fi-rs-thumbtack"></i>
+                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1 d-flex justify-content-center align-items-center">
+                                            <LiaThumbtackSolid />
                                         </div>
                                     </div>
                                     <span className="text-center cursor-pointer">Pin</span>

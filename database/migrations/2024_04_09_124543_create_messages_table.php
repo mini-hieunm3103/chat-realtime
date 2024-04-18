@@ -17,6 +17,7 @@ return new class extends Migration
             $table->bigInteger("user_id")->unsigned();
             $table->enum("type", ["image", "video", "audio", "document", "text"]);
             $table->text("text_content")->nullable();
+            $table->boolean('is_recalled')->default(0);
             $table->bigInteger("file_id")->unsigned()->nullable();
             $table->timestamps();
 

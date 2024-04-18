@@ -36,10 +36,11 @@ class MessagePosted implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        if($this->channelType == "dm") {
-            return new PrivateChannel("chat.dm.".$this->channelId);
-        }else if ($this->channelType == "group") {
-            return new PrivateChannel("chat.group.".$this->channelId);
-        }
+//        if($this->channelType == "dm") {
+//            return new PrivateChannel("chat.dm.".$this->channelId);
+//        }else if ($this->channelType == "group") {
+//            return new PrivateChannel("chat.group.".$this->channelId);
+//        }
+        return new PrivateChannel("chat.".$this->channelId);
     }
 }

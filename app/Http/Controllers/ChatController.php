@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\MessagePosted;
 use App\Http\Resources\GroupResource;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Resources\UsersChannelResource;
 use App\Http\Resources\MessageResource;
@@ -13,11 +14,14 @@ use App\Models\Channel;
 use App\Models\Group;
 use App\Models\Message;
 use App\Models\User;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Inertia\Response;
+use JetBrains\PhpStorm\NoReturn;
 
 class ChatController extends Controller
 {
@@ -164,6 +168,13 @@ class ChatController extends Controller
         }
 // Return the paginated merged results
         return $merge;
+    }
+    public function recallMessage(Request $request): RedirectResponse
+    {
+        $message = Message::find($request->message_id);
+        $message->is_recalled = 1;
+        $message->save();
+        return Redirect::back();
     }
 }
 

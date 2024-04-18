@@ -16,9 +16,11 @@ class MessageResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'message_id' => $this->id,
             'user_id'=> $this->user_id,
             'type' => $this->type,
             'text_content' => $this->text_content,
+            'is_recalled' => $this->is_recalled,
             'sendTime' => [
                 's' => Carbon::parse($this->created_at)->format('s'),
                 'i' => Carbon::parse($this->created_at)->format('i'),

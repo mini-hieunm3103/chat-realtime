@@ -1,7 +1,8 @@
 import React, {useContext} from "react";
 import MessageContext from "@/Pages/Chatting/Partials/Messages/Message/MessageContext.jsx";
-import TextMessagePopup from "@/Pages/Chatting/Partials/Popup/TextMessagePopup.jsx";
+import TextMessagePopup from "@/Pages/Chatting/Partials/Messages/Popup/TextMessagePopup.jsx";
 import Highlighter from "react-highlight-words";
+import MessageRecalled from "@/Pages/Chatting/Partials/Messages/Message/MessageRecalled.jsx";
 
 const style = {
     messageMarginBottom: " mb-2",
@@ -17,7 +18,7 @@ const style = {
 const RightMessage = () => {
     const {
         message,
-        isLastMsgInGroupMessages
+        isLastMsgInGroupMessages,
     } = useContext(MessageContext)
     return (
         <div
@@ -40,7 +41,8 @@ const TextMessage = () => {
         searchMessageKeyword,
         message,
         isFirstMsgInGroupMessages,
-        isLastMsgInGroupMessages
+        isLastMsgInGroupMessages,
+        setRecallMessageId
     } = useContext(MessageContext)
     let msgBorderRadius;
     if (isFirstMsgInGroupMessages && isLastMsgInGroupMessages) {
@@ -54,16 +56,19 @@ const TextMessage = () => {
     }
     return (
         <div className="d-flex align-items-center justify-content-end">
-            <TextMessagePopup copyText={message.text_content}/>
+            <TextMessagePopup message={message} setRecallMessageId={setRecallMessageId}/>
             <div className="message-content bg-primary text-white" style={{borderRadius: msgBorderRadius}}
                  title={message.sendTime.full}>
                 <div>
-                    <Highlighter
-                        highlightClassName="highlighted-text"
-                        searchWords={[searchMessageKeyword]}
-                        autoEscape={true}
-                        textToHighlight={message.text_content}
-                    />
+                    {!message.is_recalled
+                        ?  <Highlighter
+                            highlightClassName="highlighted-text"
+                            searchWords={[searchMessageKeyword]}
+                            autoEscape={true}
+                            textToHighlight={message.text_content}
+                        />
+                        : <MessageRecalled position="right" />
+                    }
                 </div>
             </div>
 

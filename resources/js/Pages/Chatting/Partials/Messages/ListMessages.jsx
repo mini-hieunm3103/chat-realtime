@@ -6,10 +6,11 @@ import UserAvatar from "@/Components/UserAvatar.jsx";
 import LoadingDiv from "@/Components/LoadingDiv.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {isObjectEmpty} from "@/Helper/functions.js";
-import TextMessagePopup from "@/Pages/Chatting/Partials/Popup/TextMessagePopup.jsx";
+import TextMessagePopup from "@/Pages/Chatting/Partials/Messages/Popup/TextMessagePopup.jsx";
 import MessageContext from "@/Pages/Chatting/Partials/Messages/Message/MessageContext.jsx";
 import LeftMessage from "@/Pages/Chatting/Partials/Messages/Message/LeftMessage.jsx"
 import RightMessage from "@/Pages/Chatting/Partials/Messages/Message/RightMessage.jsx"
+import RecallMessageForm from "@/Pages/Chatting/Partials/RecallMessageForm.jsx";
 //NOTE: RESERVE RENDER
 
 // groupMessages: "Consecutive messages are sent by the same person."
@@ -20,23 +21,21 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
     const authUserId = authLayoutData.user.id;
     const [listMessages, setListMessages] = useState([])
     const [messagesPage, setMessagesPage] = useState(1)
+    const [recallMessageId, setRecallMessageId] = useState(0)
+    const [isRecallSuccessfully, setIsRecallSuccessfully] = useState(false)
     const [hasMoreMessages, setHasMoreMessages] = useState(true)
     const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page: messagesPage}))
     useEffect(() => {
-        Echo.private(`chat.dm.${channelId}`)
-            // do là private channel nên bên phía ChatController.postMessage có toOthers()
-            // chỉ có other nhận được tin nhắn
-            // còn bên auth user sẽ k thêm vaò listMessage chính message vừa gửi
+        Echo.private(`chat.${channelId}`)
             .listen('MessagePosted', (data)=> {
                 const newMessage = data.message
                 setListMessages((prevState)=> [newMessage, ...prevState])
             })
             .error((err)=> {console.log(err)})
         return ()=> {
-            Echo.leave(`private-chat.dm.${channelId}`)
+            Echo.leave(`private-chat.${channelId}`)
         }
     }, [channelId]);
-    console.log("listMessages", listMessages)
     useEffect(() => {
         if (getMessages.hasOwnProperty('data') && !loadMessages ) {
             setListMessages(getMessages.data)
@@ -50,6 +49,25 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
             setHasMoreMessages(messagesPage <= getMessages.meta.last_page)
         }
     }, [getMessages]);
+    useEffect(() => {
+        if (isRecallSuccessfully) {
+            const updateListMessagesAfterRecall = listMessages.map((message)=> {
+                if (message.message_id === recallMessageId) {
+                    // reset recall
+                    setRecallMessageId(0)
+                    setIsRecallSuccessfully(false)
+                    // update
+                    return {...message, is_recalled: 1}
+                } else
+                    return message
+            })
+            console.log("updateListMessagesAfterRecall", updateListMessagesAfterRecall)
+            setListMessages(updateListMessagesAfterRecall)
+        }
+    }, [isRecallSuccessfully]);
+    console.log("listMessages", listMessages)
+    console.log("recallMessageId", recallMessageId)
+    console.log("isRecallSuccessfully", isRecallSuccessfully)
     const fetchMoreData = () => {
         setMessagesPage(prevState => prevState+1)
     }
@@ -58,58 +76,63 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
         <>
             {loadMessages
                 ? <LoadingDiv className={"h-100"}/>
-                : <div
-                    id="scrollableDiv"
-                    className={"chat-content px-lg-8 py-lg-5 px-5"}
-                    style={{
-                        height: 300,
-                        overflow: 'auto',
-                        display: 'flex',
-                        flexDirection: 'column-reverse',
-                    }}
-                >
-                    <InfiniteScroll
-                        dataLength={listMessages.length}
-                        next={fetchMoreData}
+                :
+                <>
+                    <div
+                        id="scrollableDiv"
+                        className={"chat-content px-lg-8 py-lg-5 px-5"}
                         style={{
+                            height: 300,
+                            overflow: 'auto',
                             display: 'flex',
-                            flexDirection: 'column-reverse'
+                            flexDirection: 'column-reverse',
                         }}
-                        inverse={true} //
-                        hasMore={hasMoreMessages}
-                        loader={<LoadingDiv />}
-                        scrollableTarget="scrollableDiv"
-                        className={"hide-scrollbar"}
                     >
-                        {
-                            listMessages.length ? (
-                                listMessages.map((message, i) => {
-                                    if (i + 1 < listMessages.length) {
-                                        isFirstMsgInGroupMessages = (listMessages[i].user_id !== listMessages[i + 1].user_id)
-                                    } else {
-                                        isFirstMsgInGroupMessages = false // first message in list
-                                    }
-                                    if (i - 1 >= 0) {
-                                        isLastMsgInGroupMessages = (listMessages[i].user_id !== listMessages[i - 1].user_id)
-                                    } else {
-                                        isLastMsgInGroupMessages = true // last msg in list
-                                    }
-                                    return (
-                                        <MessageContext.Provider value={{
-                                            searchMessageKeyword,
-                                            message,
-                                            isFirstMsgInGroupMessages,
-                                            isLastMsgInGroupMessages,
-                                        }}>
-                                            {(authUserId === message.user.id) ? <RightMessage/> : <LeftMessage/>}
-                                        </MessageContext.Provider>
-                                    )
-                                })
-                            ) : null
-                        }
-                        <div ref={lastMessage}></div>
-                    </InfiniteScroll>
-                </div>
+                        <InfiniteScroll
+                            dataLength={listMessages.length}
+                            next={fetchMoreData}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column-reverse'
+                            }}
+                            inverse={true} //
+                            hasMore={hasMoreMessages}
+                            loader={<LoadingDiv/>}
+                            scrollableTarget="scrollableDiv"
+                            className={"hide-scrollbar"}
+                        >
+                            {
+                                listMessages.length ? (
+                                    listMessages.map((message, i) => {
+                                        if (i + 1 < listMessages.length) {
+                                            isFirstMsgInGroupMessages = (listMessages[i].user_id !== listMessages[i + 1].user_id)
+                                        } else {
+                                            isFirstMsgInGroupMessages = false // first message in list
+                                        }
+                                        if (i - 1 >= 0) {
+                                            isLastMsgInGroupMessages = (listMessages[i].user_id !== listMessages[i - 1].user_id)
+                                        } else {
+                                            isLastMsgInGroupMessages = true // last msg in list
+                                        }
+                                        return (
+                                            <MessageContext.Provider value={{
+                                                searchMessageKeyword,
+                                                message,
+                                                isFirstMsgInGroupMessages,
+                                                isLastMsgInGroupMessages,
+                                                setRecallMessageId,
+                                            }}>
+                                                {(authUserId === message.user.id) ? <RightMessage/> : <LeftMessage/>}
+                                            </MessageContext.Provider>
+                                        )
+                                    })
+                                ) : null
+                            }
+                            <div ref={lastMessage}></div>
+                        </InfiniteScroll>
+                    </div>
+                    <RecallMessageForm setIsRecallSuccessfully={setIsRecallSuccessfully} recallMessageId={recallMessageId} setRecallMessageId={setRecallMessageId}/>
+                </>
             }
         </>
     )

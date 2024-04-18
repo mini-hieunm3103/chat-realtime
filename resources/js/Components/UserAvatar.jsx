@@ -1,6 +1,4 @@
 import React, {lazy} from "react";
-import {adventurer, adventurerNeutral} from "@dicebear/collection";
-import {createAvatar} from "@dicebear/core";
 import {useToggle} from "@/Helper/hooks.js";
 import {asset} from "@/Helper/functions.js";
 
