@@ -4,7 +4,7 @@ import RecallMessageBtn from "@/Pages/Chatting/Partials/Messages/Popup/Partials/
 
 export default function TextMessagePopup({message, setRecallMessageId}){
     const handleCopy = () => {
-        navigator.clipboard.writeText(message.text_content);
+        navigator.clipboard.writeText(message.message_text);
     }
     return (
         <div className="dropdown">
@@ -33,12 +33,7 @@ export default function TextMessagePopup({message, setRecallMessageId}){
                     borderTop: "1px solid rgba(124, 117, 125, .5)"
                 }}/>
                 {!message.is_recalled
-                    ? <div onClick={() => {
-                        setRecallMessageId(message.message_id)
-                    }}
-                           className="dropdown-item d-flex align-items-center text-danger cursor-pointer">
-                        Recall <span className="ml-auto pl-5 fe-rotate-ccw"></span>
-                    </div>
+                    ? <RecallMessageBtn messageId={message.message_id} setRecallMessageId={setRecallMessageId} />
                     : null
                 }
 

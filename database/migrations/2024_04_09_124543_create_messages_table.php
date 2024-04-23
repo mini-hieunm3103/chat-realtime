@@ -16,14 +16,14 @@ return new class extends Migration
             $table->bigInteger("channel_id")->unsigned();
             $table->bigInteger("user_id")->unsigned();
             $table->enum("type", ["image", "video", "audio", "document", "text"]);
-            $table->text("text_content")->nullable();
+            $table->text("message_text")->nullable();
             $table->boolean('is_recalled')->default(0);
-            $table->bigInteger("file_id")->unsigned()->nullable();
+            $table->bigInteger("message_file_id")->unsigned()->nullable();
             $table->timestamps();
 
             $table->foreign('channel_id')->references('id')->on('channels')->onDelete('cascade');
             $table->foreign("user_id")->references("id")->on("users")->onDelete('cascade');
-            $table->foreign('file_id')->references('id')->on('files')->onDelete('cascade');
+            $table->foreign('message_file_id')->references('id')->on('files')->onDelete('cascade');
         });
     }
 

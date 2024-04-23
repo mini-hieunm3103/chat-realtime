@@ -18,16 +18,14 @@ class MessagePosted implements ShouldBroadcast
     public $user;
     public $message;
     public $channelId;
-    public $channelType;
     /**
      * Create a new event instance.
      */
-    public function __construct($user, $message, $channelId, $channelType)
+    public function __construct($user, $message, $channelId)
     {
         $this->user = $user;
         $this->message = $message;
         $this->channelId = $channelId;
-        $this->channelType = $channelType;
     }
     /**
      * Get the channels the event should broadcast on.

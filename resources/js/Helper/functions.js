@@ -1,5 +1,5 @@
 import {useEchoChatUsersId} from "@/Helper/hooks.js";
-import {appUrl} from "@/Helper/config.js";
+import {appUrl, validMessageFileType} from "@/Helper/config.js";
 
 export function convertBaseJs(str, fromBase, toBase) {
     // https://stackoverflow.com/questions/1337419/how-do-you-convert-numbers-between-different-bases-in-javascript/55011290#55011290
@@ -80,8 +80,30 @@ export const convertTimestamp = (timestamp) =>{
     return `${month} ${day} ${year} ${hour}:${minute}`;
 }
 export const asset = (path) => {
-    return `/storage/${path}`
+    return `/storage${path}`
 }
 export const isObjectEmpty = (objectName) => {
     return JSON.stringify(objectName) === "{}";
+};
+export const channelLink = (type, id) => {
+    return "/t/" + convertBaseJs(type+"-" + id, 37, 10)
+}
+export const getFileType = (mimeType) => {
+    for (const [type, mimeTypes] of Object.entries(validMessageFileType)) {
+        if(mimeTypes.includes(mimeType)){
+            return type;
+        }
+    }
+    return undefined;
+}
+export const renameFileSize = (fileSize) => {
+    const units = ['bytes', 'KB', 'MB']; // max file size upload <= 30mb
+    let unitIndex = 0;
+
+    while (fileSize >= 1000 && unitIndex < units.length - 1) {
+        fileSize /= 1000;
+        unitIndex++;
+    }
+
+    return `${fileSize.toFixed(2)} ${units[unitIndex]}`; 
 };

@@ -29,6 +29,7 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
         Echo.private(`chat.${channelId}`)
             .listen('MessagePosted', (data)=> {
                 const newMessage = data.message
+                console.log(data);
                 setListMessages((prevState)=> [newMessage, ...prevState])
             })
             .error((err)=> {console.log(err)})

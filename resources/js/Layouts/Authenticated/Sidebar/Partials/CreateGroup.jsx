@@ -109,19 +109,16 @@ function CreateGroup({startUp}) {
             setData("avatar_file", avatarFile)
         }
     }, [avatarFile]);
-    console.log("data", data)
-    console.log("avatarFile", avatarFile)
-    console.log("errorAvatarFile", errorAvatarFile)
     const createChatroom = (e) => {
         e.preventDefault();
-        post(route('group.store'), {
+        post(route('group.create'), {
             onSuccess: () => {
                 Swal.fire({
                     position: "top-end",
                     icon: "success" ,
                     title: "Create Group Successfully!",
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 2500
                 });
                 setTimeout(()=> {
                     location.reload()

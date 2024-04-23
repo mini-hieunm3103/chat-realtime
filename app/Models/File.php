@@ -13,5 +13,6 @@ class File extends Model
         "name",
         "path",
         "type",
+        "size"
     ];
 }

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessagePosted;
+use App\Events\MessageRecalled;
 use App\Http\Resources\GroupResource;
+use App\Models\File;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -18,6 +20,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Inertia\Response;
@@ -29,8 +32,8 @@ class ChatController extends Controller
     {
         /*
          - base10 sẽ convert về base 37
-            + nếu có dạng: gr-{id} thì là group chat
-            + nếu có dạng: dm-{id} thì là direct-message: nhắn tin riêng
+            + nếu có dạng: gr-{id} thì là group chat (id: groupId)  1W
+            + nếu có dạng: dm-{id} thì là direct-message: nhắn tin riêng (id: userId who you want to chat with)
          * */
         $decode = convertBasePhp($base10, 10, 37);
         $explode = explode('-', $decode);
@@ -61,7 +64,7 @@ class ChatController extends Controller
      */
     public function getMessages($channelId)
     {
-        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with('user.userDetail')->paginate(20);
+        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with(['user.userDetail', 'file'])->paginate(20);
         return MessageResource::collection($messages);
     }
     public function postMessage(Request $request)
@@ -69,17 +72,31 @@ class ChatController extends Controller
         $message = new Message();
         $message->type = $request->message_type;
         if ($request->message_type === "text") {
-            $message->text_content = $request->text_content;
+            $message->message_text = $request->message_text;
+            $message->message_file_id = null;
         } else {
-            $message->text_content = null;
+            $message->message_text = null;
+
+            $messageFile = $request->file('message_file');
+            $messageFileOriginalName = $messageFile->getClientOriginalName();
+            $messageFileNameInStorage = time() . '_' . $messageFileOriginalName;
+            Storage::disk('public')->putFileAs($request->message_type.'s/', $messageFile, $messageFileNameInStorage);
+
+            $file = new File();
+            $file->name = $messageFileOriginalName;
+            $file->path ='/'.$request->message_type.'s/'.$messageFileNameInStorage;
+            $file->size = $messageFile->getSize();
+            $file->save();
+
+            $message->message_file_id = $file->id;
         }
-        $message->file_id = null;
         $message->channel_id = $request->channel_id;
+        $message->is_recalled = 0;
         $message->user_id = Auth::id();
         $message->save();
-        $message = new MessageResource($message->load('user.userDetail'));
+        $message = new MessageResource($message->load('user.userDetail', 'file'));
         $user = Auth::user();
-        broadcast(new MessagePosted($user, $message, $request->channel_id, $request->channel_type));
+        broadcast(new MessagePosted($user, $message, $request->channel_id));
     }
     // channel inbox
     public function findOrNewChannel($sender, $receiver) {
@@ -167,14 +184,15 @@ class ChatController extends Controller
             $channel->unsetRelation('pivot');
         }
 // Return the paginated merged results
-        return $merge;
+        return ($merge);
     }
     public function recallMessage(Request $request): RedirectResponse
     {
         $message = Message::find($request->message_id);
         $message->is_recalled = 1;
         $message->save();
-        return Redirect::back();
+        $user = Auth::user();
+        broadcast(new MessageRecalled($user, $message, $channelId));
     }
 }
 

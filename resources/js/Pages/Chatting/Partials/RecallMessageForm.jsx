@@ -3,9 +3,8 @@ import React, { useEffect, useRef} from "react";
 
 const RecallMessageForm = ({recallMessageId, setRecallMessageId, setIsRecallSuccessfully}) => {
     const {data, setData, patch} = useForm({
-        message_id: 0
+        message_id: 0,
     })
-    console.log("rerender")
     const submitFormBtn = useRef(null)
     useEffect(() => {
         setData("message_id",recallMessageId)

@@ -25,6 +25,6 @@ class Message extends Model
     }
     public function file()
     {
-        return $this->hasOne(File::class, 'file_id');
+        return $this->hasOne(File::class, 'id', 'message_file_id');
     }
 }

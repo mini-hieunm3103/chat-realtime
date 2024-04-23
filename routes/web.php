@@ -36,11 +36,17 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/delete-avatar', [UserController::class, 'deleteAvatar'])->name('deleteAvatar');
     });
-    Route::group(['prefix' => 'room'], function (){
-        Route::post('/group/store', [GroupController::class, 'store'])->name('group.store');
-        Route::patch('/group/addUsers', [GroupController::class, 'addUsers'])->name('group.addUsers');
-        Route::get('/group/{group_id}', [GroupController::class, 'detail'])->name('group.detail');
-        Route::post('/direct-message', [ChatController::class, 'directMessage'])->name('directMessage');
+    Route::group(['prefix' => 'group', 'as'=> 'group.'], function (){
+        Route::get('/{group_id}', [GroupController::class, 'detail'])->name('detail');
+        Route::post('/create', [GroupController::class, 'create'])->name('create');
+        Route::post('/update', [GroupController::class, 'update'])->name('update');
+        Route::delete('/destroy', [GroupController::class, 'destroy'])->name('destroy');
+
+        Route::patch('/group/users', [GroupController::class, 'addUsers'])->name('addUsers');
+        Route::delete('/group/user', [GroupController::class, 'removeUser'])->name('removeUser');
+
+        Route::patch('/group/admins', [GroupController::class, 'addAdmins'])->name('addAdmins');
+        Route::delete('/group/admin', [GroupController::class, 'removeAdmin'])->name('removeAdmin');
     });
     Route::group(['prefix'=> 'message', 'as'=> 'message.'], function (){
         Route::get('/dialog', [ChatController::class, 'dialog'])->name('dialog');

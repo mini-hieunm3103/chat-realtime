@@ -15,11 +15,7 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $avatar = ($this->userDetail->avatar_id) ? [
-            "file_id" => $this->userDetail->userAvatarFile->id,
-            "name" => $this->userDetail->userAvatarFile->name,
-            "path" => $this->userDetail->userAvatarFile->path,
-        ] : null;
+        $avatar = ($this->userDetail->avatar_id) ? new FileResource($this->userDetail->userAvatarFile): null;
 
         return [
             'id' => $this->id,

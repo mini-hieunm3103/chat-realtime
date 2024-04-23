@@ -43,7 +43,7 @@ class UserController extends Controller
         if (!$request->needAuth) {
             $users = $users->where('id', '<>', Auth::id());
         }
-        $users = $users->with('userDetail')->paginate(10)->withQueryString();
+        $users = $users->with('userDetail.userAvatarFile')->paginate(10)->withQueryString();
         return UserResource::collection($users);
     }
     public function getUsersChannel($channelId)
@@ -131,11 +131,12 @@ class UserController extends Controller
 
                 $newAvatarFileOriginalName = $newAvatarFile->getClientOriginalName();
                 $newAvatarFileNameInStorage = time() . '_' . $newAvatarFileOriginalName;
-                Storage::disk('public')->putFileAs('/images/avatars', $newAvatarFile, $newAvatarFileNameInStorage);
+                Storage::disk('public')->putFileAs('images/avatars', $newAvatarFile, $newAvatarFileNameInStorage);
 
                 $file = new File();
                 $file->name = $newAvatarFileOriginalName;
                 $file->path ='/images/avatars/'.$newAvatarFileNameInStorage;
+                $file->size = $newAvatarFile->getSize();
                 $file->save();
 
                 $details->avatar_id = $file->id;
