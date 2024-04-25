@@ -1,8 +1,7 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import {useForm} from "@inertiajs/react";
-import {asset, getFileType} from "@/Helper/functions.js";
+import {getFileType} from "@/Helper/functions.js";
 import {maxMessageFileSize} from "@/Helper/config.js";
-import {IoMdSend} from "react-icons/io";
 import Like from "@/Components/Icons/Like.jsx";
 
 const SendMessage = ({channelId, channelType}) => {
@@ -36,7 +35,7 @@ const SendMessage = ({channelId, channelType}) => {
         if (data.message_file && data.message_type)
             sendMessageBtnRef.current.click();
     }, [data.message_file, data.message_type]);
-    console.log("data", data)
+
     const sendMessage = (e) => {
         e.preventDefault()
         post(route('message.postMessage'), {

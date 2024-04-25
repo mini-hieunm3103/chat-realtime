@@ -8,7 +8,7 @@ import Button from "@/Components/Button.jsx";
 import {Transition} from "@headlessui/react";
 import React, {useEffect, useRef, useState} from "react";
 import {useToggle} from "@/Helper/hooks.js";
-import {maxAvatarFileSize} from "@/Helper/config.js";
+import {maxAvatarFileSize, validAvatarFileType} from "@/Helper/config.js";
 import ConfirmModal from "@/Components/Modals/ConfirmModal.jsx";
 import {asset} from "@/Helper/functions.js";
 
@@ -45,12 +45,11 @@ export default function UpdateDetailInformation({status, showStatus,  className 
 
     const handleOnChange = (event) => {
         const selectedFile = event.target.files[0];
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
 
         if (!selectedFile) return;
 
         const isFileSizeAllowed = selectedFile.size <= maxAvatarFileSize;
-        const isFileTypeAllowed = allowedTypes.includes(selectedFile.type)
+        const isFileTypeAllowed = validAvatarFileType.includes(selectedFile.type)
 
         if (isFileTypeAllowed && isFileSizeAllowed){
             setAvatarFile(selectedFile)
@@ -101,22 +100,21 @@ export default function UpdateDetailInformation({status, showStatus,  className 
                     <div className="d-flex justify-content-start flex-wrap">
                         {/*    User Avatar*/}
                         <div
-                            className={"cursor-default avatar avatar-xl mr-15" + ((!data.avatar_file) ? " bg-primary text-white " : " ")}>
+                            className={"cursor-default avatar avatar-xl mr-auto ml-auto " + ((!data.avatar_file) ? " bg-primary text-white " : " ")}>
                             {(avatarFile || user.avatar)
                                 ? <img className="avatar-img border border-primary"
                                        src={(avatarFile) ? URL.createObjectURL(avatarFile) : asset(user.avatar.path)}
                                        alt={user.name}/>
                                 : <span style={{fontSize: 38, fontWeight: "bold"}}>{user.name.charAt(0)}</span>}
                         </div>
-                        <div className="d-flex flex-md-column align-content-center justify-content-center">
+                        <div className="d-flex flex-md-column align-content-center mr-auto ml-auto justify-content-center flex-wrap-reverse">
                             <span
-                                className={(errorAvatarFile.fileTypeError) ? "text-danger" : ((avatarFile) ? "text-success" : null)}>
+                                className={"mb-3 mt-4 "+((errorAvatarFile.fileTypeError) ? "text-danger" : ((avatarFile) ? "text-success" : null))}>
                                 <i className={`fe-${(!errorAvatarFile.fileTypeError && avatarFile) ? "check" : "alert"}-circle mr-2`}></i>
                                 Only JPEG, PNG, and GIF images are allowed.
                             </span>
-                            <br/>
                             <span
-                                className={(errorAvatarFile.fileSizeError) ? "text-danger" : ((avatarFile) ? "text-success" : null)}>
+                                className={"mb-3 mt-4 "+((errorAvatarFile.fileSizeError) ? "text-danger" : ((avatarFile) ? "text-success" : null))}>
                                 <i className={`fe-${(!errorAvatarFile.fileSizeError && avatarFile) ? "check" : "alert"}-circle mr-2`}></i>
                                 Max file size 3mb.
                             </span>

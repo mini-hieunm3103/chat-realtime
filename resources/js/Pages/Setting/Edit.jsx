@@ -22,10 +22,6 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
             timer: time
         });
     }
-    const authLayoutData = {
-        user: auth.data ,
-        currentRoute: useLocation().pathname
-    }
     useEffect(()=> {
         window.addEventListener('load', function() {
             // Set the scroll position to the top
@@ -35,7 +31,8 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
     return (
         <AuthenticatedLayout
             open={true}
-            authLayoutData = {authLayoutData}
+            userLogin = {auth.data}
+            currentRoute= {useLocation().pathname}
         >
             <Head title="Setting"/>
             <div className="chat">

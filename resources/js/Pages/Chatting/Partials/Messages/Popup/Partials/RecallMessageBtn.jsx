@@ -1,5 +1,8 @@
+import {useContext} from "react";
+import MessageContext from "@/Pages/Chatting/Partials/Messages/Message/MessageContext.jsx";
 
-const RecallMessageBtn = ({messageId, setRecallMessageId}) => {
+const RecallMessageBtn = ({messageId}) => {
+    const {setRecallMessageId} = useContext(MessageContext)
     return (
         <div onClick={() => {
             setRecallMessageId(messageId)

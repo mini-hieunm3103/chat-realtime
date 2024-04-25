@@ -5,14 +5,11 @@ import UserAvatar from "@/Components/UserAvatar.jsx";
 
 export default function Welcome({auth}){
     const user = auth.data;
-    const authLayoutData = {
-        user: user,
-        currentRoute: useLocation().pathname
-    }
     return (
         <>
             <Authenticated
-                authLayoutData={authLayoutData}
+                userLogin = {auth.data}
+                currentRoute= {useLocation().pathname}
             >
                 <Head title="Welcome" />
                 <div className="chat flex-column justify-content-center text-center">

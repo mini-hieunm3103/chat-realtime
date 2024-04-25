@@ -1,13 +1,9 @@
 import React from "react";
 import AuthenticatedLayout from '@/Layouts/Authenticated/AuthenticatedLayout';
 import {useLocation} from "react-router-dom";
-import {useForm} from "@inertiajs/react";
 import Swal from "sweetalert2";
 import Group from "@/Pages/Chatting/Room/Group.jsx";
 import DirectMessage from "@/Pages/Chatting/Room/DirectMessage.jsx";
-import UserAvatar from "@/Components/UserAvatar.jsx";
-import {useFetch} from "@/Helper/hooks.js";
-import LoadingModal from "@/Components/Modals/LoadingModal.jsx";
 export default function Chat({ auth, isGroup, channelId }) {
     const showStatus = (message, type="success", title="Handle Successfully", position="top-end", time=2000) => {
         Swal.fire({
@@ -19,16 +15,12 @@ export default function Chat({ auth, isGroup, channelId }) {
             timer: time
         });
     }
-    const authLayoutData = {
-        user: auth.data,
-        currentRoute: useLocation().pathname,
-        isGroup: isGroup
-    }
     return (
         <>
             <AuthenticatedLayout
                 open={true}
-                authLayoutData={authLayoutData}
+                userLogin = {auth.data}
+                currentRoute= {useLocation().pathname}
             >
                 {(isGroup)
                     ?

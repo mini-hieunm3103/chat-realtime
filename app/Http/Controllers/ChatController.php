@@ -64,7 +64,7 @@ class ChatController extends Controller
      */
     public function getMessages($channelId)
     {
-        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with(['user.userDetail', 'file'])->paginate(20);
+        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with(['user.userDetail', 'file'])->paginate(25);
         return MessageResource::collection($messages);
     }
     public function postMessage(Request $request)
@@ -186,13 +186,16 @@ class ChatController extends Controller
 // Return the paginated merged results
         return ($merge);
     }
-    public function recallMessage(Request $request): RedirectResponse
+    public function recallMessage(Request $request)
     {
         $message = Message::find($request->message_id);
+        if ($message->user_id !== Auth::id()){
+            abort(403);
+        };
         $message->is_recalled = 1;
         $message->save();
         $user = Auth::user();
-        broadcast(new MessageRecalled($user, $message, $channelId));
+        broadcast(new MessageRecalled($user, $message->id, $request->channel_id))->toOthers();
     }
 }
 
