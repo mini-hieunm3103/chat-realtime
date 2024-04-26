@@ -47,3 +47,4 @@ export const validMessageFileType = {
         "video/x-ms-wmv",
         "video/mpeg"],
 };
+export const offlineTimeOutWhenLeaveChatChannel = 300000 //ms

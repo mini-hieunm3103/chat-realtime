@@ -1,4 +1,5 @@
 import {memo, useEffect, useState} from "react";
+import {offlineTimeOutWhenLeaveChatChannel} from "@/Helper/config.js";
 
 
 export const useToggle = (initialOpen=false) => {
@@ -85,7 +86,7 @@ export const  useEchoChatUsersId = () =>  {
             .leaving(user => {
                 setTimeout(()=> {
                     setAllUsersOnlineId(prevState => prevState.filter(item => item !== user))
-                }, 300000)
+                }, offlineTimeOutWhenLeaveChatChannel)
             });
     }, []);
     return allUsersOnlineId;

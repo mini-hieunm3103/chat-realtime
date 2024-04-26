@@ -1,4 +1,4 @@
-export function CopyMessageContentText ({message}) {
+export function CopyMessageContentTextBtn ({message}) {
     const handleCopy = () => {
         navigator.clipboard.writeText(message.message_text);
     }

@@ -20,9 +20,9 @@ class MessageResource extends JsonResource
         return [
             'message_id' => $this->id,
             'user_id'=> $this->user_id,
-            'type' => $this->type,
-            'message_text' => $this->message_text,
-            'message_file' => $message_file,
+            'type' => ($this->is_recalled === 0) ? $this->type : null,
+            'message_text' => ($this->is_recalled === 0) ? $this->message_text : null,
+            'message_file' => ($this->is_recalled === 0) ? $message_file : null,
             'is_recalled' => $this->is_recalled,
             'sendTime' => [
                 'full' => Carbon::parse($this->created_at)->format('H:i, d/m/Y'),

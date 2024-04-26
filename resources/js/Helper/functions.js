@@ -105,5 +105,20 @@ export const renameFileSize = (fileSize) => {
         unitIndex++;
     }
 
-    return `${fileSize.toFixed(2)} ${units[unitIndex]}`; 
+    return `${fileSize.toFixed(2)} ${units[unitIndex]}`;
 };
+export const shortenFileName = (fileName) => {
+    const frontChars = 10;
+    const endChars = 6;
+    const fileNameArray = fileName.split('.')
+    console.log("fileNameWithoutExtension", fileNameArray)
+    const fileExtension = fileNameArray.pop();
+    console.log("fileExtension", fileExtension)
+    const baseName = fileNameArray.join('.')
+    console.log("baseName", baseName)
+    if (baseName.length <= frontChars + endChars) {
+        return fileName;
+    }
+    const shortBaseName = `${baseName.substring(0, frontChars)}...${baseName.substring(baseName.length - endChars)}`
+    return `${shortBaseName}.${fileExtension}`
+}

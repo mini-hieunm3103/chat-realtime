@@ -2,8 +2,8 @@ import Authenticated from "@/Layouts/Authenticated/AuthenticatedLayout.jsx";
 import {Head, router} from "@inertiajs/react";
 import {useLocation} from "react-router-dom";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-
-export default function Welcome({auth}){
+import React from "react";
+const Welcome = ({auth}) => {
     const user = auth.data;
     return (
         <>
@@ -26,3 +26,4 @@ export default function Welcome({auth}){
         </>
     )
 }
+export default React.memo(Welcome)

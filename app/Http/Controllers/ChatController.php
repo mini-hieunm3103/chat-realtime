@@ -98,7 +98,17 @@ class ChatController extends Controller
         $user = Auth::user();
         broadcast(new MessagePosted($user, $message, $request->channel_id));
     }
-    // channel inbox
+    public function recallMessage(Request $request)
+    {
+        $message = Message::find($request->message_id);
+        if ($message->user_id !== Auth::id()){
+            abort(403);
+        };
+        $message->is_recalled = 1;
+        $message->save();
+        $user = Auth::user();
+        broadcast(new MessageRecalled($user, $message->id, $request->channel_id))->toOthers();
+    }
     public function findOrNewChannel($sender, $receiver) {
         $channel = Channel::where('type', 'dm')->whereHas('users', function($q) use ($sender) {
             $q->where('user_id',$sender);
@@ -122,10 +132,6 @@ class ChatController extends Controller
         // hiện tất cả group
         // chỉ hiện với những user đã nhắn tin
         // sắp xếp theo thời gian tin nhắn gần nhất
-        $keyword=null;
-        if ($request->keyword){
-            $keyword = $request->keyword;
-        }
 //        dd($keyword);
         $authUser = Auth::user();
         $channelsWithMessage = $authUser->channels()
@@ -186,16 +192,6 @@ class ChatController extends Controller
 // Return the paginated merged results
         return ($merge);
     }
-    public function recallMessage(Request $request)
-    {
-        $message = Message::find($request->message_id);
-        if ($message->user_id !== Auth::id()){
-            abort(403);
-        };
-        $message->is_recalled = 1;
-        $message->save();
-        $user = Auth::user();
-        broadcast(new MessageRecalled($user, $message->id, $request->channel_id))->toOthers();
-    }
+
 }
 
