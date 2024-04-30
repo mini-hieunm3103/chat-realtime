@@ -46,14 +46,6 @@ class UserController extends Controller
         $users = $users->with('userDetail.userAvatarFile')->paginate(10)->withQueryString();
         return UserResource::collection($users);
     }
-    public function getUsersChannel($channelId)
-    {
-        // phải render ra hết không phân trang do phần add user render ra hết => nếu phân page sẽ có lỗi
-        $usersChannel = Channel::with(['users' => function ($q) {
-            $q->orderBy('name', 'asc')->with('userDetail');
-        }])->where('id', $channelId)->first();
-        return new UsersChannelResource($usersChannel);
-    }
     public function inviteFriend(Request $request)
     {
         $rules = [

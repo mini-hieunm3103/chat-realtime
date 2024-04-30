@@ -17,7 +17,7 @@ const RecallMessageForm = ({recallMessageId, channelId, setIsRecallSuccessfully}
     }, [data.message_id]);
     const submit = (e) => {
         e.preventDefault();
-        patch(route('message.recallMessage'), {
+        patch(route('message.recall'), {
             onSuccess: ()=> {
                 setIsRecallSuccessfully(true)
                 reset("message_id")

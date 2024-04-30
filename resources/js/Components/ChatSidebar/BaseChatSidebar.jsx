@@ -109,7 +109,7 @@ const Body = ({children, className, ...props}) => {
 }
 const Footer = ({children}) => {
     return (
-        <div className="border-top py-7">
+        <div className="border-top pb-4 pt-6">
             <div className="container-fluid">
                 {children}
             </div>

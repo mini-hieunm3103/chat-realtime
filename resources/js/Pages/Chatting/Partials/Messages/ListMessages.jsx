@@ -23,7 +23,7 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
     const [recallMessageId, setRecallMessageId] = useState(0)
     const [isRecallSuccessfully,setIsRecallSuccessfully] = useState(false)
     const [hasMoreMessages, setHasMoreMessages] = useState(true)
-    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('message.getMessages', {channel_id: channelId, page: messagesPage}))
+    const {data: getMessages, isPending: loadMessages, error: errorMessages} = useFetch(route('channel.messages', {channel_id: channelId, page: messagesPage}))
     useEffect(() => {
         Echo.private(`chat.${channelId}`)
             .listen('MessagePosted', (data)=> {
@@ -37,7 +37,7 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
                 setListMessages(prevState => {
                     return prevState.map(message => {
                         if (message.message_id === data.messageId) {
-                            return {...message, is_recalled: 1}
+                            return {...message, is_recalled: 1, message_text:null, message_file:null}
                         } else {
                             return message;
                         }
@@ -71,13 +71,12 @@ const ListMessages = ({channelId, searchMessageKeyword}) => {
                         setRecallMessageId(0)
                         setIsRecallSuccessfully(false)
                         // update
-                        return {...message, is_recalled: 1}
+                        return {...message, is_recalled: 1, message_text:null, message_file:null}
                     } else
                         return message
                 })
             })
         }
-        console.log(isRecallSuccessfully)
     }, [isRecallSuccessfully]);
     const fetchMoreData = () => {
         setMessagesPage(prevState => prevState+1)

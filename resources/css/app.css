@@ -280,3 +280,6 @@ svg {
 .custom-selected-file .choose-file:focus {
     border: 2px solid rgba(45, 50, 56, .5);
 }
+.text-decoration-underline {
+    text-decoration: underline !important;
+}

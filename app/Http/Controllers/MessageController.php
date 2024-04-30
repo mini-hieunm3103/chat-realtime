@@ -5,69 +5,43 @@ namespace App\Http\Controllers;
 use App\Events\MessagePosted;
 use App\Events\MessageRecalled;
 use App\Http\Resources\GroupResource;
-use App\Models\File;
-use Carbon\Carbon;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Pagination\LengthAwarePaginator;
-use App\Http\Resources\UsersChannelResource;
 use App\Http\Resources\MessageResource;
 use App\Http\Resources\UserResource;
-use App\Models\Channel;
-use App\Models\Group;
+use App\Models\File;
+use App\Models\Link;
 use App\Models\Message;
-use App\Models\User;
-use Illuminate\Routing\Route;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use Inertia\Response;
-use JetBrains\PhpStorm\NoReturn;
 
-class ChatController extends Controller
+class MessageController extends Controller
 {
-    public function chatting(Request $request, $base10):Response
+    public function recall(Request $request)
     {
-        /*
-         - base10 sẽ convert về base 37
-            + nếu có dạng: gr-{id} thì là group chat (id: groupId)  1W
-            + nếu có dạng: dm-{id} thì là direct-message: nhắn tin riêng (id: userId who you want to chat with)
-         * */
-        $decode = convertBasePhp($base10, 10, 37);
-        $explode = explode('-', $decode);
-        if (count($explode) !== 2) {
-            abort(404);
+        $message = Message::find($request->message_id);
+        if ($message->user_id !== Auth::id()){
+            abort(403);
+        };
+        //reset message info
+        if ($message->message_file_id) {
+            $messageFile = $message->file;
+            Storage::disk('public')->delete($messageFile->path);
+            $messageFile->delete();
         }
-        $type = $explode[0];
-        $id = $explode[1];
-        if ($type == 'gr') {
-            $group = Group::find($id);
-            if (!$group){
-                abort(404);
+        if (count($message->links)) {
+            foreach ($message->links as $link) {
+                $link->delete();
             }
-            $channelId = Group::find($id)->channel_id;
-        } else if ($type == 'dm'){
-            $channelId = $this->findOrNewChannel(getAuthUserResource()->id, $id)->id;
-        } else {
-            abort(404);
         }
-        return Inertia::render('Chatting/Chat', [
-            'auth' => getAuthUserResource(),
-            'isGroup' => ($type == 'gr'),
-            'channelId'=> $channelId,
-        ]);
+        $message->message_text = null;
+        $message->is_recalled = 1;
+        $message->save();
+        $user = Auth::user();
+        broadcast(new MessageRecalled($user, $message->id, $request->channel_id))->toOthers();
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function getMessages($channelId)
-    {
-        $messages = Message::where('channel_id', $channelId)->orderBy('created_at', 'desc')->with(['user.userDetail', 'file'])->paginate(25);
-        return MessageResource::collection($messages);
-    }
-    public function postMessage(Request $request)
+    public function post (Request $request)
     {
         $message = new Message();
         $message->type = $request->message_type;
@@ -94,39 +68,24 @@ class ChatController extends Controller
         $message->is_recalled = 0;
         $message->user_id = Auth::id();
         $message->save();
+        if ($request->has('links') && count($request->links)>0) {
+            foreach ($request->links as $messageLink) {
+                $link = new Link();
+                $link->text=$messageLink['text'];
+                $link->url = $messageLink['url'];
+                $link->message_id = $message->id;
+                $link->save();
+            }
+        }
         $message = new MessageResource($message->load('user.userDetail', 'file'));
         $user = Auth::user();
         broadcast(new MessagePosted($user, $message, $request->channel_id));
     }
-    public function recallMessage(Request $request)
+    public function detail($messageId)
     {
-        $message = Message::find($request->message_id);
-        if ($message->user_id !== Auth::id()){
-            abort(403);
-        };
-        $message->is_recalled = 1;
-        $message->save();
-        $user = Auth::user();
-        broadcast(new MessageRecalled($user, $message->id, $request->channel_id))->toOthers();
+        $message = Message::find($messageId)->first();
+        return $message;
     }
-    public function findOrNewChannel($sender, $receiver) {
-        $channel = Channel::where('type', 'dm')->whereHas('users', function($q) use ($sender) {
-            $q->where('user_id',$sender);
-        })->whereHas('users', function($q) use ($receiver) {
-            $q->where('user_id',$receiver);
-        })->first();
-        if (empty($channel)){
-            $channel = Channel::create([
-                'name' => $sender.'_'.$receiver, // k phu thuoc vao ten channel. Dat ten gi cung duoc
-                'type' => 'dm'
-            ]);
-            $channel->users()->attach($sender);
-            $channel->users()->attach($receiver);
-            return $channel;
-        }
-        return $channel;
-    }
-
     public function dialog(Request $request)
     {
         // hiện tất cả group
@@ -192,6 +151,4 @@ class ChatController extends Controller
 // Return the paginated merged results
         return ($merge);
     }
-
 }
-

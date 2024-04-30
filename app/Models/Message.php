@@ -27,4 +27,11 @@ class Message extends Model
     {
         return $this->hasOne(File::class, 'id', 'message_file_id');
     }
+    public function links()
+    {
+        return $this->hasMany(Link::class, 'message_id', 'id');
+    }
+    public function channel(){
+        return $this->belongsTo(Channel::class);
+    }
 }

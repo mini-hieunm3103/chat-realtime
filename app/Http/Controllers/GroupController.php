@@ -68,6 +68,7 @@ class GroupController extends Controller
             $file = new File();
             $file->name = $groupAvatarFileOriginalName;
             $file->path ='/images/avatars/'.$groupAvatarFileNameInStorage;
+            $file->size = $groupAvatarFile->getSize();
             $file->save();
 
             $groupDetail = new GroupDetail();

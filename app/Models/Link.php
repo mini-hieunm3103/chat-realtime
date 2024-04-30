@@ -8,10 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Link extends Model
 {
     use HasFactory;
-    protected $table = "tables";
+    protected $table = "links";
     protected $fillable = [
-        "sender_id",
-        "channel_id",
+        "message_id",
+        'text',
         "direction",
     ];
+
+    public function message()
+    {
+        return $this->belongsTo(Message::class);
+    }
 }

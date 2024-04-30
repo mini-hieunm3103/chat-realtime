@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->string('direction');
-            $table->bigInteger("channel_id")->unsigned();
-            $table->bigInteger("sender_id")->unsigned();
+            $table->string('text');
+            $table->string('url');
+            $table->bigInteger("message_id")->unsigned();
             $table->timestamps();
 
-            $table->foreign("channel_id")->references("id")->on("channels")->onDelete("cascade");
-            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign("message_id")->references("id")->on("messages")->onDelete("cascade");
         });
     }
 

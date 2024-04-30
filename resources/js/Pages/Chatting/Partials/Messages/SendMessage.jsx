@@ -3,14 +3,16 @@ import {useForm} from "@inertiajs/react";
 import {getFileType} from "@/Helper/functions.js";
 import {maxMessageFileSize} from "@/Helper/config.js";
 import Like from "@/Components/Icons/Like.jsx";
-
+import linkifyit from 'linkify-it';
 const SendMessage = ({channelId, channelType}) => {
+    const linkify = linkifyit();
     const selectedFileInputRef = useRef(null)
     const sendMessageBtnRef = useRef(null)
-    const { data, setData, post, reset, processing, recentlySuccessful } = useForm({
+    const { data, setData, post, reset, processing, recentlySuccessful, transform } = useForm({
         message_type: 'text',
         message_file: null,
         message_text: '',
+        links: [],
         channel_id: channelId,
         channel_type: channelType,
     });
@@ -35,12 +37,26 @@ const SendMessage = ({channelId, channelType}) => {
         if (data.message_file && data.message_type)
             sendMessageBtnRef.current.click();
     }, [data.message_file, data.message_type]);
-
+    transform((data)=> {
+        let links = [];
+        if (data.message_text.length>0 && linkify.test(data.message_text)){
+            links = linkify.match(data.message_text);
+            links = links.map(link => ({
+                'text': link.text,
+                'url': link.url,
+            }))
+        }
+        return {
+            ...data,
+            links: links
+        }
+    })
     const sendMessage = (e) => {
+        // if (!data.message_text || !data.message_file) return false;
         e.preventDefault()
-        post(route('message.postMessage'), {
+        post(route('message.post'), {
             onSuccess: ()=> {
-                reset('message_text', 'message_file', 'message_type');
+                reset('message_text', 'message_file', 'message_type', 'links');
             }
         })
     }

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("path");
-            $table->enum("type", ["image", "video", "audio", "document"]);
             $table->bigInteger('size');
             $table->timestamps();
         });

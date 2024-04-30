@@ -5,7 +5,7 @@ import {useFetch, useToggle} from "@/Helper/hooks.js";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import BaseChatSidebar from "@/Components/ChatSidebar/BaseChatSidebar.jsx";
 import Dropdown from "@/Components/Dropdown/Dropdown.jsx";
-import ChatInfoMedia from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoMedia.jsx";
+import ChatInfoStorage from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoStorage.jsx";
 import SendMessage from "@/Pages/Chatting/Partials/Messages/SendMessage.jsx";
 import ListMessages from "@/Pages/Chatting/Partials/Messages/ListMessages.jsx";
 // CS: ChatSidebar
@@ -16,7 +16,7 @@ function DirectMessage({channelId, auth}){
     const [other, setOther ] = useState(false)
     const {on: openChatSidebar, toggle: toggleChatsidebar} = useToggle()
 
-    const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('user.getUsersChannel', {channel_id: channelId}))
+    const {data: getChannelUsers, isPending: loadChannelUsers, error: errorChannelUsers} = useFetch(route('channel.users', {channel_id: channelId}))
 
     useEffect(() => {
         if (getChannelUsers.hasOwnProperty('data') && !loadChannelUsers ) {
@@ -121,6 +121,7 @@ function DirectMessage({channelId, auth}){
                     </div>
                 }
                 <ChatInfoContext.Provider value={{
+                    channelId: channelId,
                     other,
                     open: openChatSidebar,
                     toggleOpen: toggleChatsidebar
@@ -135,7 +136,7 @@ function DirectMessage({channelId, auth}){
 }
 
 const ChatInfo = () => {
-    const {other, open, toggleOpen} = useContext(ChatInfoContext)
+    const {other, channelId, open, toggleOpen} = useContext(ChatInfoContext)
     const [targetMediaTabId, setTargetMediaTabId] = useState("")
     return (
         <BaseChatSidebar isOpenCS={open} hide={toggleOpen}>
@@ -216,14 +217,14 @@ const ChatInfo = () => {
                         </div>
                         {/*Gallery*/}
                         <div className="card mb-3 border-0 rounded-0">
-                            <ul className="list-group list-group-flush">
+                            <ul className="list-group list-group-flush pb-3">
                                 <Dropdown dropdownId="user-social">
                                     <Dropdown.Open>
                                         <li className="list-group-item py-2">
                                             <div className="media align-items-center" style={{height: 45}}>
                                                 <div className="media-body">
                                                     <p className=" h5 small text-muted mb-0"
-                                                       style={{fontWeight: "bold"}}>Pictures/Videos</p>
+                                                       style={{fontWeight: "bold"}}>Media/documents/links</p>
                                                 </div>
                                                 <i className="text-muted icon-sm fe-chevron-down"></i>
                                             </div>
@@ -231,183 +232,58 @@ const ChatInfo = () => {
                                     </Dropdown.Open>
                                     <Dropdown.Content>
                                         <ul className="list-group list-group-flush">
-                                            <div className="d-flex flex-wrap justify-content-around">
-                                                <div className="media-store">
-                                                    <div className="px-3 py-3">
-                                                        {/*<img style={{height: 70, width: 70}}*/}
-                                                        {/*     loading="lazy"*/}
-                                                        {/*     src={asset("images/neom-brFQojtwSzE-unsplash.jpg")}*/}
-                                                        {/*     alt=""/>*/}
+                                            <BaseChatSidebar.OpenChildrenCS
+                                                childrenCSId="render-chat-info-storage"
+                                                className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
+                                                <div className="media align-items-center" style={{height: 45}}
+                                                     onClick={() => {
+                                                         setTargetMediaTabId("render-chat-info-storage-media")
+                                                     }}>
+                                                    <div
+                                                        className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
+                                                        <i className="text-muted icon-sm fe-image"></i>
+                                                    </div>
+                                                    <div className="media-body">
+                                                        <span className=" h5 small text-muted mb-0">Media</span>
                                                     </div>
                                                 </div>
-                                            </div>
-
+                                            </BaseChatSidebar.OpenChildrenCS>
                                             <BaseChatSidebar.OpenChildrenCS
-                                                childrenCSId="render-chat-info-media"
-                                                className="nav nav-pills nav-justified border-0 rounded-0 px-5 pb-5 pt-3 card-bg-color">
-                                                <button className="nav-item btn btn-secondary rounded-0" onClick={()=> {setTargetMediaTabId("render-chat-images-videos")}}>
-                                                    Show All
-                                                </button>
+                                                childrenCSId="render-chat-info-storage"
+                                                className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
+                                                <div className="media align-items-center" style={{height: 45}}
+                                                     onClick={() => {
+                                                         setTargetMediaTabId("render-chat-info-storage-documents")
+                                                     }}>
+                                                    <div
+                                                        className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
+                                                        <i className="text-muted icon-sm fe-file"></i>
+                                                    </div>
+                                                    <div className="media-body">
+                                                        <span className=" h5 small text-muted mb-0">Documents</span>
+                                                    </div>
+                                                </div>
+                                            </BaseChatSidebar.OpenChildrenCS>
+                                            <BaseChatSidebar.OpenChildrenCS
+                                                childrenCSId="render-chat-info-storage"
+                                                className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
+                                                <div className="media align-items-center" style={{height: 45}}
+                                                     onClick={() => {
+                                                         setTargetMediaTabId("render-chat-info-storage-links")
+                                                     }}>
+                                                    <div
+                                                        className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
+                                                        <i className="text-muted icon-sm fe-link"></i>
+                                                    </div>
+                                                    <div className="media-body">
+                                                        <span className=" h5 small text-muted mb-0">Links</span>
+                                                    </div>
+                                                </div>
                                             </BaseChatSidebar.OpenChildrenCS>
                                         </ul>
                                     </Dropdown.Content>
                                 </Dropdown>
                             </ul>
-                        </div>
-                        {/*Files*/}
-                        <div className="card mb-3 border-0 rounded-0">
-                            <ul className="list-group list-group-flush">
-                                <Dropdown dropdownId="user-social" >
-                                    <Dropdown.Open>
-                                        <li className="list-group-item py-2">
-                                            <div className="media align-items-center" style={{height: 45}}>
-                                                <div className="media-body">
-                                                    <p className=" h5 small text-muted mb-0"
-                                                       style={{fontWeight: "bold"}}>Files</p>
-                                                </div>
-                                                <i className="text-muted icon-sm fe-chevron-down"></i>
-                                            </div>
-                                        </li>
-                                    </Dropdown.Open>
-                                    <Dropdown.Content>
-                                        <ul className="list-group list-group-flush list-group-no-border-first">
-
-                                            <li className="list-group-item py-6">
-                                                <div className="media">
-
-                                                    <div className="icon-shape bg-primary text-white mr-5">
-                                                        <i className="fe-paperclip"></i>
-                                                    </div>
-
-                                                    <div className="media-body align-self-center overflow-hidden">
-                                                        <h6 className="text-truncate mb-0">
-                                                            <a href="#" className="text-reset"
-                                                               title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
-                                                        </h6>
-
-                                                        <ul className="list-inline d-flex justify-content-between small mb-0">
-                                                            <li className="list-inline-item">
-                                                                <span className="text-muted">79.2 KB</span>
-                                                            </li>
-                                                            <li className="list-inline-item r">
-                                                                <span className="text-muted text-uppercase">Mar 10 2024 16:42</span>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-
-                                                    <div className="align-self-center ml-5">
-                                                        <div className="dropdown">
-                                                            <a href="#"
-                                                               className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                               data-toggle="dropdown" aria-haspopup="true"
-                                                               aria-expanded="false">
-                                                                <i className="fe-more-vertical"></i>
-                                                            </a>
-                                                            <div className="dropdown-menu">
-                                                                <a className="dropdown-item d-flex align-items-center"
-                                                                   href="#">
-                                                                    Download <span
-                                                                    className="ml-auto fe-download"></span>
-                                                                </a>
-                                                                <a className="dropdown-item d-flex align-items-center"
-                                                                   href="#">
-                                                                    Share <span className="ml-auto fe-share-2"></span>
-                                                                </a>
-                                                                <a className="dropdown-item d-flex align-items-center"
-                                                                   href="#">
-                                                                    Delete <span className="ml-auto fe-trash-2"></span>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </li>
-                                            <BaseChatSidebar.OpenChildrenCS
-                                                childrenCSId="render-chat-info-media"
-                                                className="nav nav-pills nav-justified border-0 rounded-0 px-5 pb-5 pt-3 card-bg-color">
-                                                <button className="nav-item btn btn-secondary rounded-0" onClick={()=> {setTargetMediaTabId("render-chat-files")}}>
-                                                    Show All
-                                                </button>
-                                            </BaseChatSidebar.OpenChildrenCS>
-                                        </ul>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </ul>
-                        </div>
-                        {/*Links*/}
-                        <div className="card mb-3 border-0 rounded-0">
-                            <div className="list-group list-group-flush">
-                                <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open>
-                                        <li className="list-group-item py-2">
-                                            <div className="media align-items-center" style={{height: 45}}>
-                                                <div className="media-body">
-                                                    <p className=" h5 small text-muted mb-0"
-                                                       style={{fontWeight: "bold"}}>Links</p>
-                                                </div>
-                                                <i className="text-muted icon-sm fe-chevron-down"></i>
-                                            </div>
-                                        </li>
-                                    </Dropdown.Open>
-                                    <Dropdown.Content>
-                                        <ul className="list-group list-group-flush list-group-no-border-first">
-
-                                            <li className="list-group-item py-6">
-                                                <div className="media">
-
-                                                    <div className="icon-shape bg-primary text-white mr-5">
-                                                        <i className="fe-paperclip"></i>
-                                                    </div>
-
-                                                    <div className="media-body align-self-center overflow-hidden">
-                                                        <h6 className="text-truncate mb-0">
-                                                            <a href="#" className="text-reset"
-                                                               title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">Title
-                                                                của link</a>
-                                                        </h6>
-
-                                                        <ul className="list-inline d-flex justify-content-between small mb-0">
-                                                            <li className="list-inline-item">
-                                                                <span className="text-muted">facebook.com</span>
-                                                            </li>
-                                                            <li className="list-inline-item ">
-                                                                <span className="text-muted text-uppercase">Mar 10 2024 16:42</span>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-
-                                                    <div className="align-self-center ml-5">
-                                                        <div className="dropdown">
-                                                            <a href="#"
-                                                               className="btn btn-sm btn-ico btn-link text-muted w-auto"
-                                                               data-toggle="dropdown" aria-haspopup="true"
-                                                               aria-expanded="false">
-                                                                <i className="fe-more-vertical"></i>
-                                                            </a>
-                                                            <div className="dropdown-menu">
-                                                                <a className="dropdown-item d-flex align-items-center"
-                                                                   href="#">
-                                                                    Copy <span
-                                                                    className="ml-auto fe-copy"></span>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </li>
-                                            <BaseChatSidebar.OpenChildrenCS
-                                                childrenCSId="render-chat-info-media"
-                                                className="nav nav-pills nav-justified border-0 rounded-0 px-5 pb-5 pt-3 card-bg-color">
-                                                <button className="nav-item btn btn-secondary rounded-0" onClick={()=> {setTargetMediaTabId("render-chat-links")}}>
-                                                    Show All
-                                                </button>
-                                            </BaseChatSidebar.OpenChildrenCS>
-                                        </ul>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
                         </div>
                         {/*Security*/}
                         <div className="card mb-3 border-0 rounded-0">
@@ -450,7 +326,7 @@ const ChatInfo = () => {
                     </div>
                 </BaseChatSidebar.Body>
             </BaseChatSidebar.MainCS>
-            <ChatInfoMedia targetMediaTabId={targetMediaTabId} setTargetMediaTabId={setTargetMediaTabId} />
+            <ChatInfoStorage channelId={channelId} targetMediaTabId={targetMediaTabId} setTargetMediaTabId={setTargetMediaTabId} />
         </BaseChatSidebar>
     )
 }

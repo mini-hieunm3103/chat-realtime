@@ -30,11 +30,7 @@ export const useFetch = (url) => {
         }
     }
     useEffect(() => {
-        let isMounted = true;
         fetchData()
-        return () => {
-            isMounted = false;
-        }
     }, [url]);
     return {data, isPending, error}
 }

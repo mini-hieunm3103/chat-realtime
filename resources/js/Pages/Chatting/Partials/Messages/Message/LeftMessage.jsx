@@ -4,7 +4,7 @@ import TextMessagePopup from "@/Pages/Chatting/Partials/Messages/Popup/TextMessa
 import Highlighter from "react-highlight-words";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import UserAvatar from "@/Components/UserAvatar.jsx";
-import MessageRecalled from "@/Pages/Chatting/Partials/Messages/Message/MessageRecalled.jsx";
+import MessageRecalled from "@/Pages/Chatting/Partials/Messages/Features/MessageRecalled.jsx";
 import {asset, renameFileSize, shortenFileName} from "@/Helper/functions.js";
 import {
     appUrl,
@@ -14,7 +14,7 @@ import {
     widthMessageVideo
 } from "@/Helper/config.js";
 import FileMessagePopup from "@/Pages/Chatting/Partials/Messages/Popup/FileMessagePopup.jsx";
-
+import Linkify from "react-linkify";
 
 const style = {
     invisibleAvatar: <div className={"avatar avatar-sm mr-4 mr-lg-5 invisible"}></div>,
@@ -44,6 +44,13 @@ const LeftMessage = () => {
     } else {
         msgBorderRadius = style.groupMessages.middleMsgBorderRadius
     }
+    const contentMapping = {
+        text: <TextContent msgBorderRadius={msgBorderRadius}/> ,
+        image: <ImageContent/> ,
+        video: <VideoContent /> ,
+        audio: <AudioContent/> ,
+        document: <DocumentContent msgBorderRadius={msgBorderRadius}/> ,
+    };
     return (
         <div
             className={"message " + style.messageMarginBottom + (isLastMsgInGroupMessages ? style.groupMessages.marginBottom : "")}>
@@ -62,12 +69,11 @@ const LeftMessage = () => {
                     {isFirstMsgInGroupMessages ? <h6 className="mb-2 ml-5">{message.user.name}</h6> : null}
                     <div className="d-flex flex-row align-items-center"
                          title={message.sendTime.full}>
-                        {message.type === "text" ? <TextContent  msgBorderRadius={ msgBorderRadius}/> : null}
-                        {message.type === "image" ? <ImageContent /> : null}
-                        {message.type === "video" ? <VideoContent /> : null}
-                        {message.type === "audio" ? <AudioContent /> : null}
-                        {message.type === "document" ? <DocumentContent  msgBorderRadius={ msgBorderRadius} /> : null}
-                    </div>
+                        {message.is_recalled
+                            ? <MessageRecalled position="left" style={{borderRadius: msgBorderRadius}} />
+                            : contentMapping[message.type]
+                        }
+                        </div>
                 </div>
             </div>
         </div>
@@ -80,17 +86,21 @@ const TextContent = ({msgBorderRadius}) => {
     } = useContext(MessageContext)
     return (
         <>
-            {!message.is_recalled
-                ? <div className="message-content bg-light position-relative" style={{borderRadius: msgBorderRadius}}>
-                    <Highlighter
-                        highlightClassName="highlighted-text"
-                        searchWords={[searchMessageKeyword]}
-                        autoEscape={true}
-                        textToHighlight={message.message_text}
-                    />
-                </div>
-                : <MessageRecalled position="left"/>
-            }
+            <div className="message-content bg-light text-break position-relative" style={{borderRadius: msgBorderRadius}}>
+                {/*<Highlighter*/}
+                {/*    highlightClassName="highlighted-text"*/}
+                {/*    searchWords={[searchMessageKeyword]}*/}
+                {/*    autoEscape={true}*/}
+                {/*    textToHighlight={message.message_text}*/}
+                {/*/>*/}
+                <Linkify componentDecorator={(decoratedHref, decoratedText, key) => (
+                    <a href={decoratedHref} key={key} target="_blank" className="text-decoration-underline text-muted">
+                        {decoratedText}
+                    </a>
+                )}>
+                    {message.message_text}
+                </Linkify>
+            </div>
             <TextMessagePopup message={message}/>
         </>
     )
@@ -99,18 +109,15 @@ const ImageContent = () => {
     const {message} = useContext(MessageContext);
     return (
         <>
-            {!message.is_recalled
-                ? <div className={"message-content p-0 " + widthMessageImage}>
-                    <div className="form-row py-3">
-                        <div className="col">
-                            <img className="img-fluid rounded"
-                                 src={asset(message.message_file.path)}
-                                 data-action="zoom" alt={message.message_file.name}/>
-                        </div>
+            <div className={"message-content p-0 " + widthMessageImage}>
+                <div className="form-row py-3">
+                    <div className="col">
+                        <img className="img-fluid rounded"
+                             src={asset(message.message_file.path)}
+                             data-action="zoom" alt={message.message_file.name}/>
                     </div>
                 </div>
-                : <MessageRecalled position="left"/>
-            }
+            </div>
             <FileMessagePopup message={message}/>
         </>
     )
@@ -121,18 +128,15 @@ const VideoContent = () => {
     } = useContext(MessageContext)
     return (
         <>
-            {!message.is_recalled
-                ? <div className="message-content p-0 mt-2">
-                    <div className="form-row">
-                        <div className="col d-flex justify-content-end">
-                            <video width={widthMessageVideo} height={heightMessageVideo} controls data-action="zoom">
-                                <source src={asset(message.message_file.path)}/>
-                            </video>
-                        </div>
+            <div className="message-content p-0 mt-2">
+                <div className="form-row">
+                    <div className="col d-flex justify-content-end">
+                        <video width={widthMessageVideo} height={heightMessageVideo} controls data-action="zoom">
+                            <source src={asset(message.message_file.path)}/>
+                        </video>
                     </div>
                 </div>
-                : <MessageRecalled position="left"/>
-            }
+            </div>
             <FileMessagePopup message={message}/>
         </>
     )
@@ -143,18 +147,15 @@ const AudioContent = () => {
     } = useContext(MessageContext)
     return (
         <>
-            {!message.is_recalled
-                ? <div className="message-content p-0 mt-2">
-                    <div className="form-row">
-                        <div className="col d-flex justify-content-end">
-                            <audio controls>
-                                <source src={asset(message.message_file.path)}/>
-                            </audio>
-                        </div>
+            <div className="message-content p-0 mt-2">
+                <div className="form-row">
+                    <div className="col d-flex justify-content-end">
+                        <audio controls>
+                            <source src={asset(message.message_file.path)}/>
+                        </audio>
                     </div>
                 </div>
-                : <MessageRecalled position="left"/>
-            }
+            </div>
             <FileMessagePopup message={message}/>
         </>
     )
@@ -166,29 +167,26 @@ const DocumentContent = ({msgBorderRadius}) => {
     const fileSize = renameFileSize(message.message_file.size);
     return (
         <>
-            {!message.is_recalled
-                ? <div className="message-content bg-light text-white" style={{borderRadius: msgBorderRadius}}>
-                    <div className="media">
-                        <a href="#" className="icon-shape mr-5">
-                            <i className="fe-paperclip"></i>
-                        </a>
-                        <div className="media-body overflow-hidden flex-fill">
-                            <a href="#" style={{width: widthMessageDocument}}
-                               className="d-block text-truncate font-medium text-reset"
-                            >{shortenFileName(fileName)}</a>
-                            <ul className="list-inline small mb-0">
-                                <li className="list-inline-item">
-                                    <span className="t">{fileSize}</span>
-                                </li>
-                                <li className="list-inline-item">
-                                    <span className="text-uppercase">{fileExtension}</span>
-                                </li>
-                            </ul>
-                        </div>
+            <div className="message-content bg-light text-white" style={{borderRadius: msgBorderRadius}}>
+                <div className="media">
+                    <a href="#" className="icon-shape mr-5">
+                        <i className="fe-paperclip"></i>
+                    </a>
+                    <div className="media-body overflow-hidden flex-fill">
+                        <a href="#" style={{width: widthMessageDocument}}
+                           className="d-block text-truncate font-medium text-reset"
+                        >{shortenFileName(fileName)}</a>
+                        <ul className="list-inline small mb-0">
+                            <li className="list-inline-item">
+                                <span className="t">{fileSize}</span>
+                            </li>
+                            <li className="list-inline-item">
+                                <span className="text-uppercase">{fileExtension}</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                : <MessageRecalled position="left"/>
-            }
+            </div>
             <FileMessagePopup message={message}/>
         </>
     )
