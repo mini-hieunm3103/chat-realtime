@@ -122,12 +122,12 @@ class UserController extends Controller
                 $oldAvatarFileDB = $details->userAvatarFile;
 
                 $newAvatarFileOriginalName = $newAvatarFile->getClientOriginalName();
-                $newAvatarFileNameInStorage = time() . '_' . $newAvatarFileOriginalName;
-                Storage::disk('public')->putFileAs('images/avatars', $newAvatarFile, $newAvatarFileNameInStorage);
+                $newAvatarFileNameInStorage = formatFileNameInStorage($newAvatarFileOriginalName);
+                Storage::disk('public')->putFileAs('images', $newAvatarFile, $newAvatarFileNameInStorage);
 
                 $file = new File();
                 $file->name = $newAvatarFileOriginalName;
-                $file->path ='/images/avatars/'.$newAvatarFileNameInStorage;
+                $file->path ='/images/'.$newAvatarFileNameInStorage;
                 $file->size = $newAvatarFile->getSize();
                 $file->save();
 

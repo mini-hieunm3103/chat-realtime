@@ -1,10 +1,10 @@
 import {createContext, useContext, useEffect, useState} from "react";
 
 const DropdownContext = createContext()
-const Dropdown = ({dropdownId, children, defaultOpen=true}) => {
+const Dropdown = ({children, defaultOpen=true}) => {
     const [isOpen, setIsOpen] = useState(defaultOpen)
     return (
-        <DropdownContext.Provider value={{dropdownId, isOpen, setIsOpen}}>
+        <DropdownContext.Provider value={{isOpen, setIsOpen}}>
             {children}
         </DropdownContext.Provider>
     )
@@ -21,9 +21,9 @@ const OpenDropdown = ({children}) => {
     )
 }
 const Content = ({children}) => {
-    const {dropdownId, isOpen} = useContext(DropdownContext)
+    const {isOpen} = useContext(DropdownContext)
     return isOpen && (
-        <div id={dropdownId}>
+        <div>
             {children}
         </div>
     )

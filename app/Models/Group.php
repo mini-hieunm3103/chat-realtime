@@ -15,14 +15,18 @@ class Group extends Model
     ];
     public function admins()
     {
-        return $this->belongsToMany(User::class, 'group_admins');
+        return $this->belongsToMany(User::class, 'group_admin');
     }
     public function channel()
     {
         return $this->hasOne(Channel::class, 'channel_id');
     }
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner');
+    }
     public function groupDetail()
     {
-        return $this->hasOne(GroupDetail::class, 'group_id');
+        return $this->hasOne(GroupDetail::class, 'group_id', 'id');
     }
 }

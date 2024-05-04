@@ -53,7 +53,7 @@ class MessageController extends Controller
 
             $messageFile = $request->file('message_file');
             $messageFileOriginalName = $messageFile->getClientOriginalName();
-            $messageFileNameInStorage = time() . '_' . $messageFileOriginalName;
+            $messageFileNameInStorage = formatFileNameInStorage($messageFileOriginalName);
             Storage::disk('public')->putFileAs($request->message_type.'s/', $messageFile, $messageFileNameInStorage);
 
             $file = new File();

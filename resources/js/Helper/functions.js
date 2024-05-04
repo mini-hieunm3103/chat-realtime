@@ -117,3 +117,15 @@ export const shortenFileName = (fileName, frontChars=10, endChars=6) => {
     const shortBaseName = `${baseName.substring(0, frontChars)}...${baseName.substring(baseName.length - endChars)}`
     return `${shortBaseName}.${fileExtension}`
 }
+export const groupAvatarText = (groupName) => {
+    let avatarText = "";
+    const splitName = groupName.split(" ");
+    const limit = (splitName.length<=3) ? splitName.length : 3
+    for (let i = 0; i < limit; i++) {
+        avatarText += splitName[i].charAt(0)
+    }
+    return avatarText;
+}
+export const userAvatarText = (userName) => {
+    return userName.charAt(0)
+}

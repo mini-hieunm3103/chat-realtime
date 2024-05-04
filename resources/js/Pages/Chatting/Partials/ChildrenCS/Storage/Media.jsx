@@ -5,27 +5,27 @@ import LoadingDiv from "@/Components/LoadingDiv.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const Media = ({channelId, targetMediaTabId}) => {
-    if (targetMediaTabId !== "render-chat-info-storage-media") return false;
     const [media, setMedia] = useState([]);
     const [pageNumber, setPageNumber] = useState(1)
     const [hasMore, setHasMore] = useState(true);
-    const {data: getGroupStorageMedia, isPending: loadGroupStorageMedia}
+    const {data: getChatStorageMedia, isPending: loadChatStorageMedia}
         = useFetch(route('channel.media', {channel_id: channelId, page:pageNumber}))
     useEffect(() => {
-        if (!isObjectEmpty(getGroupStorageMedia)){
+        if (!isObjectEmpty(getChatStorageMedia)){
             setMedia(prevMedia =>{
-                return [...new Set([...prevMedia, ...getGroupStorageMedia.data])]
+                return [...new Set([...prevMedia, ...getChatStorageMedia.data])]
             });
-            setHasMore(pageNumber <= getGroupStorageMedia.meta.last_page)
+            setHasMore(pageNumber <= getChatStorageMedia.meta.last_page)
         }
-    }, [loadGroupStorageMedia]);
+    }, [getChatStorageMedia]);
     const fetchMoreMedia = useCallback(() => {
         setPageNumber(prevState => prevState+1)
     })
+    if (targetMediaTabId !== "render-chat-info-storage-media") return false;
     return (
         <>
             <ul className="list-group list-group-flush">
-                {media.length === 0 && !loadGroupStorageMedia
+                {media.length === 0 && !loadChatStorageMedia
                     ? <div>
                         <h4>No media</h4>
                         <p>Photos and videos that you exchange with this group will appear here.</p>

@@ -5,26 +5,24 @@ import LoadingDiv from "@/Components/LoadingDiv.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const Links = ({channelId, targetMediaTabId}) => {
-    if (targetMediaTabId !== "render-chat-info-storage-links") return false;
     const [links, setLinks] = useState([])
     const [pageNumber, setPageNumber] = useState(1)
     const [hasMore, setHasMore] = useState(true);
-    const {data: getGroupStorageLinks, isPending: loadGroupStorageLinks}
+    const {data: getChatStorageLinks, isPending: loadChatStorageLinks}
         = useFetch(route('channel.links', {channel_id: channelId, page: pageNumber}))
     useEffect(() => {
-        if (!isObjectEmpty(getGroupStorageLinks)){
+        if (!isObjectEmpty(getChatStorageLinks)){
             setLinks(prevLinks =>{
-                return [...new Set([...prevLinks, ...getGroupStorageLinks.data])]
+                return [...new Set([...prevLinks, ...getChatStorageLinks.data])]
             });
-            setHasMore(pageNumber <= getGroupStorageLinks.meta.last_page)
+            setHasMore(pageNumber <= getChatStorageLinks.meta.last_page)
         }
-    }, [loadGroupStorageLinks]);
-    const fetchMoreLinks = useCallback(() => {
-        setPageNumber(prevState => prevState+1)
-    })
+    }, [getChatStorageLinks]);
+    const fetchMoreLinks = ()=> setPageNumber(prevState => prevState+1)
+    if (targetMediaTabId !== "render-chat-info-storage-links") return false;
     return (
         <ul className="list-group list-group-flush list-group-no-border-first">
-            {links.length === 0 && !loadGroupStorageLinks
+            {links.length === 0 && !loadChatStorageLinks
                 ? <div>
                     <h4>No Links</h4>
                     <p>Links that you exchange with this group will appear here.</p>

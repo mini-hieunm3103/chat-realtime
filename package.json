@@ -6,7 +6,7 @@
         "build": "vite build",
         "watch": "vite build --watch",
         "all": "php artisan serve & php artisan queue:work & laravel-echo-server start & npm run watch",
-        "resetdb": "php artisan migrate:rollback && php artisan migrate && php artisan db:seed"
+        "reset": "php artisan migrate:rollback && php artisan migrate && php artisan db:seed && find storage/app/public -mindepth 1 -not -path 'storage/app/public/icons*' -exec rm -rf {} +"
     },
     "devDependencies": {
         "@headlessui/react": "^1.4.2",

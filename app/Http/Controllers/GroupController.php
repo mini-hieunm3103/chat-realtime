@@ -9,6 +9,7 @@ use App\Models\File;
 use App\Models\Group;
 use App\Models\GroupDetail;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -18,11 +19,10 @@ class GroupController extends Controller
 {
     public function detail($group_id)
     {
-        $groupDetail =  Group::with('admins')->where('id', $group_id)->first();
-//        return $groupDetail;
-        return new GroupResource($groupDetail);
+        $group = Group::with(['groupDetail.groupAvatarFile'])->where('id', $group_id)->first();
+        return (new GroupResource($group));
     }
-    public function store(Request $request)
+    public function create(Request $request)
     {
         $request->validate([
             // nếu cùng 1 user thì không được đặt tên group giống nhau
@@ -76,6 +76,51 @@ class GroupController extends Controller
             $groupDetail->avatar_id = $file->id;
         }
         $groupDetail->save();
+        return Redirect::route('chatting', convertBasePhp('gr-'.$group->id, 37, 10));
+    }
+
+    public function update(Request $request): RedirectResponse
+    {
+        $rules = [
+            'name'=> ['required', 'string', 'max:255']
+        ];
+        $request->validate($rules);
+        $group = Group::find($request->group_id)->first();
+        $group->name = $request->name;
+        if ($request->hasFile('avatar_file')) {
+            $newAvatarFile = $request->file('avatar_file');
+            $oldAvatarFileDB = $group->groupDetail->groupAvatarFile;
+
+            $newAvatarFileOriginalName = $newAvatarFile->getClientOriginalName();
+            $newAvatarFileNameInStorage = formatFileNameInStorage($newAvatarFileOriginalName);
+            Storage::disk('public')->putFileAs('images', $newAvatarFile, $newAvatarFileNameInStorage);
+
+            $file = new File();
+            $file->name = $newAvatarFileOriginalName;
+            $file->path ='/images/'.$newAvatarFileNameInStorage;
+            $file->size = $newAvatarFile->getSize();
+            $file->save();
+
+            $group->groupDetail->avatar_id = $file->id;
+            $group->groupDetail->save();
+            if ($oldAvatarFileDB){
+                Storage::disk('public')->delete($oldAvatarFileDB->path);
+                $oldAvatarFileDB->delete();
+            }
+        }
+        $group->save();
+        return Redirect::back();
+    }
+
+    public function deleteAvatar(Request $request): RedirectResponse
+    {
+        $group = Group::find($request->group_id);
+        if ($group->groupDetail->avatar_id){
+            Storage::disk('public')->delete($group->groupDetail->groupAvatarFile->path);
+            $group->groupDetail->avatar_id = null;
+            $group->groupDetail->save();
+            $group->groupDetail->groupAvatarFile->delete();
+        }
         return Redirect::back();
     }
     public function addUsers(Request $request)

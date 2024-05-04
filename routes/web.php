@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{group_id}', [GroupController::class, 'detail'])->name('detail');
         Route::post('/create', [GroupController::class, 'create'])->name('create');
         Route::post('/update', [GroupController::class, 'update'])->name('update');
+        Route::delete('/delete-avatar', [GroupController::class, 'deleteAvatar'])->name('deleteAvatar');
         Route::delete('/destroy', [GroupController::class, 'destroy'])->name('destroy');
 
         Route::patch('/group/users', [GroupController::class, 'addUsers'])->name('addUsers');

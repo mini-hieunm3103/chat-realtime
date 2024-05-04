@@ -1,6 +1,6 @@
 import React, {lazy} from "react";
 import {useToggle} from "@/Helper/hooks.js";
-import {asset} from "@/Helper/functions.js";
+import {asset, userAvatarText} from "@/Helper/functions.js";
 
 const ShowUserModal = lazy(() => (import('@/Components/Modals/ShowUserModal.jsx')))
 function UserAvatar(
@@ -31,7 +31,7 @@ function UserAvatar(
             >
                 {(user.avatar)
                     ? <img className="avatar-img" src={asset(user.avatar.path)} alt={user.name}/>
-                    : <span style={(size === "xl") ? {fontSize: 38, fontWeight: "bold"} : {fontWeight: "bold"}}>{user.name.charAt(0)}</span>}
+                    : <span style={(size === "xl") ? {fontSize: 38, fontWeight: "bold"} : {fontWeight: "bold"}}>{userAvatarText(user.name)}</span>}
             </div>
             {showProfile && <ShowUserModal isShowing={open} hide={toggle} user={user}/>}
         </>

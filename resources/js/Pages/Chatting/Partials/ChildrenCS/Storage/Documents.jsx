@@ -5,25 +5,25 @@ import LoadingDiv from "@/Components/LoadingDiv.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const Documents = ({channelId, targetMediaTabId}) => {
-    if (targetMediaTabId !== "render-chat-info-storage-documents") return false;
     const [documents, setDocuments] = useState([])
     const [hasMore, setHasMore] = useState(true)
     const [pageNumber, setPageNumber] = useState(1)
-    const {data: getGroupStorageDocuments, isPending: loadGroupStorageDocuments}
+    const {data: getChatStorageDocuments, isPending: loadChatStorageDocuments}
         = useFetch(route('channel.documents', {channel_id: channelId, page:pageNumber}))
     useEffect(() => {
-        if (!isObjectEmpty(getGroupStorageDocuments)){
+        if (!isObjectEmpty(getChatStorageDocuments)){
             setDocuments(prevDocuments =>{
-                return [...new Set([...prevDocuments, ...getGroupStorageDocuments.data])]
+                return [...new Set([...prevDocuments, ...getChatStorageDocuments.data])]
             });
-            setHasMore(pageNumber <= getGroupStorageDocuments.meta.last_page)
+            setHasMore(pageNumber <= getChatStorageDocuments.meta.last_page)
         }
-    }, [loadGroupStorageDocuments]);
+    }, [getChatStorageDocuments]);
     const fetchMoreDocuments = useCallback(() => {
         setPageNumber(prevState => prevState+1)
     })
+    if (targetMediaTabId !== "render-chat-info-storage-documents") return false;
     return <ul className="list-group list-group-flush list-group-no-border-first">
-        {documents.length===0 && !loadGroupStorageDocuments
+        {documents.length===0 && !loadChatStorageDocuments
             ? <div>
                 <h4>No Documents</h4>
                 <p>Documents that you exchange with this group will appear here.</p>

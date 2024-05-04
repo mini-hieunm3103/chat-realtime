@@ -14,4 +14,9 @@ class File extends Model
         "path",
         "size"
     ];
+
+    public function message()
+    {
+        return $this->hasOne(Message::class, 'message_file_id', 'id');
+    }
 }

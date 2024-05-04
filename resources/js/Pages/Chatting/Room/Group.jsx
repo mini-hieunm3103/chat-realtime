@@ -1,5 +1,5 @@
 import CollapseButton from "@/Components/CollapseButton.jsx";
-import React, {createContext, useContext, useEffect, useRef, useState} from "react";
+import React, {createContext, Suspense, useContext, useEffect, useRef, useState} from "react";
 import {useFetch, useToggle} from "@/Helper/hooks.js";
 import {asset, convertBaseJs, isObjectEmpty} from "@/Helper/functions.js";
 import GroupAvatar from "@/Components/GroupAvatar.jsx";
@@ -15,7 +15,7 @@ import GroupBlockedUsers from "@/Pages/Chatting/Partials/ChildrenCS/GroupBlocked
 import ChatInfoStorage from "@/Pages/Chatting/Partials/ChildrenCS/ChatInfoStorage.jsx";
 import ListMessages from "@/Pages/Chatting/Partials/Messages/ListMessages.jsx";
 import SendMessage from "@/Pages/Chatting/Partials/Messages/SendMessage.jsx";
-import {LiaThumbtackSolid} from "react-icons/lia";
+import EditGroupInfoModal from "@/Components/Modals/EditGroupInfoModal.jsx";
 
 const GroupInfoContext = createContext();
 // CS: ChatSidebar
@@ -72,21 +72,13 @@ function Group({ auth ,channelId}){
                                         <GroupAvatar
                                             className=" d-none d-xl-inline-block mr-5"
                                             size="sm"
-                                            name={groupDetail.name}
+                                            group={groupDetail}
                                         />
 
                                         {groupDetail && listUsers.length > 0 &&
                                             <div className="media-body align-self-center text-truncate">
                                                 <h6 className="text-truncate mb-n1">{groupDetail.name}</h6>
                                                 <small className="text-muted">{listUsers.length} members</small>
-                                                {
-                                                    groupDetail.topic
-                                                    && <>
-                                                        <small className="text-muted mx-2"> • </small>
-                                                        <small className="text-muted">{groupDetail.topic}</small>
-                                                    </>
-                                                }
-
                                             </div>}
                                     </div>
                                 </div>
@@ -165,13 +157,6 @@ function Group({ auth ,channelId}){
                     </div>
 
                     <ListMessages channelId={channelId} searchMessageKeyword={searchMessages} />
-
-                    <div className="chat-files hide-scrollbar px-lg-8">
-                        <div className="container-xxl">
-                            <div className="dropzone-previews-js form-row py-4"></div>
-                        </div>
-                    </div>
-
                     <SendMessage channelId={channelId} channelType="group" />
                 </div>
 
@@ -198,258 +183,264 @@ function Group({ auth ,channelId}){
 const GroupInfo = () => {
     const {groupDetail, users, open, channelId, toggleOpen, toggleOpenAddUsersModal} = useContext(GroupInfoContext)
     const [targetMediaTabId, setTargetMediaTabId] = useState("")
-
+    const {on: openEditGroupInfo, toggle:  toggleOpenEditGroupInfo} = useToggle()
     if (users.length === 0 || !groupDetail) {
         return null
     }
+
     const allowedInviteViaLink = true;
     return (
-        <BaseChatSidebar isOpenCS={open} hide={toggleOpen}>
-            <BaseChatSidebar.MainCS chatSidebarId="chat-info">
-                <BaseChatSidebar.Header>
-                    <ul className="nav justify-content-between align-items-center">
-                        <li className="nav-item list-inline-item d-lg-none ">
-                            <div className="nav-link text-muted px-0" onClick={toggleOpen}>
-                                <i className="icon-md fe-chevron-left"></i>
+        <>
+            <EditGroupInfoModal groupDetail={groupDetail} isShowing={openEditGroupInfo} hide={toggleOpenEditGroupInfo} />
+            <BaseChatSidebar isOpenCS={open} hide={toggleOpen}>
+                <BaseChatSidebar.MainCS chatSidebarId="chat-info">
+                    <BaseChatSidebar.Header>
+                        <ul className="nav justify-content-between align-items-center">
+                            <li className="nav-item list-inline-item d-lg-none ">
+                                <div className="nav-link text-muted px-0" onClick={toggleOpen}>
+                                    <i className="icon-md fe-chevron-left"></i>
+                                </div>
+                            </li>
+                        </ul>
+                    </BaseChatSidebar.Header>
+                    <BaseChatSidebar.Body>
+                        <div className="container-fluid p-0">
+                            <div className="card mb-3 ml-0 border-0 rounded-0">
+                                <div className="text-center pb-9 pt-0 px-10">
+                                    <GroupAvatar
+                                        group={groupDetail}
+                                        size="xl"
+                                        className=" mx-5 mb-5"
+                                    />
+                                    <h5>{groupDetail.name}</h5>
+                                </div>
+                                <div className="w-100 d-flex justify-content-around mb-5">
+                                    <div className="d-flex flex-wrap justify-content-center align-items-start w-25">
+                                        <div className="w-100 d-flex justify-content-center">
+                                            <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                                <i className="text-muted icon-sm fe-bell"></i>
+                                            </div>
+                                        </div>
+                                        <span className="text-center cursor-pointer">Mute</span>
+                                    </div>
+                                    <div className="d-flex flex-wrap justify-content-center w-25"
+                                        onClick={toggleOpenEditGroupInfo}
+                                    >
+                                        <div className="w-100 d-flex justify-content-center">
+                                            <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                                <i className="text-muted icon-sm fe-edit-3"></i>
+                                            </div>
+                                        </div>
+                                        <span className="text-center cursor-pointer">Edit</span>
+                                    </div>
+                                    <div className="d-flex flex-wrap justify-content-center w-25"
+                                         onClick={toggleOpenAddUsersModal}>
+                                        <div className="w-100 d-flex justify-content-center">
+                                            <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                                <i className="text-muted icon-sm fe-user-plus"></i>
+                                            </div>
+                                        </div>
+                                        <span className="text-center cursor-pointer">Add members</span>
+                                    </div>
+                                    <BaseChatSidebar.OpenChildrenCS
+                                        childrenCSId="render-group-manage"
+                                        className="d-flex flex-wrap justify-content-center w-25">
+                                        <div className="w-100 d-flex justify-content-center">
+                                            <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+                                                <i className="text-muted icon-sm fe-settings"></i>
+                                            </div>
+                                        </div>
+                                        <span className="text-center cursor-pointer">Manage group</span>
+                                    </BaseChatSidebar.OpenChildrenCS>
+
+                                </div>
                             </div>
-                        </li>
-                    </ul>
-                </BaseChatSidebar.Header>
-                <BaseChatSidebar.Body>
-                    <div className="container-fluid p-0">
-                        <div className="card mb-3 ml-0 border-0 rounded-0">
-                            <div className="text-center pb-9 pt-0 px-10">
-                                <GroupAvatar
-                                    name={groupDetail.name}
-                                    size="xl"
-                                    className=" mx-5 mb-5"
-                                />
-                                <h5>{groupDetail.name}</h5>
-                                <p className="text-muted">{groupDetail.description}</p>
-                            </div>
-                            <div className="w-100 d-flex justify-content-around mb-5">
-                                <div className="d-flex flex-wrap justify-content-center align-items-start w-25">
-                                    <div className="w-100 d-flex justify-content-center">
-                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
+
+                            <div className="card mb-3 ml-0 border-0 rounded-0">
+                                <ul className="list-group list-group-flush">
+                                    <li className="list-group-item py-2">
+                                        <div className="media align-items-center" style={{height: 45}}>
+                                            <div className="media-body">
+                                                <p className=" h5 small text-muted mb-0">Turn Off
+                                                    Notifications</p>
+                                            </div>
                                             <i className="text-muted icon-sm fe-bell"></i>
                                         </div>
-                                    </div>
-                                    <span className="text-center cursor-pointer">Mute</span>
-                                </div>
-                                <div className="d-flex flex-wrap justify-content-center w-25">
-                                    <div className="w-100 d-flex justify-content-center">
-                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1 d-flex justify-content-center align-items-center">
-                                            <LiaThumbtackSolid />
-                                        </div>
-                                    </div>
-                                    <span className="text-center cursor-pointer">Pin</span>
-                                </div>
-                                <div className="d-flex flex-wrap justify-content-center w-25" onClick={toggleOpenAddUsersModal}>
-                                    <div className="w-100 d-flex justify-content-center">
-                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
-                                            <i className="text-muted icon-sm fe-user-plus"></i>
-                                        </div>
-                                    </div>
-                                    <span className="text-center cursor-pointer">Add members</span>
-                                </div>
-                                <BaseChatSidebar.OpenChildrenCS
-                                    childrenCSId="render-group-manage"
-                                    className="d-flex flex-wrap justify-content-center w-25">
-                                    <div className="w-100 d-flex justify-content-center">
-                                        <div className="cursor-pointer icon-shape bg-light text-basic-inverse mb-1">
-                                            <i className="text-muted icon-sm fe-settings"></i>
-                                        </div>
-                                    </div>
-                                    <span className="text-center cursor-pointer">Manage group</span>
-                                </BaseChatSidebar.OpenChildrenCS>
-
+                                    </li>
+                                </ul>
                             </div>
-                        </div>
-
-                        <div className="card mb-3 ml-0 border-0 rounded-0">
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item py-2">
-                                    <div className="media align-items-center" style={{height: 45}}>
-                                        <div className="media-body">
-                                            <p className=" h5 small text-muted mb-0">Turn Off
-                                                Notifications</p>
-                                        </div>
-                                        <i className="text-muted icon-sm fe-bell"></i>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                        {/*Group's users*/}
-                        <div className="card mb-3 border-0 rounded-0">
-                            <ul className="list-group list-group-flush">
-                                <Dropdown dropdownId="group-users" defaultOpen={true}>
-                                    <Dropdown.Open>
-                                        <li className="list-group-item py-2">
-                                            <div className="media align-items-center" style={{height: 45}}>
-                                                <div className="media-body">
-                                                    <p className=" h5 small text-muted mb-0"
-                                                       style={{fontWeight: "bold"}}>Group member</p>
-                                                </div>
-                                                <i className={"text-muted icon-sm fe-chevron-down"}></i>
-                                            </div>
-                                        </li>
-                                    </Dropdown.Open>
-                                    <Dropdown.Content>
-                                        <BaseChatSidebar.OpenChildrenCS
-                                            childrenCSId="render-group-users"
-                                        >
-                                            <div className="list-group-item py-2 cursor-pointer">
+                            {/*Group's users*/}
+                            <div className="card mb-3 border-0 rounded-0">
+                                <ul className="list-group list-group-flush">
+                                    <Dropdown defaultOpen={true}>
+                                        <Dropdown.Open>
+                                            <li className="list-group-item py-2">
                                                 <div className="media align-items-center" style={{height: 45}}>
-                                                    <i className="mr-5 text-muted icon-sm fe-users"></i>
                                                     <div className="media-body">
+                                                        <p className=" h5 small text-muted mb-0"
+                                                           style={{fontWeight: "bold"}}>Group member</p>
+                                                    </div>
+                                                    <i className={"text-muted icon-sm fe-chevron-down"}></i>
+                                                </div>
+                                            </li>
+                                        </Dropdown.Open>
+                                        <Dropdown.Content>
+                                            <BaseChatSidebar.OpenChildrenCS
+                                                childrenCSId="render-group-users"
+                                            >
+                                                <div className="list-group-item py-2 cursor-pointer">
+                                                    <div className="media align-items-center" style={{height: 45}}>
+                                                        <i className="mr-5 text-muted icon-sm fe-users"></i>
+                                                        <div className="media-body">
                                                         <span
                                                             className=" h5 small text-muted mb-0"> {users.length} members (Click to see all members) </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </BaseChatSidebar.OpenChildrenCS>
-                                        {allowedInviteViaLink
-                                            ? <div
-                                                className="list-group-item py-4 cursor-pointer d-flex justify-content-between">
-                                                <div className="media align-items-center"
-                                                     style={{height: 45, width: "fit-content"}}>
-                                                    <i className="mr-5 text-muted icon-sm fe-link"></i>
-                                                    <div className="media-body">
-                                                        <span className=" text-muted mb-0"> Group Link</span>
-                                                        <br/>
-                                                        <span className=" small text-primary mb-0">Link to group</span>
-                                                    </div>
-                                                </div>
-                                                <div className="d-flex justify-content-around align-items-center">
-                                                    <button className=" btn btn-secondary py-2 px-4 mr-2">
-                                                        <i className="fe-copy"></i>
-                                                    </button>
-                                                    <button className=" btn btn-secondary py-2 px-4 mr-2">
-                                                        <i className="fe-share-2"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            :null
-                                        }
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </ul>
-                        </div>
-                        <div className="card mb-3 border-0 rounded-0">
-                            <ul className="list-group list-group-flush pb-3">
-                                <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open>
-                                        <li className="list-group-item py-2">
-                                            <div className="media align-items-center" style={{height: 45}}>
-                                                <div className="media-body">
-                                                    <p className=" h5 small text-muted mb-0"
-                                                       style={{fontWeight: "bold"}}>Media/documents/links</p>
-                                                </div>
-                                                <i className="text-muted icon-sm fe-chevron-down"></i>
-                                            </div>
-                                        </li>
-                                    </Dropdown.Open>
-                                    <Dropdown.Content>
-                                        <ul className="list-group list-group-flush">
-                                            <BaseChatSidebar.OpenChildrenCS
-                                                childrenCSId="render-chat-info-storage"
-                                                className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
-                                                <div className="media align-items-center" style={{height: 45}} onClick={()=> {setTargetMediaTabId("render-chat-info-storage-media")}}>
-                                                    <div
-                                                        className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
-                                                        <i className="text-muted icon-sm fe-image"></i>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <span className=" h5 small text-muted mb-0">Media</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </BaseChatSidebar.OpenChildrenCS>
-                                            <BaseChatSidebar.OpenChildrenCS
-                                                childrenCSId="render-chat-info-storage"
-                                                className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
-                                                <div className="media align-items-center" style={{height: 45}} onClick={()=> {setTargetMediaTabId("render-chat-info-storage-documents")}}>
-                                                    <div
-                                                        className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
-                                                        <i className="text-muted icon-sm fe-file"></i>
+                                            {allowedInviteViaLink
+                                                ? <div
+                                                    className="list-group-item py-4 cursor-pointer d-flex justify-content-between">
+                                                    <div className="media align-items-center"
+                                                         style={{height: 45, width: "fit-content"}}>
+                                                        <i className="mr-5 text-muted icon-sm fe-link"></i>
+                                                        <div className="media-body">
+                                                            <span className=" text-muted mb-0"> Group Link</span>
+                                                            <br/>
+                                                            <span className=" small text-primary mb-0">Link to group</span>
+                                                        </div>
                                                     </div>
+                                                    <div className="d-flex justify-content-around align-items-center">
+                                                        <button className=" btn btn-secondary py-2 px-4 mr-2">
+                                                            <i className="fe-copy"></i>
+                                                        </button>
+                                                        <button className=" btn btn-secondary py-2 px-4 mr-2">
+                                                            <i className="fe-share-2"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                :null
+                                            }
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </ul>
+                            </div>
+                            <div className="card mb-3 border-0 rounded-0">
+                                <ul className="list-group list-group-flush pb-3">
+                                    <Dropdown>
+                                        <Dropdown.Open>
+                                            <li className="list-group-item py-2">
+                                                <div className="media align-items-center" style={{height: 45}}>
                                                     <div className="media-body">
-                                                        <span className=" h5 small text-muted mb-0">Documents</span>
+                                                        <p className=" h5 small text-muted mb-0"
+                                                           style={{fontWeight: "bold"}}>Media/documents/links</p>
                                                     </div>
+                                                    <i className="text-muted icon-sm fe-chevron-down"></i>
                                                 </div>
-                                            </BaseChatSidebar.OpenChildrenCS>
-                                            <BaseChatSidebar.OpenChildrenCS
-                                                childrenCSId="render-chat-info-storage"
-                                                className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
-                                                <div className="media align-items-center" style={{height: 45}} onClick={()=> {setTargetMediaTabId("render-chat-info-storage-links")}}>
-                                                    <div
-                                                        className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
-                                                        <i className="text-muted icon-sm fe-link"></i>
+                                            </li>
+                                        </Dropdown.Open>
+                                        <Dropdown.Content>
+                                            <ul className="list-group list-group-flush">
+                                                <BaseChatSidebar.OpenChildrenCS
+                                                    childrenCSId="render-chat-info-storage"
+                                                    className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
+                                                    <div className="media align-items-center" style={{height: 45}} onClick={()=> {setTargetMediaTabId("render-chat-info-storage-media")}}>
+                                                        <div
+                                                            className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
+                                                            <i className="text-muted icon-sm fe-image"></i>
+                                                        </div>
+                                                        <div className="media-body">
+                                                            <span className=" h5 small text-muted mb-0">Media</span>
+                                                        </div>
                                                     </div>
+                                                </BaseChatSidebar.OpenChildrenCS>
+                                                <BaseChatSidebar.OpenChildrenCS
+                                                    childrenCSId="render-chat-info-storage"
+                                                    className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
+                                                    <div className="media align-items-center" style={{height: 45}} onClick={()=> {setTargetMediaTabId("render-chat-info-storage-documents")}}>
+                                                        <div
+                                                            className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
+                                                            <i className="text-muted icon-sm fe-file"></i>
+                                                        </div>
+                                                        <div className="media-body">
+                                                            <span className=" h5 small text-muted mb-0">Documents</span>
+                                                        </div>
+                                                    </div>
+                                                </BaseChatSidebar.OpenChildrenCS>
+                                                <BaseChatSidebar.OpenChildrenCS
+                                                    childrenCSId="render-chat-info-storage"
+                                                    className="list-group-item px-5 cursor-pointer nav nav-pills nav-justified rounded-0 py-3 card-bg-color">
+                                                    <div className="media align-items-center" style={{height: 45}} onClick={()=> {setTargetMediaTabId("render-chat-info-storage-links")}}>
+                                                        <div
+                                                            className="cursor-pointer icon-shape bg-light text-basic-inverse mr-4">
+                                                            <i className="text-muted icon-sm fe-link"></i>
+                                                        </div>
+                                                        <div className="media-body">
+                                                            <span className=" h5 small text-muted mb-0">Links</span>
+                                                        </div>
+                                                    </div>
+                                                </BaseChatSidebar.OpenChildrenCS>
+                                            </ul>
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </ul>
+                            </div>
+                            {/*Security*/}
+                            <div className="card mb-3 border-0 rounded-0">
+                                <div className="list-group list-group-flush">
+                                    <Dropdown>
+                                        <Dropdown.Open>
+                                            <li className="list-group-item py-2">
+                                                <div className="media align-items-center" style={{height: 45}}>
                                                     <div className="media-body">
-                                                        <span className=" h5 small text-muted mb-0">Links</span>
+                                                        <p className=" h5 small text-muted mb-0"
+                                                           style={{fontWeight: "bold"}}>Security</p>
                                                     </div>
+                                                    <i className="text-muted icon-sm fe-chevron-down"></i>
                                                 </div>
-                                            </BaseChatSidebar.OpenChildrenCS>
-                                        </ul>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </ul>
-                        </div>
-                        {/*Security*/}
-                        <div className="card mb-3 border-0 rounded-0">
-                            <div className="list-group list-group-flush">
-                                <Dropdown dropdownId="user-social">
-                                    <Dropdown.Open>
-                                        <li className="list-group-item py-2">
-                                            <div className="media align-items-center" style={{height: 45}}>
-                                                <div className="media-body">
-                                                    <p className=" h5 small text-muted mb-0"
-                                                       style={{fontWeight: "bold"}}>Security</p>
-                                                </div>
-                                                <i className="text-muted icon-sm fe-chevron-down"></i>
-                                            </div>
-                                        </li>
-                                    </Dropdown.Open>
-                                    <Dropdown.Content>
-                                        <ul className="list-group list-group-flush">
-                                            <li className="list-group-item py-6">
-                                                <a href="#" className="media text-muted">
-                                                    <div className="media-body align-self-center">
-                                                        Report
-                                                    </div>
-                                                    <i className="icon-sm fe-alert-triangle"></i>
-                                                </a>
                                             </li>
-                                            <li className="list-group-item py-6">
-                                                <a href="#" className="media text-danger">
-                                                    <div className="media-body align-self-center">
-                                                        Delete This Conversation
-                                                    </div>
-                                                    <i className="icon-sm fe-trash"></i>
-                                                </a>
-                                            </li>
-                                            <li className="list-group-item py-6">
-                                                <a href="#" className="media text-danger">
-                                                    <div className="media-body align-self-center">
-                                                        Leave group
-                                                    </div>
-                                                    <i className="icon-sm fe-log-out"></i>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </Dropdown.Content>
-                                </Dropdown>
+                                        </Dropdown.Open>
+                                        <Dropdown.Content>
+                                            <ul className="list-group list-group-flush">
+                                                <li className="list-group-item py-6">
+                                                    <a href="#" className="media text-muted">
+                                                        <div className="media-body align-self-center">
+                                                            Report
+                                                        </div>
+                                                        <i className="icon-sm fe-alert-triangle"></i>
+                                                    </a>
+                                                </li>
+                                                <li className="list-group-item py-6">
+                                                    <a href="#" className="media text-danger">
+                                                        <div className="media-body align-self-center">
+                                                            Delete This Conversation
+                                                        </div>
+                                                        <i className="icon-sm fe-trash"></i>
+                                                    </a>
+                                                </li>
+                                                <li className="list-group-item py-6">
+                                                    <a href="#" className="media text-danger">
+                                                        <div className="media-body align-self-center">
+                                                            Leave group
+                                                        </div>
+                                                        <i className="icon-sm fe-log-out"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </BaseChatSidebar.Body>
-            </BaseChatSidebar.MainCS>
-            <GroupSettings/>
-            <GroupAdminsCS />
-            <GroupBlockedUsers />
-            <GroupUsers/>
-            <ChatInfoStorage channelId={channelId} targetMediaTabId={targetMediaTabId} setTargetMediaTabId={setTargetMediaTabId} />
-        </BaseChatSidebar>
+                    </BaseChatSidebar.Body>
+                </BaseChatSidebar.MainCS>
+                <GroupSettings/>
+                <GroupAdminsCS />
+                <GroupBlockedUsers />
+                <GroupUsers/>
+                <ChatInfoStorage channelId={channelId} targetMediaTabId={targetMediaTabId} setTargetMediaTabId={setTargetMediaTabId} />
+            </BaseChatSidebar>
+        </>
     )
 }
 

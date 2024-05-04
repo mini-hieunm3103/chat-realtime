@@ -14,7 +14,7 @@ import Button from "@/Components/Button.jsx";
 import AuthenticatedContext from "@/Layouts/Authenticated/AuthenticatedContext.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LoadingDiv from "@/Components/LoadingDiv.jsx";
-import {asset, isObjectEmpty} from "@/Helper/functions.js";
+import {asset, isObjectEmpty, shortenFileName} from "@/Helper/functions.js";
 import {maxAvatarFileSize} from "@/Helper/config.js";
 import GroupAvatar from "@/Components/GroupAvatar.jsx";
 
@@ -183,7 +183,7 @@ function CreateGroup({startUp}) {
                                         <div className="choose-file btn px-4 py-1 col-auto" onClick={onChooseFile}>
                                             <span>Choose file</span>
                                         </div>
-                                        <p className="file-name m-0 ml-3 text-truncate text-center">{(avatarFile) ? avatarFile.name : null}</p>
+                                        <p className="file-name m-0 ml-3 text-truncate text-center">{(avatarFile) ? shortenFileName(avatarFile.name) : null}</p>
                                         <div
                                             className={"trash btn " + ((!avatarFile) ? "d-none" : "")}
                                             onClick={handleRemoveFile}>

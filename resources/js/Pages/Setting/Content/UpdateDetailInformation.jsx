@@ -10,7 +10,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useToggle} from "@/Helper/hooks.js";
 import {maxAvatarFileSize, validAvatarFileType} from "@/Helper/config.js";
 import ConfirmModal from "@/Components/Modals/ConfirmModal.jsx";
-import {asset} from "@/Helper/functions.js";
+import {asset, shortenFileName} from "@/Helper/functions.js";
 
 export default function UpdateDetailInformation({status, showStatus,  className = '' }){
     const user = usePage().props.auth.data;
@@ -125,7 +125,7 @@ export default function UpdateDetailInformation({status, showStatus,  className 
                         <div className="custom-selected-file col-12 form-control-lg pl-4">
                             <div className="choose-file btn px-4 py-1 col-auto" onClick={onChooseFile}><span>Choose file</span>
                             </div>
-                            <p className="file-name m-0 ml-3 text-truncate text-center">{(avatarFile) ? avatarFile.name : ((user.avatar) ? user.avatar.name : null)}</p>
+                            <p className="file-name m-0 ml-3 text-truncate text-center">{(avatarFile) ? shortenFileName(avatarFile.name, 30) : ((user.avatar) ? shortenFileName(user.avatar.name, 30) : null)}</p>
                             <div className={"trash btn " + ((!avatarFile && !user.avatar) ? "d-none" : "")}
                                  onClick={handleRemoveFile}>
                                 {avatarFile

@@ -71,3 +71,6 @@ function getAuthUserResource()
     $user = \App\Models\User::where('id', Auth::id())->with('userDetail.userAvatarFile')->first();
     return new UserResource($user);
 }
+function formatFileNameInStorage($originalName){
+    return time() . '_' .$originalName;
+}
